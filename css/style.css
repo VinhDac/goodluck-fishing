@@ -62,6 +62,24 @@ footer a { color: inherit; }
 .ghost { background: var(--paper2); color: var(--ink); }
 .go:active, .ghost:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
 
+/* what a fish's size is made of, on its card */
+.fit { font: 13px/1.45 var(--read); color: #4a3a20; margin-top: 8px; }
+.fit b { font-family: var(--ui); }
+.kicker.gold, .size-gold { color: #b8860b; }
+
+/* before the first cast */
+.setup { width: min(520px, 96%); max-height: 100%; overflow: auto; display: flex; flex-direction: column; gap: 9px; }
+.setup .sub { font: 13.5px/1.45 var(--read); color: #6a5a40; }
+.setup label { display: flex; flex-direction: column; gap: 4px; font: 600 15px/1.2 var(--ui); }
+.setup small { font: 12px var(--read); color: #8a7a5a; }
+.setup textarea, .setup input:not([type]) { font: 14px/1.4 var(--read); color: var(--ink); background: #fff; border: 2px solid var(--edge);
+  border-radius: 3px; padding: 7px 9px; resize: vertical; }
+.setup .two { display: flex; gap: 12px; align-items: flex-end; }
+.setup .two label:first-child { flex: 1; }
+.setup .tick { flex-direction: row; align-items: center; gap: 6px; padding-bottom: 9px; white-space: nowrap; }
+.setup .said { font: 13px/1.4 var(--read); color: #b03a2a; min-height: 1px; }
+.setup .row { margin-top: 4px; }
+
 /* the bucket */
 .list { width: min(560px, 96%); max-height: 100%; min-height: 0; display: flex; flex-direction: column; }
 .list .sub { font: 14px/1.4 var(--read); color: #6a5a40; }

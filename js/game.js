@@ -2,6 +2,7 @@
 // just posted on a company's own board; hold to cast, release to throw, click when the float dives, and the fish is the job.
 import { DUCK_PATH, DUCK_SIDE } from './duck.js';
 import { COMPANIES, sonar } from './sources.js';
+import { asks, score, sizeOf, titleFits, placeFits } from './score.js';
 
 const W = 320, H = 180, HORIZON = 92, WATERLINE = 106;
 const DAY = 600;                      // seconds from sunrise to sunset: ten minutes on the lake
@@ -108,14 +109,16 @@ const FISH_ROWS = [
 ];
 const darker = (c, k) => rgb(hex(c).map((v) => v * k));
 function fishSprite(job) {
-  const [body, belly] = SPECIES[hash(job.company) % SPECIES.length];
+  // a golden fish is gold whatever its company: the job that fits you best (85 and over)
+  const [body, belly] = job.size === 'gold' ? ['#e6b422', '#fff0a8'] : SPECIES[hash(job.company) % SPECIES.length];
   return sprite(FISH_ROWS, { k: darker(body, 0.45), b: body, l: belly, f: darker(body, 0.78), w: '#ffffff', e: '#1b1f3a' });
 }
 
 // ---- the day ---------------------------------------------------------------------------------------------------------
 const S = {
   t: 0, day: 0, paused: false, over: false,
-  lake: [],             // jobs found and not yet in the water
+  all: [],              // every fresh job the sonar read, whoever it is for
+  lake: [],             // the jobs for you, scored, not yet in the water
   seen: new Set(),      // every job id that reached the lake
   shadows: [],          // the jobs swimming now
   bucket: [],           // what you caught (or what slipped off: never lost)
@@ -135,6 +138,16 @@ const TREES = Array.from({ length: W }, (_, x) => 3 + 3 * Math.abs(Math.sin(x * 
 const GLINTS = Array.from({ length: 46 }, () => ({ x: rand(0, W), y: rand(HORIZON + 3, H - 2), w: rand(3, 9), p: rand(0, 6.3), v: rand(1.5, 4) }));
 
 // ---- the search, as fish swimming into the lake -----------------------------------------------------------------------
+// ---- the person: their CV, their titles, where they work; kept in this browser alone (step 2) ---------------------------
+const KEY = 'glf.profile';
+const P = (() => { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } })();
+const me = { cv: '', titles: [], city: '', remote: true, ...(P || {}) };
+let mySkills = asks(me.cv);
+// a job as the lake holds it: its score against the CV, and the size that makes
+const judged = (j) => { const s = score(j, mySkills); return { ...j, score: s.score, have: s.have, miss: s.miss, size: sizeOf(s.score) }; };
+const forMe = (j) => titleFits(j.title, me.titles) && placeFits(j.place, me.city, me.remote);
+const order = (a, b) => (b.score ?? -1) - (a.score ?? -1) || b.posted - a.posted;   // the best for you swim in first
+
 function startSonar() {
   const since = Date.now() - FRESH_DAYS * 864e5;
   sonar(COMPANIES, (c, jobs) => {
@@ -143,25 +156,35 @@ function startSonar() {
     else {
       const fresh = jobs.filter((j) => j.posted >= since && j.url && !S.seen.has(j.id));
       fresh.forEach((j) => S.seen.add(j.id));
-      S.lake.push(...fresh);
-      S.lake.sort((a, b) => b.posted - a.posted);          // the newest swim in first
+      S.all.push(...fresh);
+      S.lake.push(...fresh.filter(forMe).map(judged));
+      S.lake.sort(order);
     }
     sonarSay(jobs ? `Sonar: ${jobs[0] ? jobs[0].company : c.slug} read` : `Sonar: ${c.slug} did not answer`);
   }).then(() => sonarSay());
 }
+// the CV or the filters changed: the lake is filled again from every job read, those already caught or swimming kept out
+function refill() {
+  mySkills = asks(me.cv);
+  const out = new Set([...S.shadows, ...S.bucket].map((x) => x.job.id));
+  S.shadows = S.shadows.filter((f) => forMe(f.job)).map((f) => ({ ...f, job: judged(f.job) }));
+  S.lake = S.all.filter((j) => forMe(j) && !out.has(j.id)).map(judged).sort(order);
+  sonarSay();
+}
 function sonarSay(now) {
-  const n = S.lake.length + S.shadows.length;
-  const done = S.read >= S.total;
+  const fish = [...S.lake, ...S.shadows.map((f) => f.job)];
+  const done = S.read >= S.total, gold = fish.filter((j) => j.size === 'gold').length;
   $('sonar').textContent = done
-    ? `Lake: ${n} fish from ${S.total - S.failed} companies${S.failed ? ` (${S.failed} did not answer)` : ''}`
+    ? `Lake: ${fish.length} fish for you of ${S.all.length} jobs${gold ? ` · ${gold} gold` : ''}${S.failed ? ` · ${S.failed} lake did not answer` : ''}`
     : `${now || 'Sonar: listening…'} · ${S.read}/${S.total}`;
 }
+const LEN = { gold: 13, big: 11, medium: 9, small: 7, unread: 8 };
 function spawn() {
   if (S.shadows.length >= SHOWN || !S.lake.length) return;
   const job = S.lake.shift();
   // it rises from the deep somewhere in the lake, faint at first (fish swimming in from the edges all crowded one side)
   S.shadows.push({ job, x: rand(125, W - 15), y: rand(116, 170), dir: Math.random() < 0.5 ? 1 : -1, v: rand(5, 11),
-    len: rand(7, 11), wig: rand(0, 6), turn: rand(2, 6), mode: 'swim', rise: 0 });
+    len: LEN[job.size] || 8, wig: rand(0, 6), turn: rand(2, 6), mode: 'swim', rise: 0 });
   sonarSay();
 }
 
@@ -443,12 +466,23 @@ function paintFish(canvas, job) {
   const c = canvas.getContext('2d'); c.imageSmoothingEnabled = false; c.clearRect(0, 0, canvas.width, canvas.height);
   c.drawImage(fishSprite(job), 0, 0, canvas.width, canvas.height);
 }
+const KICKER = { gold: 'A golden fish!', big: 'You caught a big one', medium: 'You caught', small: 'A small one', unread: 'You caught' };
 function showCard(job) {
   S.paused = true;
   paintFish($('fishPic'), job);
+  $('cardKicker').textContent = KICKER[job.size] || 'You caught';
+  $('cardKicker').className = 'kicker' + (job.size === 'gold' ? ' gold' : '');
   $('cardTitle').textContent = job.title;
   $('cardWho').textContent = job.company;
   $('cardMeta').textContent = [job.place, ago(job.posted)].filter(Boolean).join(' · ');
+  // what its size is made of: the asks your CV speaks to, and those it does not
+  const fit = $('cardFit'); fit.replaceChildren();
+  if (job.score == null) fit.textContent = mySkills.size ? 'Its posting names too little to weigh: open it to judge.' : 'Add your CV (My CV) and each fish shows how well it fits you.';
+  else {
+    const b = document.createElement('b'); b.textContent = `Fits you ${job.score}%`; fit.append(b);
+    if (job.have.length) fit.append(document.createElement('br'), `Your CV says: ${job.have.slice(0, 6).join(', ')}`);
+    if (job.miss.length) fit.append(document.createElement('br'), `It asks too: ${job.miss.slice(0, 6).join(', ')}`);
+  }
   $('cardOpen').href = job.url;
   $('card').hidden = false;
   $('cardBack').focus();
@@ -458,15 +492,16 @@ function showBucket(head) {
   S.paused = true;
   $('bucketHead').textContent = head || 'Your bucket';
   const n = S.bucket.length;
-  $('bucketSub').textContent = n ? `${n} job${n > 1 ? 's' : ''} today, the newest first. Each opens on the company's own page.`
+  $('bucketSub').textContent = n ? `${n} job${n > 1 ? 's' : ''} today, the best fit first. Each opens on the company's own page.`
     : 'Nothing yet. Hold to cast, release to throw, click when the float dives.';
   const ol = $('bucketList'); ol.replaceChildren();
-  for (const { job } of S.bucket.slice().sort((a, b) => b.job.posted - a.job.posted)) {
+  for (const { job } of S.bucket.slice().sort((a, b) => order(a.job, b.job))) {
     const li = document.createElement('li');
     const pic = document.createElement('canvas'); pic.width = 48; pic.height = 24; paintFish(pic, job);
     const t = document.createElement('div'); t.className = 't';
     const b = document.createElement('b'); b.textContent = job.title;
-    const s = document.createElement('span'); s.textContent = [job.company, job.place, ago(job.posted)].filter(Boolean).join(' · ');
+    const s = document.createElement('span');
+    s.textContent = [job.score != null ? `${job.score}%` : '', job.company, job.place, ago(job.posted)].filter(Boolean).join(' · ');
     t.append(b, s);
     const a = document.createElement('a'); a.href = job.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Open ↗';
     li.append(pic, t, a); ol.appendChild(li);
@@ -518,6 +553,7 @@ const sound = (() => {
 cv.addEventListener('pointerdown', (e) => { e.preventDefault(); press(); });
 addEventListener('pointerup', release);
 addEventListener('keydown', (e) => {
+  if (!$('setup').hidden) return;                     // typing the CV: its spaces are words, never a cast
   if (e.key === 'Escape') { if (!$('card').hidden) closeCard(); else if (!$('bucket').hidden && !S.over) closeBucket(); return; }
   if (e.code !== 'Space' || e.repeat) return;
   if (!$('card').hidden) { e.preventDefault(); closeCard(); return; }
@@ -554,7 +590,42 @@ function frame(now) {
   step(dt); draw();
   requestAnimationFrame(frame);
 }
-startSonar();
+// ---- before the first cast: the CV, the titles, the place --------------------------------------------------------------
+function showSetup() {
+  S.paused = true;
+  $('cvText').value = me.cv; $('titles').value = me.titles.join(', '); $('city').value = me.city; $('remote').checked = me.remote;
+  $('setupSaid').textContent = '';
+  $('setup').hidden = false;
+  $(me.cv ? 'titles' : 'cvText').focus();
+}
+$('setupForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const cv = $('cvText').value.trim();
+  const n = asks(cv).size;
+  if (cv && n < 3 && $('setupSaid').dataset.warned !== cv) {
+    // said once: a CV it can read almost nothing in makes every fish the same size
+    $('setupSaid').textContent = `Only ${n} skill${n === 1 ? '' : 's'} could be read in it: paste the whole CV, or press again to fish anyway.`;
+    $('setupSaid').dataset.warned = cv;
+    return;
+  }
+  Object.assign(me, { cv, titles: $('titles').value.split(',').map((t) => t.trim()).filter(Boolean).slice(0, 3),
+    city: $('city').value.trim(), remote: $('remote').checked });
+  try { localStorage.setItem(KEY, JSON.stringify(me)); } catch (err) { /* private window: kept for this visit alone */ }
+  $('setup').hidden = true; S.paused = false;
+  mySkills = asks(me.cv);                                 // the CV just given scores the lake, the first time too
+  if (!S.started) { S.started = true; startSonar(); } else refill();
+});
+$('cvText').addEventListener('dragover', (e) => e.preventDefault());
+$('cvText').addEventListener('drop', (e) => {
+  const f = e.dataTransfer.files[0];
+  if (!f || !/\.(txt|md)$/i.test(f.name)) return;
+  e.preventDefault();
+  f.text().then((t) => { $('cvText').value = t; });
+});
+$('setupBtn').addEventListener('click', showSetup);
+
+// the first visit asks first; a return goes straight to the lake
+if (P) { S.started = true; startSonar(); } else showSetup();
 requestAnimationFrame(frame);
 // ?debug: the game's own hands, to try it frame by frame where the page is not shown (a hidden page draws no frames)
 if (new URLSearchParams(location.search).has('debug')) {
