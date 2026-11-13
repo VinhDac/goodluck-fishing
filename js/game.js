@@ -365,8 +365,7 @@ function strike() {
   S.float = null; S.target = null;
 }
 function landed(job) {                              // the fish in the boat: its card
-  S.bucket.push({ job, caught: true });
-  $('bucketN').textContent = S.bucket.length;
+  keep(job, { caught: true });
   S.state = 'idle';
   // the duck fishing by itself says what it caught and fishes on; a card would stop the day for a press
   if (S.auto) toast(`Caught: ${job.title} · ${job.company}`);
@@ -376,8 +375,7 @@ function slipped() {                                // too late: it is off the h
   const f = S.target;
   if (f) {
     f.mode = 'flee'; f.dir = Math.random() < 0.5 ? -1 : 1;
-    S.bucket.push({ job: f.job, caught: false });
-    $('bucketN').textContent = S.bucket.length;
+    keep(f.job, {});
   }
   reelIn('It slipped off the hook, but it is in your bucket.');
 }
@@ -424,7 +422,8 @@ function step(dt) {
   if (S.state === 'wait') {
     S.timer += dt;
     if (S.float) S.float.dip = Math.sin(S.t * 2) * 0.4;
-    if (!S.target && S.timer > 3.2) reelIn(S.auto ? '' : S.shadows.length ? 'Nothing near the float. Cast toward a shadow.' : 'The lake is still filling. Wait a moment.');
+    if (!S.target && S.timer > 3.2) reelIn(S.auto ? '' : S.shadows.length ? 'Nothing near the float. Cast toward a shadow.'
+      : S.read < S.total ? 'The lake is still filling. Wait a moment.' : 'No new jobs for you today: every one is in your bucket. Come back tomorrow.');
   }
   if (S.state === 'nibble') {
     S.timer += dt;
@@ -488,31 +487,78 @@ function showCard(job) {
   $('cardBack').focus();
 }
 function closeCard() { $('card').hidden = true; S.paused = false; }
+function bucketRow(e) {
+  const job = e.job, li = document.createElement('li');
+  if (e.applied) li.className = 'applied';
+  const pic = document.createElement('canvas'); pic.width = 48; pic.height = 24; paintFish(pic, job);
+  const t = document.createElement('div'); t.className = 't';
+  const b = document.createElement('b'); b.textContent = job.title;
+  const s = document.createElement('span');
+  s.textContent = [job.score != null ? `${job.score}%` : '', job.company, job.place, ago(job.posted), e.netted ? 'in the net' : '']
+    .filter(Boolean).join(' · ');
+  t.append(b, s);
+  const a = document.createElement('a'); a.href = job.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Open ↗';
+  // the person's own word that they applied: the fish is kept, its row ticked and greyed
+  const done = document.createElement('button'); done.className = 'tick' + (e.applied ? ' on' : '');
+  done.textContent = e.applied ? '✓ Applied' : 'Applied?';
+  done.title = e.applied ? 'Press again if you did not' : 'Mark it applied';
+  done.addEventListener('click', () => { e.applied = !e.applied; saveBook(); showBucket($('bucketHead').textContent); });
+  li.append(pic, t, a, done);
+  return li;
+}
 function showBucket(head) {
   S.paused = true;
   $('bucketHead').textContent = head || 'Your bucket';
-  const n = S.bucket.length;
-  $('bucketSub').textContent = n ? `${n} job${n > 1 ? 's' : ''} today, the best fit first. Each opens on the company's own page.`
+  const n = S.bucket.length, applied = S.bucket.filter((e) => e.applied).length;
+  $('bucketSub').textContent = n ? `${n} job${n > 1 ? 's' : ''} today, the best fit first${applied ? `, ${applied} applied` : ''}. Each opens on the company's own page.`
     : 'Nothing yet. Hold to cast, release to throw, click when the float dives.';
   const ol = $('bucketList'); ol.replaceChildren();
-  for (const { job } of S.bucket.slice().sort((a, b) => order(a.job, b.job))) {
-    const li = document.createElement('li');
-    const pic = document.createElement('canvas'); pic.width = 48; pic.height = 24; paintFish(pic, job);
-    const t = document.createElement('div'); t.className = 't';
-    const b = document.createElement('b'); b.textContent = job.title;
-    const s = document.createElement('span');
-    s.textContent = [job.score != null ? `${job.score}%` : '', job.company, job.place, ago(job.posted)].filter(Boolean).join(' · ');
-    t.append(b, s);
-    const a = document.createElement('a'); a.href = job.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Open ↗';
-    li.append(pic, t, a); ol.appendChild(li);
+  for (const e of S.bucket.slice().sort((a, b) => a.applied - b.applied || order(a.job, b.job))) ol.appendChild(bucketRow(e));
+  // the days before: what was kept and not yet applied to, so a good one is not forgotten
+  const earlier = book.entries.filter((e) => e.day !== TODAY && !e.applied && Date.now() - e.job.posted < 30 * 864e5);
+  if (earlier.length) {
+    const h = document.createElement('li'); h.className = 'head'; h.textContent = `Days before, not applied yet: ${earlier.length}`;
+    ol.appendChild(h);
+    for (const e of earlier.sort((a, b) => order(a.job, b.job)).slice(0, 30)) ol.appendChild(bucketRow(e));
   }
   $('bucket').hidden = false;
 }
 function closeBucket() { $('bucket').hidden = true; S.paused = S.over; }
+// SUNSET: the net comes up with every fish for you not caught today, so none is lost; the day is kept as over
 function sunset() {
   S.over = true; S.state = 'idle'; S.float = null; S.target = null;
-  showBucket(`The sun has set: ${S.bucket.length} fish today`);
-  $('bucketBack').textContent = 'Fish again';
+  const netted = [...S.shadows.map((f) => f.job), ...S.lake];
+  S.shadows = []; S.lake = [];
+  for (const job of netted) keep(job, { netted: true });
+  saveDay();
+  const caught = S.bucket.filter((e) => e.caught).length;
+  showBucket(`The sun has set: ${caught} caught${netted.length ? `, ${netted.length} in the net` : ''}`);
+  $('bucketBack').textContent = fishLeft() ? 'Fish again' : 'Come back tomorrow';
+}
+
+// ---- THE BOOK (step 3): the bucket of every day, and every job already met, kept in this browser alone -----------------
+const TODAY = new Date().toLocaleDateString('en-CA');                // YYYY-MM-DD, the person's own day
+const BOOK = 'glf.book', DAYKEY = 'glf.day';
+const book = (() => { try { return JSON.parse(localStorage.getItem(BOOK)) || { entries: [], seen: [] }; } catch (e) { return { entries: [], seen: [] }; } })();
+const slim = (j) => ({ id: j.id, title: j.title, company: j.company, place: j.place, url: j.url, posted: j.posted,
+  score: j.score, size: j.size, have: (j.have || []).slice(0, 8), miss: (j.miss || []).slice(0, 8) });
+function keep(job, how) {
+  if (S.bucket.some((e) => e.job.id === job.id)) return;
+  const e = { job: slim(job), day: TODAY, caught: !!how.caught, netted: !!how.netted, applied: false };
+  S.bucket.push(e); book.entries.push(e);
+  $('bucketN').textContent = S.bucket.length;
+  saveBook();
+}
+function saveBook() {
+  const seen = new Set([...book.seen, ...book.entries.map((e) => e.job.id)]);
+  book.entries = book.entries.slice(-400);
+  book.seen = [...seen].slice(-6000);
+  try { localStorage.setItem(BOOK, JSON.stringify(book)); } catch (e) { /* a private window: this visit alone */ }
+}
+// jobs for you the sonar read that are in no bucket yet: another round is worth it only with some
+const fishLeft = () => { const had = new Set(S.bucket.map((e) => e.job.id)); return S.all.some((j) => forMe(j) && !had.has(j.id)); };
+function saveDay() {
+  try { localStorage.setItem(DAYKEY, JSON.stringify({ date: TODAY, day: S.day, over: S.over })); } catch (e) { /* as above */ }
 }
 let toastTimer = 0;
 function toast(text) {
@@ -565,7 +611,9 @@ $('cardBack').addEventListener('click', closeCard);
 $('card').addEventListener('click', (e) => { if (e.target === $('card')) closeCard(); });
 $('bucketBtn').addEventListener('click', () => showBucket());
 $('bucketBack').addEventListener('click', () => {
-  if (S.over) { location.reload(); return; }
+  // after sunset: another day on the lake, now (the lake fills again from what the sonar read, today's catch kept out)
+  if (S.over && fishLeft()) { S.over = false; S.day = 0; saveDay(); $('bucketBack').textContent = 'Back to the lake'; closeBucket(); refill(); return; }
+  if (S.over) { closeBucket(); toast('Every fish for you is in your bucket. New jobs are posted every day: come back tomorrow.'); return; }
   closeBucket();
 });
 $('autoBtn').addEventListener('click', () => { S.auto = !S.auto; $('autoBtn').textContent = `Auto: ${S.auto ? 'on' : 'off'}`; sound.wake(); });
@@ -625,7 +673,17 @@ $('cvText').addEventListener('drop', (e) => {
 $('setupBtn').addEventListener('click', showSetup);
 
 // the first visit asks first; a return goes straight to the lake
+// what the book holds: every job met before stays out of the lake; today's bucket and today's sun are as they were left
+book.seen.forEach((id) => S.seen.add(id));
+book.entries.forEach((e) => S.seen.add(e.job.id));
+S.bucket = book.entries.filter((e) => e.day === TODAY);
+$('bucketN').textContent = S.bucket.length;
+const left = (() => { try { return JSON.parse(localStorage.getItem(DAYKEY)) || {}; } catch (e) { return {}; } })();
+if (left.date === TODAY) S.day = Math.min(1, Number(left.day) || 0);
+setInterval(() => { if (!S.over) saveDay(); }, 5000);
+addEventListener('pagehide', saveDay);
 if (P) { S.started = true; startSonar(); } else showSetup();
+if (left.date === TODAY && left.over) { S.day = 1; sunset(); }
 requestAnimationFrame(frame);
 // ?debug: the game's own hands, to try it frame by frame where the page is not shown (a hidden page draws no frames)
 if (new URLSearchParams(location.search).has('debug')) {

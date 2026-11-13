@@ -91,6 +91,12 @@ footer a { color: inherit; }
 .list li .t span { color: #6a5a40; font-size: 13px; }
 .list li a { font: 600 14px/1 var(--ui); color: var(--ink); background: var(--accent); border: 2px solid var(--edge); padding: 6px 9px;
   border-radius: 3px; text-decoration: none; white-space: nowrap; }
+.list li .tick { font: 600 13px/1 var(--ui); color: var(--ink); background: var(--paper2); border: 2px solid var(--edge); padding: 5px 7px;
+  border-radius: 3px; cursor: pointer; white-space: nowrap; }
+.list li .tick.on { background: #a6e0a0; }
+.list li.applied { opacity: .55; }
+.list li.applied .t b { text-decoration: line-through; }
+.list li.head { font: 600 14px/1.2 var(--ui); color: #8a6a3a; padding-top: 14px; border-bottom: 2px dashed #d8c597; }
 .list .empty { padding: 18px 4px; color: #6a5a40; font: 14px/1.4 var(--read); }
 
 @media (max-width: 700px) {
