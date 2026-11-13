@@ -7,7 +7,7 @@ export const COMPANIES = [
     'jumptrading', 'towerresearchcapital', 'dvtrading', 'schonfeld', 'aquaticcapitalmanagement', 'deepfinresearch', 'monzo',
     'wise', 'tide', 'ebury', 'gocardless', 'stripe', 'helsing', 'dmgmedia'].map((slug) => ({ ats: 'greenhouse', slug })),
   ...['zopa', 'spotify', 'palantir', 'kpler'].map((slug) => ({ ats: 'lever', slug })),
-  ...['ramp', 'cohere', 'elevenlabs', 'synthesia', 'tradinghub', 'trainline', 'abound', 'deductive'].map((slug) => ({ ats: 'ashby', slug })),
+  ...['ramp', 'cohere', 'elevenlabs', 'synthesia', 'tradinghub', 'trainline', 'abound'].map((slug) => ({ ats: 'ashby', slug })),
 ];
 
 // a company's name as people write it, when its board does not say
