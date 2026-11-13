@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GoodLuck Fishing</title>
+  <meta name="description" content="Ten minutes a day on the lake: every fish is a real job, just posted. By Vinh Dac.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main id="stage">
+    <canvas id="lake" width="320" height="180" aria-label="The lake: hold to cast, release to throw, click when the float dives"></canvas>
+
+    <!-- the head-up display: the day's clock, the lake, the bucket -->
+    <div class="hud top">
+      <div class="chip" id="clock" title="The day: ten minutes from sunrise to sunset">☀ <b>10:00</b></div>
+      <div class="chip wide" id="sonar">Sonar: listening…</div>
+      <button class="chip btn" id="bucketBtn" title="What you caught today">Bucket <b id="bucketN">0</b></button>
+    </div>
+    <div class="hud bottom">
+      <div class="hint" id="hint">Hold to cast · release to throw · click when the float dives</div>
+      <div class="right">
+        <button class="chip btn" id="autoBtn" title="Let the duck fish by itself">Auto: off</button>
+        <button class="chip btn" id="soundBtn" title="Sound">♪ on</button>
+      </div>
+    </div>
+    <div class="toast" id="toast" hidden></div>
+
+    <!-- a fish caught: the job it is -->
+    <div class="veil" id="card" hidden>
+      <div class="panel catch">
+        <canvas class="fishpic" id="fishPic" width="48" height="24"></canvas>
+        <div class="kicker" id="cardKicker">You caught</div>
+        <h2 id="cardTitle"></h2>
+        <div class="who" id="cardWho"></div>
+        <div class="meta" id="cardMeta"></div>
+        <div class="row">
+          <a class="go" id="cardOpen" href="#" target="_blank" rel="noopener">Open the job ↗</a>
+          <button class="ghost" id="cardBack">Keep fishing</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- the bucket, and the sunset -->
+    <div class="veil" id="bucket" hidden>
+      <div class="panel list">
+        <h2 id="bucketHead">Your bucket</h2>
+        <div class="sub" id="bucketSub"></div>
+        <ol id="bucketList"></ol>
+        <div class="row"><button class="ghost" id="bucketBack">Back to the lake</button></div>
+      </div>
+    </div>
+  </main>
+  <footer>GoodLuck Fishing · by <a href="https://vinhdac.github.io" target="_blank" rel="noopener">Vinh Dac</a></footer>
+  <script type="module" src="js/game.js"></script>
+</body>
+</html>

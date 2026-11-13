@@ -1,0 +1,83 @@
+:root {
+  --ink: #1b1f3a;
+  --paper: #fff8e7;
+  --paper2: #f3e6c4;
+  --edge: #3a2a1a;
+  --accent: #8c9cf8;          /* GoodLuck's own blue */
+  --gold: #ffcf4a;
+  --night: #0f1226;
+  --ui: "Pixelify Sans", ui-monospace, Consolas, monospace;
+  --read: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--night); color: var(--paper); }
+body { display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--ui); overflow: hidden; }
+
+/* the stage: the lake drawn at 320 x 180 and scaled up by a whole number, so each pixel stays sharp */
+#stage { position: relative; }
+#lake { display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: crosshair; touch-action: none;
+  box-shadow: 0 0 0 4px var(--edge), 0 0 0 8px #6b4a2a, 0 18px 40px rgba(0, 0, 0, .55); border-radius: 2px; }
+footer { margin-top: 18px; font-size: 13px; opacity: .55; letter-spacing: .04em; }
+footer a { color: inherit; }
+
+/* the head-up display */
+.hud { position: absolute; left: 0; right: 0; display: flex; align-items: center; gap: 8px; padding: 10px; pointer-events: none; }
+.hud.top { top: 0; }
+.hud.bottom { bottom: 0; justify-content: space-between; }
+.hud .right { display: flex; gap: 8px; }
+.chip { pointer-events: auto; font: 600 15px/1 var(--ui); color: var(--ink); background: var(--paper); padding: 7px 10px;
+  border: 2px solid var(--edge); box-shadow: 0 3px 0 var(--edge); border-radius: 3px; white-space: nowrap; }
+.chip b { font-weight: 700; }
+.chip.wide { flex: 1; max-width: 420px; overflow: hidden; text-overflow: ellipsis; opacity: .92; }
+.chip.btn { cursor: pointer; }
+.chip.btn:hover { background: #fff; }
+.chip.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
+#bucketBtn { margin-left: auto; }
+.hint { font: 15px/1.2 var(--ui); color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, .55); opacity: .9; }
+
+/* a word on the lake: what just happened */
+.toast { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); font: 600 17px/1.3 var(--ui); color: var(--ink);
+  background: var(--paper); border: 2px solid var(--edge); box-shadow: 0 4px 0 var(--edge); padding: 8px 14px; border-radius: 3px;
+  pointer-events: none; text-align: center; max-width: 80%; animation: pop .18s ease-out; }
+@keyframes pop { from { transform: translateX(-50%) scale(.9); opacity: 0; } }
+
+/* the cards over the lake */
+.veil { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 12px; overflow: hidden;
+  background: rgba(15, 18, 38, .45); }
+.veil[hidden], .toast[hidden] { display: none; }
+.panel { background: var(--paper); color: var(--ink); border: 3px solid var(--edge); box-shadow: 0 6px 0 var(--edge), 0 20px 40px rgba(0, 0, 0, .45);
+  border-radius: 4px; padding: 18px 22px 16px; width: min(460px, 90%); animation: rise .22s ease-out; }
+@keyframes rise { from { transform: translateY(14px); opacity: 0; } }
+.panel h2 { font: 700 22px/1.2 var(--ui); margin: 4px 0 6px; }
+.catch { text-align: center; }
+.catch .fishpic { width: 144px; height: 72px; image-rendering: pixelated; display: block; margin: 0 auto 2px; }
+.kicker { font: 600 13px/1 var(--ui); letter-spacing: .12em; text-transform: uppercase; color: #8a6a3a; }
+.kicker.gold { color: #b8860b; }
+.who { font: 600 16px/1.3 var(--read); }
+.meta { font: 14px/1.4 var(--read); color: #6a5a40; margin-top: 4px; }
+.row { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+.go, .ghost { font: 600 16px/1 var(--ui); padding: 10px 16px; border: 2px solid var(--edge); border-radius: 3px; cursor: pointer;
+  box-shadow: 0 3px 0 var(--edge); text-decoration: none; }
+.go { background: var(--accent); color: var(--ink); }
+.ghost { background: var(--paper2); color: var(--ink); }
+.go:active, .ghost:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
+
+/* the bucket */
+.list { width: min(560px, 96%); max-height: 100%; min-height: 0; display: flex; flex-direction: column; }
+.list .sub { font: 14px/1.4 var(--read); color: #6a5a40; }
+.list ol { list-style: none; margin: 12px 0 0; padding: 0; overflow: auto; min-height: 0; flex: 1; border-top: 2px dashed #d8c597; }
+.list li { display: flex; gap: 10px; align-items: center; padding: 8px 2px; border-bottom: 1px dashed #e2d3ab; font: 14px/1.35 var(--read); }
+.list li canvas { width: 48px; height: 24px; image-rendering: pixelated; flex: none; }
+.list li .t { flex: 1; min-width: 0; }
+.list li .t b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list li .t span { color: #6a5a40; font-size: 13px; }
+.list li a { font: 600 14px/1 var(--ui); color: var(--ink); background: var(--accent); border: 2px solid var(--edge); padding: 6px 9px;
+  border-radius: 3px; text-decoration: none; white-space: nowrap; }
+.list .empty { padding: 18px 4px; color: #6a5a40; font: 14px/1.4 var(--read); }
+
+@media (max-width: 700px) {
+  .chip { font-size: 13px; padding: 5px 7px; }
+  .hint { font-size: 12px; }
+  .chip.wide { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .toast, .panel { animation: none; } }
