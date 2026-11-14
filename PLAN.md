@@ -197,6 +197,18 @@ dưới 1%: sổ phần lớn là doanh nghiệp không dùng các hệ thống 
 2. **Common Crawl** khi nó trả lời lại: danh sách công ty dùng Greenhouse, Lever, Ashby trên toàn thế giới.
 3. Sổ bảo lãnh Anh: chạy nền mỗi ngày một ít, thêm bước kiểm tên công ty để bỏ đoán nhầm.
 
+**Đo lần 2 (14/11):** Common Crawl, kỳ lưu trữ mới nhất: 4.411 công ty (Greenhouse 2.166, Ashby 1.054, Workable 862,
+Lever 329). Adzuna (thử 2 lượt): 667 việc machine learning và 1.341 việc software engineer ở London trong 14 ngày,
+85 đến 95% là việc mới với ta (ASOS, BAE Systems, Capital One...), khoảng 10% môi giới. Adzuna không miễn phí: 25 lượt
+thử, đầy đủ £8/tháng. Reed (miễn phí): 302 và 759 việc, khoảng 2/3 do môi giới đăng.
+
+**Quyết định (Vin, 14/11: «1 đồng ý, 2 chưa trả, 3 đồng ý, 4 đồng ý»):**
+1. Common Crawl: dừng ở 4.411 công ty của kỳ mới nhất, kiểm từng trang ngay; cập nhật mỗi tháng khi có kỳ mới.
+2. Adzuna: **chưa trả** £8/tháng (giữ 23 lượt thử còn lại).
+3. Reed: dùng, chỉ giữ việc của công ty tuyển trực tiếp.
+4. Việc của môi giới: mặc định ẩn; người chơi tự bật lại trong cài đặt.
+Để sau: đọc trang tuyển dụng Workday của các công ty lớn (công khai, miễn phí).
+
 Khoá API là bí mật: để trong `data/keys.json` (thư mục `data/` không vào git); lên GitHub Actions thì thành secrets của repo.
 
 ---
@@ -205,6 +217,7 @@ Khoá API là bí mật: để trong `data/keys.json` (thư mục `data/` không
 
 - 13/11: tách folder riêng; thiết kế bản câu cá dưới ao; làm bước 1 đến 3 (ao, chấm điểm theo CV, giỏ nhớ qua ngày).
 - 14/11: chốt mục 5: Supabase; không cào LinkedIn; CV chỉ trên máy người dùng.
+- 14/11: Common Crawl 4.411 công ty; Adzuna chưa trả; Reed chỉ công ty trực tiếp; ẩn môi giới.
 - 14/11: đo nguồn từ sổ bảo lãnh (9 công ty, 625 việc trên 1.000 tên); chốt: Adzuna và Reed trước, Common Crawl, sổ bảo lãnh chạy nền.
 - 14/11: chốt mục 4 (ba nút, thêm Not for me) và mục 6 (thứ tự làm); bắt đầu bước 1.
 - 14/11: chốt mục 2 (Lobby ba bước) và mục 3 (tên công ty kiểu C; cách câu: lực căng, lưới, tự câu, mồi là kỹ năng).
