@@ -53,7 +53,8 @@ Cách hỏi trong game: mỗi câu là một tờ giấy trên bàn vịt; trả
 **Đề xuất Claude:** B. Nơi làm là bộ lọc quan trọng nhất sau chức danh (lúc thử, không lọc nơi làm thì hồ toàn việc ở
 Singapore, Tây Ban Nha). Cấp bậc và visa để trong «cài đặt» cho ai cần, không hỏi người mới.
 
-**Quyết định:** _(chờ Vin)_
+**Quyết định (Vin, 14/11: «đồng ý cả ba»):** B. Ba bước: nạp CV, xác nhận chức danh (app gợi ý từ CV), chọn nơi làm
+(thành phố, có nhận remote không). Cấp bậc và visa để trong cài đặt, không hỏi người mới.
 
 ---
 
@@ -74,7 +75,8 @@ Việc làm là **việc thật** của công ty thật (bấm vào mở trang t
 **Đề xuất Claude:** C. Có tiếng cười của tên nhái, mà người dùng không bao giờ nhầm việc của ai. Vì đây là sản phẩm
 mang tên anh để quảng bá, tránh đụng thương hiệu lớn (logo, màu, chữ ký) là an toàn nhất.
 
-**Quyết định:** _(chờ Vin)_
+**Quyết định (Vin, 14/11: «đồng ý cả ba»):** C. Vài toà nhà tên nhái chỉ để trang trí; toà nào thật sự thả việc thì ghi
+tên thật bằng chữ, không logo, không màu thương hiệu.
 
 ### Cách câu: các lựa chọn (bàn kỹ, đây là cái hồn của game)
 
@@ -97,7 +99,9 @@ Thêm cho đủ hay (chọn vài cái, không cần hết):
 **Đề xuất Claude:** B làm cách câu chính cho việc khớp cao, C (lưới) cho phần còn lại, D (tự động) cho ai bận. Thêm
 «mồi là kỹ năng», vì nó nối thẳng trò chơi với CV, chỗ game khác không có. Không bao giờ phạt: sổng thì việc vẫn vào thùng.
 
-**Quyết định:** _(chờ Vin)_
+**Quyết định (Vin, 14/11: «đồng ý cả ba»):** mây khớp cao: quăng rồi kéo có lực căng (B); mây nhỏ: vớt bằng lưới (C);
+chế độ tự câu cho ai bận (D); «mồi là kỹ năng» (chọn mồi từ CV, mây có kỹ năng đó cắn nhiều hơn). Không bao giờ phạt:
+sổng thì việc vẫn vào thùng. Các phần thêm khác (thời tiết, bộ sưu tập, nâng cấp thuyền) bàn sau.
 
 ---
 
@@ -185,5 +189,6 @@ từ khoá và danh sách việc. Hoặc lưu CV có mã hoá, nếu Vin muốn 
 
 - 13/11: tách folder riêng; thiết kế bản câu cá dưới ao; làm bước 1 đến 3 (ao, chấm điểm theo CV, giỏ nhớ qua ngày).
 - 14/11: chốt mục 5: Supabase; không cào LinkedIn; CV chỉ trên máy người dùng.
+- 14/11: chốt mục 2 (Lobby ba bước) và mục 3 (tên công ty kiểu C; cách câu: lực căng, lưới, tự câu, mồi là kỹ năng).
 - 14/11: Vin đổi hướng lớn: vịt vàng, lobby và thang cuốn lên trời, câu mây, thành phố công ty, tờ báo cáo với
   I applied và Expired, đăng nhập, chạy hằng ngày, search mạnh. Ghi vào sổ này để bàn từng mục.
