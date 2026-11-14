@@ -161,7 +161,8 @@ từ khoá và danh sách việc. Hoặc lưu CV có mã hoá, nếu Vin muốn 
   (GitHub Actions), ghi vào kho việc chung trên Supabase.
 - **Không cào LinkedIn.** Nguồn việc: trang tuyển dụng gốc của công ty (tự dò ra hàng nghìn), các API việc làm hợp pháp,
   và link người dùng tự dán (LinkedIn hay bất kỳ đâu).
-- Còn phải bàn: CV lưu ở đâu (chỉ trên máy người dùng, hay lưu có mã hoá trên Supabase).
+- **CV chỉ ở trên máy người dùng** (Vin, 14/11: «chọn A»): máy chủ giữ chức danh, từ khoá và danh sách việc, không bao
+  giờ giữ CV. Đổi máy thì nạp lại CV một lần; danh sách việc vẫn nối tiếp. Việc chấm điểm chạy trên máy người dùng.
 - Việc của Vin khi tới lúc làm: tạo tài khoản Supabase (Claude không tự tạo tài khoản hay nhập mật khẩu).
 
 ---
@@ -183,6 +184,6 @@ từ khoá và danh sách việc. Hoặc lưu CV có mã hoá, nếu Vin muốn 
 ## Nhật ký bàn bạc
 
 - 13/11: tách folder riêng; thiết kế bản câu cá dưới ao; làm bước 1 đến 3 (ao, chấm điểm theo CV, giỏ nhớ qua ngày).
-- 14/11: chốt mục 5: Supabase; không cào LinkedIn.
+- 14/11: chốt mục 5: Supabase; không cào LinkedIn; CV chỉ trên máy người dùng.
 - 14/11: Vin đổi hướng lớn: vịt vàng, lobby và thang cuốn lên trời, câu mây, thành phố công ty, tờ báo cáo với
   I applied và Expired, đăng nhập, chạy hằng ngày, search mạnh. Ghi vào sổ này để bàn từng mục.
