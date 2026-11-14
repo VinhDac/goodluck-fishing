@@ -186,10 +186,26 @@ từ khoá và danh sách việc. Hoặc lưu CV có mã hoá, nếu Vin muốn 
 
 ---
 
+## 7. Bước 1: kho việc chung (đang làm)
+
+**Đo lần 1 (14/11):** dò từ sổ bảo lãnh visa Anh (`tools/discover.py`): 1.000 tên ngẫu nhiên, 29 phút, 9 công ty có
+trang tuyển dụng, 625 việc (Cloudflare chiếm 479); 3 trong 9 có thể đoán nhầm (tên trùng công ty khác). Tỉ lệ trúng
+dưới 1%: sổ phần lớn là doanh nghiệp không dùng các hệ thống này. Kết luận: dùng được nhưng chậm, không làm nguồn chính.
+
+**Quyết định (Vin, 14/11: «đồng ý»):** thứ tự nguồn:
+1. API việc làm: **Adzuna** và **Reed** (Vin đăng ký khoá miễn phí).
+2. **Common Crawl** khi nó trả lời lại: danh sách công ty dùng Greenhouse, Lever, Ashby trên toàn thế giới.
+3. Sổ bảo lãnh Anh: chạy nền mỗi ngày một ít, thêm bước kiểm tên công ty để bỏ đoán nhầm.
+
+Khoá API là bí mật: để trong `data/keys.json` (thư mục `data/` không vào git); lên GitHub Actions thì thành secrets của repo.
+
+---
+
 ## Nhật ký bàn bạc
 
 - 13/11: tách folder riêng; thiết kế bản câu cá dưới ao; làm bước 1 đến 3 (ao, chấm điểm theo CV, giỏ nhớ qua ngày).
 - 14/11: chốt mục 5: Supabase; không cào LinkedIn; CV chỉ trên máy người dùng.
+- 14/11: đo nguồn từ sổ bảo lãnh (9 công ty, 625 việc trên 1.000 tên); chốt: Adzuna và Reed trước, Common Crawl, sổ bảo lãnh chạy nền.
 - 14/11: chốt mục 4 (ba nút, thêm Not for me) và mục 6 (thứ tự làm); bắt đầu bước 1.
 - 14/11: chốt mục 2 (Lobby ba bước) và mục 3 (tên công ty kiểu C; cách câu: lực căng, lưới, tự câu, mồi là kỹ năng).
 - 14/11: Vin đổi hướng lớn: vịt vàng, lobby và thang cuốn lên trời, câu mây, thành phố công ty, tờ báo cáo với
