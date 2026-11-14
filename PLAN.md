@@ -156,7 +156,13 @@ ty, và ta đọc trang gốc là hợp pháp, việc lại mới hơn.
 **Riêng tư:** CV là dữ liệu nhạy cảm. Gợi ý: CV và việc chấm điểm ở lại trên máy người dùng, máy chủ chỉ giữ chức danh,
 từ khoá và danh sách việc. Hoặc lưu CV có mã hoá, nếu Vin muốn đổi máy vẫn có CV.
 
-**Quyết định:** _(chờ Vin)_
+**Quyết định (Vin, 14/11/2026: «1. chọn Supabase. 2. đồng ý không cào LinkedIn»):**
+- Kiến trúc A: trang game tĩnh ở GitHub Pages; **Supabase** lo đăng nhập và cơ sở dữ liệu; tìm việc chạy theo lịch
+  (GitHub Actions), ghi vào kho việc chung trên Supabase.
+- **Không cào LinkedIn.** Nguồn việc: trang tuyển dụng gốc của công ty (tự dò ra hàng nghìn), các API việc làm hợp pháp,
+  và link người dùng tự dán (LinkedIn hay bất kỳ đâu).
+- Còn phải bàn: CV lưu ở đâu (chỉ trên máy người dùng, hay lưu có mã hoá trên Supabase).
+- Việc của Vin khi tới lúc làm: tạo tài khoản Supabase (Claude không tự tạo tài khoản hay nhập mật khẩu).
 
 ---
 
@@ -177,5 +183,6 @@ từ khoá và danh sách việc. Hoặc lưu CV có mã hoá, nếu Vin muốn 
 ## Nhật ký bàn bạc
 
 - 13/11: tách folder riêng; thiết kế bản câu cá dưới ao; làm bước 1 đến 3 (ao, chấm điểm theo CV, giỏ nhớ qua ngày).
+- 14/11: chốt mục 5: Supabase; không cào LinkedIn.
 - 14/11: Vin đổi hướng lớn: vịt vàng, lobby và thang cuốn lên trời, câu mây, thành phố công ty, tờ báo cáo với
   I applied và Expired, đăng nhập, chạy hằng ngày, search mạnh. Ghi vào sổ này để bàn từng mục.
