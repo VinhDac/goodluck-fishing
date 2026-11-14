@@ -1,0 +1,396 @@
+[
+[
+"python"
+],
+[
+"java"
+],
+[
+"javascript",
+"js"
+],
+[
+"typescript"
+],
+[
+"c++",
+"cpp"
+],
+[
+"c#",
+".net",
+"dotnet"
+],
+[
+"golang"
+],
+[
+"rust"
+],
+[
+"scala"
+],
+[
+"kotlin"
+],
+[
+"swift"
+],
+[
+"ruby"
+],
+[
+"php"
+],
+[
+"r programming",
+"rstudio"
+],
+[
+"matlab"
+],
+[
+"sql",
+"mysql",
+"postgres",
+"postgresql"
+],
+[
+"nosql",
+"mongodb",
+"dynamodb"
+],
+[
+"bash",
+"shell scripting"
+],
+[
+"linux",
+"unix"
+],
+[
+"git"
+],
+[
+"react",
+"react.js",
+"reactjs"
+],
+[
+"node",
+"node.js",
+"nodejs"
+],
+[
+"vue"
+],
+[
+"angular"
+],
+[
+"html"
+],
+[
+"css"
+],
+[
+"graphql"
+],
+[
+"rest api",
+"restful"
+],
+[
+"django"
+],
+[
+"flask"
+],
+[
+"fastapi"
+],
+[
+"spring"
+],
+[
+"microservices"
+],
+[
+"distributed systems"
+],
+[
+"api",
+"apis"
+],
+[
+"aws",
+"amazon web services"
+],
+[
+"gcp",
+"google cloud"
+],
+[
+"azure"
+],
+[
+"docker"
+],
+[
+"kubernetes",
+"k8s"
+],
+[
+"terraform"
+],
+[
+"ci/cd",
+"ci cd",
+"continuous integration"
+],
+[
+"machine learning",
+"ml"
+],
+[
+"deep learning"
+],
+[
+"artificial intelligence",
+"ai"
+],
+[
+"llm",
+"llms",
+"large language models",
+"large language model"
+],
+[
+"nlp",
+"natural language processing"
+],
+[
+"computer vision"
+],
+[
+"pytorch"
+],
+[
+"tensorflow"
+],
+[
+"scikit-learn",
+"sklearn"
+],
+[
+"pandas"
+],
+[
+"numpy"
+],
+[
+"statistics",
+"statistical"
+],
+[
+"probability"
+],
+[
+"mathematics",
+"maths",
+"math"
+],
+[
+"optimization",
+"optimisation"
+],
+[
+"time series"
+],
+[
+"data analysis",
+"data analytics",
+"analytics"
+],
+[
+"data engineering",
+"data pipelines",
+"etl"
+],
+[
+"spark",
+"pyspark"
+],
+[
+"airflow"
+],
+[
+"kafka"
+],
+[
+"snowflake"
+],
+[
+"dbt"
+],
+[
+"tableau"
+],
+[
+"power bi",
+"powerbi"
+],
+[
+"excel"
+],
+[
+"looker"
+],
+[
+"a/b testing",
+"ab testing",
+"experimentation"
+],
+[
+"rag",
+"retrieval augmented generation"
+],
+[
+"prompt engineering"
+],
+[
+"ai agents",
+"agentic"
+],
+[
+"mlops"
+],
+[
+"evals",
+"model evaluation"
+],
+[
+"quantitative",
+"quant"
+],
+[
+"trading"
+],
+[
+"derivatives"
+],
+[
+"risk management"
+],
+[
+"fixed income"
+],
+[
+"equities"
+],
+[
+"financial modelling",
+"financial modeling"
+],
+[
+"accounting"
+],
+[
+"payments"
+],
+[
+"compliance"
+],
+[
+"fintech"
+],
+[
+"crypto",
+"blockchain"
+],
+[
+"product management",
+"product manager",
+"roadmap"
+],
+[
+"agile",
+"scrum"
+],
+[
+"stakeholder management",
+"stakeholders"
+],
+[
+"user research"
+],
+[
+"figma"
+],
+[
+"ux",
+"user experience"
+],
+[
+"ui",
+"user interface"
+],
+[
+"design systems"
+],
+[
+"sales"
+],
+[
+"account management"
+],
+[
+"marketing"
+],
+[
+"seo"
+],
+[
+"crm",
+"salesforce",
+"hubspot"
+],
+[
+"customer success"
+],
+[
+"security",
+"cybersecurity"
+],
+[
+"networking"
+],
+[
+"testing",
+"test automation",
+"qa"
+],
+[
+"backend",
+"back-end",
+"back end"
+],
+[
+"frontend",
+"front-end",
+"front end"
+],
+[
+"full stack",
+"full-stack",
+"fullstack"
+],
+[
+"mobile",
+"ios",
+"android"
+],
+[
+"embedded"
+]
+]
