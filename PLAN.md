@@ -13,7 +13,7 @@ Chú vịt vàng ngất trên bàn làm việc, được thang máy đưa lên t
 mây là một việc làm thật); bên dưới là thành phố các công ty; câu xong về có thùng cá và một tờ báo cáo, chính là danh
 sách việc để nộp, có nút «I applied» và «Expired». Người dùng đăng nhập, mỗi ngày quay lại, danh sách nối tiếp.
 
-**Quyết định:** _(chờ Vin)_
+**Quyết định (Vin, 14/11):** duyệt, qua các mục bên dưới.
 
 ---
 
@@ -120,7 +120,8 @@ sổng thì việc vẫn vào thùng. Các phần thêm khác (thời tiết, b�
 **Câu hỏi:** có thêm «Not for me» (không hợp, bỏ) không, hay chỉ 2 nút như Vin nói? Có cần xuất danh sách ra file hay
 Google Sheets không?
 
-**Quyết định:** _(chờ Vin)_
+**Quyết định (Vin, 14/11: «đồng ý cả hai»):** ba nút: **I applied**, **Expired** và **Not for me** (không hợp, bỏ đi).
+Xuất ra file hay Google Sheets để sau.
 
 ---
 
@@ -181,7 +182,7 @@ từ khoá và danh sách việc. Hoặc lưu CV có mã hoá, nếu Vin muốn 
 5. Thùng cá và tờ báo cáo.
 6. Giao diện điện thoại, rồi đưa lên mạng.
 
-**Quyết định:** _(chờ Vin)_
+**Quyết định (Vin, 14/11: «đồng ý cả hai»):** làm theo thứ tự trên, bắt đầu từ bước 1 (kho việc chung).
 
 ---
 
@@ -189,6 +190,7 @@ từ khoá và danh sách việc. Hoặc lưu CV có mã hoá, nếu Vin muốn 
 
 - 13/11: tách folder riêng; thiết kế bản câu cá dưới ao; làm bước 1 đến 3 (ao, chấm điểm theo CV, giỏ nhớ qua ngày).
 - 14/11: chốt mục 5: Supabase; không cào LinkedIn; CV chỉ trên máy người dùng.
+- 14/11: chốt mục 4 (ba nút, thêm Not for me) và mục 6 (thứ tự làm); bắt đầu bước 1.
 - 14/11: chốt mục 2 (Lobby ba bước) và mục 3 (tên công ty kiểu C; cách câu: lực căng, lưới, tự câu, mồi là kỹ năng).
 - 14/11: Vin đổi hướng lớn: vịt vàng, lobby và thang cuốn lên trời, câu mây, thành phố công ty, tờ báo cáo với
   I applied và Expired, đăng nhập, chạy hằng ngày, search mạnh. Ghi vào sổ này để bàn từng mục.
