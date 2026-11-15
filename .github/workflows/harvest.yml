@@ -1,5 +1,6 @@
-# THE HARVEST, BY ITSELF (PLAN.md 5 and 7): every six hours, every live company board read (tools/harvest.py) and the
-# jobs written into Supabase (tools/upload.py), closed ones marked. The secret key is the repo's secret, never in the code.
+# THE HARVEST, BY ITSELF (PLAN.md 5 and 7): every six hours, every live company board read (tools/harvest.py); the jobs
+# written into Supabase (tools/upload.py), and as static files on the store branch, which the game reads (tools/publish.py;
+# Vin, 15/11/2026: «đổi sang cách file tĩnh»). The secret key is the repo's secret, never in the code.
 name: harvest
 
 on:
@@ -10,6 +11,9 @@ on:
 concurrency:
   group: harvest
   cancel-in-progress: false
+
+permissions:
+  contents: write                 # to replace the store branch
 
 jobs:
   harvest:
@@ -27,3 +31,12 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: python -u tools/upload.py
+      - name: Write the store as files
+        run: python -u tools/publish.py
+      - name: Replace the store branch
+        run: |
+          cd store/out
+          git init -q -b store
+          git add .
+          git -c user.name="goodluck-harvest" -c user.email="actions@users.noreply.github.com" commit -q -m "The job store as files"
+          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" store

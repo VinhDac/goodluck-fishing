@@ -264,6 +264,14 @@ thang cuốn hạ xuống ngay. Một nút nhỏ «My CV» để đổi CV, ch�
 
 ---
 
+## 9b. Kho việc thành file tĩnh (Vin, 15/11: «đổi sang cách file tĩnh»)
+
+Hỏi Supabase tìm chữ trong 133.000 việc bị cắt sau vài giây (statement timeout), và gói miễn phí chỉ cho 5 GB dữ liệu
+ra mỗi tháng. Nay: mỗi 6 giờ `tools/publish.py` ghi kho thành file theo vùng (uk, us, de, ..., remote, other; 30 ngày,
+không môi giới) lên nhánh `store` của repo; trang game đọc thẳng (nước Anh: 2.746 việc, 186 KB khi truyền), lọc và chấm
+trên máy. Supabase chỉ còn đăng nhập và danh sách của từng người (bảng jobs vẫn được ghi để thùng cá tham chiếu tới).
+Thử 15/11: 69 mây cho AI/ML ở London hoặc remote, quăng, kéo, thẻ việc đều đúng.
+
 ## 10. Việc để quay lại (Vin, 15/11: «làm cái khác trước đi, quay lại cái này sau»)
 
 - Đăng nhập thật: link lần đầu đưa về localhost:3000 (Site URL mặc định chưa lưu); rồi chạm giới hạn thư của gói miễn phí

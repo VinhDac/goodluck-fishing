@@ -4,10 +4,20 @@
 // within a day. Click a cloud to cast at it; hooked, it is reeled in and its card shows the job. Ten minutes a day:
 // the sun crosses the sky, and at sunset the boat goes home (the bucket and the report: step 5).
 import { AWAKE } from './art.js';
-import { sb } from './account.js';
 import { titleFits, placeFits } from './score.js';
 
 const DAY = 600, SHOWN = 8, FRESH_DAYS = 14;
+// THE STORE AS FILES (Vin, 15/11/2026: «đổi sang cách file tĩnh»): tools/publish.py writes them every six hours to the
+// repo's store branch; read straight from GitHub, filtered and scored here. A part of the world by its cities.
+const STORE = 'https://raw.githubusercontent.com/VinhDac/goodluck-fishing/store';
+const REGION_OF = {
+  uk: ['london', 'manchester', 'edinburgh', 'glasgow', 'bristol', 'cambridge', 'oxford', 'leeds', 'birmingham', 'belfast', 'cardiff', 'reading', 'brighton'],
+  ie: ['dublin', 'cork', 'galway'], de: ['berlin', 'munich', 'hamburg', 'frankfurt'], fr: ['paris', 'lyon'], nl: ['amsterdam', 'rotterdam', 'utrecht'],
+  es: ['madrid', 'barcelona', 'valencia'], eu: ['zurich', 'stockholm', 'copenhagen', 'lisbon', 'warsaw', 'vienna', 'prague', 'milan'],
+  us: ['new york', 'san francisco', 'seattle', 'boston', 'austin', 'chicago', 'los angeles', 'denver'], ca: ['toronto', 'vancouver', 'montreal'],
+  asia: ['singapore', 'hanoi', 'ho chi minh city', 'bangalore', 'tokyo', 'hong kong', 'dubai'], oceania: ['sydney', 'melbourne'],
+  latam: ['sao paulo', 'mexico city', 'buenos aires'],
+};
 const $ = (id) => document.getElementById(id);
 const rand = (a, b) => a + Math.random() * (b - a);
 
@@ -33,22 +43,21 @@ export function makeSky(g, dims, toCss) {
   async function load() {
     say('Reading the sky…');
     try {
-      const since = new Date(Date.now() - FRESH_DAYS * 864e5).toISOString();
-      const word = (s) => String(s).toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-      const heads = [...new Set((me.titles || []).map((t) => word(t).split(' ').pop()).filter(Boolean))];
-      let q = (await sb()).from('jobs').select('id,company,title,place,url,posted,skills').eq('open', true).eq('agency', false)
-        .gte('posted', since).order('posted', { ascending: false }).limit(1000);
-      if (heads.length) q = q.or(heads.map((h) => `title.ilike.*${h}*`).join(','));
-      const city = word(me.city || '');
-      if (city) q = q.or(`place.ilike.*${city}*` + (me.remote ? ',place.ilike.*remote*' : ''));
-      const { data, error } = await q;
-      if (error) throw new Error(error.message);
-      S.lake = (data || []).filter((j) => titleFits(j.title, me.titles || []) && placeFits(j.place, me.city || '', me.remote))
-        .map((j) => { const fit = fitOf(j.skills, mine); return { ...j, fit, size: sizeOf(fit), posted: Date.parse(j.posted) || 0 }; })
+      const city = String(me.city || '').trim().toLowerCase();
+      // the part of the world the city is in; a city not known, or none (anywhere), reads every part
+      const region = Object.entries(REGION_OF).find(([, cities]) => cities.includes(city));
+      const names = region ? [region[0], ...(me.remote ? ['remote'] : [])] : [...Object.keys(REGION_OF), 'remote', 'other'];
+      const parts = await Promise.all(names.map((n) => fetch(`${STORE}/${n}.json`).then((r) => (r.ok ? r.json() : { jobs: [] })).catch(() => ({ jobs: [] }))));
+      const seen = new Set(), rows = [];
+      for (const p of parts) for (const r of p.jobs || []) if (!seen.has(r[0])) { seen.add(r[0]); rows.push(r); }
+      const since = Date.now() - FRESH_DAYS * 864e5;
+      const jobs = rows.map(([id, company, title, place, url, posted, skills]) => ({ id, company, title, place, url, posted: posted * 1000, skills }))
+        .filter((j) => j.posted >= since && titleFits(j.title, me.titles || []) && placeFits(j.place, me.city || '', me.remote));
+      S.lake = jobs.map((j) => { const fit = fitOf(j.skills, mine); return { ...j, fit, size: sizeOf(fit) }; })
         .sort((a, b) => (b.fit ?? -1) - (a.fit ?? -1) || b.posted - a.posted);
       S.loaded = true;
       say(S.lake.length ? `${S.lake.length} clouds for you today. Click one to cast.` : 'No new jobs for you in the sky today. Come back tomorrow.');
-      city_(data || []);
+      city_(jobs);
     } catch (e) { say(`The sky could not be read (${e.message}).`); }
   }
   function say(t) { S.said = t; $('skySaid').textContent = t; }
