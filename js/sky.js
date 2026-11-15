@@ -34,7 +34,8 @@ const sizeOf = (s) => (s == null ? 'unread' : s >= 85 ? 'gold' : s >= 70 ? 'big'
 const RADIUS = { gold: 13, big: 12, medium: 10, small: 8, unread: 9 };
 
 export function makeSky(g, dims, toCss) {
-  const S = { on: false, t: 0, day: 0, over: false, lake: [], clouds: [], caught: [], cast: null, said: '', loaded: false };
+  const S = { on: false, t: 0, day: 0, over: false, lake: [], clouds: [], caught: [], cast: null, said: '', loaded: false,
+    holding: false, bait: '', auto: false, netReady: 0 };
   let W = 320, H = 180;
   const me = (() => { try { return JSON.parse(localStorage.getItem('glf.me')) || {}; } catch (e) { return {}; } })();
   const mine = new Set(me.skills || []);
@@ -94,11 +95,52 @@ export function makeSky(g, dims, toCss) {
     const job = S.lake.shift();
     S.clouds.push({ job, x: rand(W * 0.35, W - 18), y: rand(16, H * 0.55), v: rand(-2.5, 2.5), r: RADIUS[job.size], bob: rand(0, 6), a: 0 });
   }
-  function click(p) {
-    if (!S.on || S.over || S.cast) return;
+  // a press: a cast at a cloud; while one is hooked and fights, holding reels it in (PLAN.md 3: «quăng rồi kéo có lực căng»)
+  function down(p) {
+    if (!S.on || S.over || !$('catch').hidden) return;
+    S.holding = true;
+    if (S.cast) return;
     const t = tip();
     const hit = S.clouds.find((c) => Math.hypot(c.x - p.x, c.y - p.y) <= c.r + 3);
     S.cast = { x0: t.x, y0: t.y, x: p.x, y: p.y, age: 0, fly: 0.5, hit, phase: 'fly' };
+  }
+  function up() { S.holding = false; }
+  // THE FIGHT: a big or golden cloud pulls in bursts; holding reels it in and tightens the line, letting go lets it run a
+  // little and the line ease; past the red the line snaps, and the job is in the bucket all the same (never punished)
+  const PULL = { gold: 0.95, big: 0.7 };
+  function fight(k, dt) {
+    k.next -= dt;
+    if (k.next <= 0) { k.pull = k.pull ? 0 : PULL[k.hit.job.size] * rand(0.6, 1); k.next = k.pull ? rand(0.4, 0.8) : rand(0.6, 1.4); }
+    const reel = S.auto ? k.ten < 0.62 : S.holding;
+    if (reel) { k.prog += dt * 0.22 * (1 - k.pull * 0.55); k.ten += dt * (0.3 + k.pull * 0.95); }
+    else { k.prog = Math.max(0, k.prog - dt * (0.03 + k.pull * 0.05)); k.ten = Math.max(0, k.ten - dt * 0.55); }
+    const t = tip(), e = Math.min(1, k.prog);
+    k.hit.x = k.from.x + (t.x - k.from.x) * e + (k.pull ? Math.sin(S.t * 25) * 1.5 : 0);
+    k.hit.y = k.from.y + (t.y - k.from.y) * e;
+    if (k.ten >= 1) return snapped(k);
+    if (k.prog >= 1) landed(k.hit);
+  }
+  function snapped(k) {
+    S.clouds.splice(S.clouds.indexOf(k.hit), 1);
+    S.cast = null;
+    keep(k.hit.job, 'snapped');
+    say('The line snapped! But the job is in your bucket.');
+  }
+  function keep(job, how) { S.caught.push({ ...job, how }); $('skyCount').textContent = S.caught.length; }
+  // THE NET (PLAN.md 3, C): every small cloud in sight brought in at once; then it dries for a while
+  function net() {
+    if (!S.on || S.over || S.t < S.netReady) return;
+    const small = S.clouds.filter((c) => (c.job.size === 'small' || c.job.size === 'unread') && !(S.cast && S.cast.hit === c));
+    small.forEach((c) => { S.clouds.splice(S.clouds.indexOf(c), 1); keep(c.job, 'net'); });
+    S.netReady = S.t + 20;
+    say(small.length ? `The net brought in ${small.length} small cloud${small.length === 1 ? '' : 's'}.` : 'No small cloud in sight for the net.');
+  }
+  // THE BAIT (PLAN.md 3: «mồi là kỹ năng»): a skill of the CV; the jobs that ask it come to the line first
+  function bait(skill) {
+    S.bait = skill;
+    const asks = (j) => (skill && j.skills && j.skills[skill] ? 1 : 0);
+    S.lake.sort((a, b) => asks(b) - asks(a) || (b.fit ?? -1) - (a.fit ?? -1) || b.posted - a.posted);
+    if (skill) say(`Bait: ${skill}. The clouds that ask it come first.`);
   }
   function step(dt) {
     if (!S.on) return;
@@ -117,21 +159,31 @@ export function makeSky(g, dims, toCss) {
       if (k.phase === 'fly' && k.age >= k.fly) {
         if (k.hit && S.clouds.includes(k.hit)) { k.phase = 'bite'; k.age = 0; }
         else { say('Missed: no cloud there. Click right on one.'); S.cast = null; }
-      } else if (k.phase === 'bite' && k.age >= 0.7) { k.phase = 'reel'; k.age = 0; k.from = { x: k.hit.x, y: k.hit.y }; }
+      } else if (k.phase === 'bite' && k.age >= 0.7) {
+        k.from = { x: k.hit.x, y: k.hit.y }; k.age = 0;
+        if (PULL[k.hit.job.size]) { k.phase = 'fight'; k.prog = 0; k.ten = 0.25; k.pull = 0; k.next = 0.5; say('It fights! Hold to reel in, let go when the line goes red.'); }
+        else k.phase = 'reel';
+      } else if (k.phase === 'fight') fight(k, dt);
       else if (k.phase === 'reel') {
         const t = tip(), e = Math.min(1, k.age / 1.1);
         k.hit.x = k.from.x + (t.x - k.from.x) * e; k.hit.y = k.from.y + (t.y - k.from.y) * e; k.hit.r = Math.max(3, RADIUS[k.hit.job.size] * (1 - e * 0.7));
         if (e >= 1) landed(k.hit);
       }
     }
+    // the duck fishing by itself (PLAN.md 3, D): it casts at the best cloud in sight, and reels as a careful hand would
+    if (S.auto && !S.cast && !S.over && $('catch').hidden && S.clouds.length && (S.autoWait = (S.autoWait || 0) - dt) <= 0) {
+      S.autoWait = rand(1.2, 2.2);
+      const best = S.clouds.slice().sort((a, b) => (b.job.fit ?? -1) - (a.job.fit ?? -1))[0];
+      down({ x: best.x, y: best.y }); S.holding = false;
+    }
+    $('netBtn').textContent = S.t < S.netReady ? `Net ${Math.ceil(S.netReady - S.t)}s` : 'Net';
     clock();
   }
   function landed(c) {
     S.clouds.splice(S.clouds.indexOf(c), 1);
     S.cast = null;
-    S.caught.push(c.job);
-    $('skyCount').textContent = S.caught.length;
-    card(c.job);
+    keep(c.job, 'caught');
+    if (S.auto) say(`Caught: ${c.job.title} · ${c.job.company}`); else card(c.job);
   }
   const ago = (ms) => { const h = Math.max(0, (Date.now() - ms) / 36e5), n = h < 48 ? Math.round(h) : Math.round(h / 24), u = h < 48 ? 'hour' : 'day'; return h < 1 ? 'posted within the hour' : `posted ${n} ${u}${n === 1 ? '' : 's'} ago`; };
   function card(job) {
@@ -197,6 +249,13 @@ export function makeSky(g, dims, toCss) {
       const fx = k.phase === 'reel' ? k.hit.x : k.x0 + (k.x - k.x0) * e, fy = k.phase === 'reel' ? k.hit.y : k.y0 + (k.y - k.y0) * e - Math.sin(Math.PI * e) * 14;
       g.strokeStyle = 'rgba(255,255,255,0.9)'; g.beginPath(); g.moveTo(t.x, t.y); g.lineTo(fx, fy); g.stroke();
       R(fx - 1, fy - 1 + (k.phase === 'bite' ? Math.sin(S.t * 30) : 0), 3, 3, '#e03a3a');
+      if (k.phase === 'fight') {
+        // the line's tension, green to red, and how far it has come, by the boat
+        const bx = boat().x - 2, by = boat().y - 46, h = 34, ten = Math.min(1, k.ten);
+        R(bx - 1, by - 1, 5, h + 2, '#3a2a1a'); R(bx, by, 3, h, '#fff8e7');
+        R(bx, by + h - Math.round(h * ten), 3, Math.round(h * ten), ten > 0.8 ? '#e03a3a' : ten > 0.55 ? '#f2a83a' : '#5cc96a');
+        R(bx + 5, by + h - Math.round(h * Math.min(1, k.prog)), 2, Math.round(h * Math.min(1, k.prog)), '#8c9cf8');
+      }
     }
     if (S.day > 0.92) R(0, 0, W, H, `rgba(30,20,60,${((S.day - 0.92) * 4).toFixed(2)})`);
   }
@@ -205,7 +264,8 @@ export function makeSky(g, dims, toCss) {
     S,
     start() { S.on = true; $('skyHud').hidden = false; ({ W, H } = dims()); load(); },
     resize() { ({ W, H } = dims()); if (S.on) lay(); },
-    step, draw, click,
+    step, draw, down, up, net, bait,
+    baits() { return [...mine]; },
     closeCard() { $('catch').hidden = true; $('ctOpen').hidden = false; },
   };
 }

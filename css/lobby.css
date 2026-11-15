@@ -93,3 +93,4 @@ footer a { color: inherit; }
 .card .go { text-decoration: none; }
 .card .go[hidden] { display: none; }
 .screen[hidden] { display: none; }
+button.chip, select.chip { cursor: pointer; }

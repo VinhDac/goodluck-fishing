@@ -62,7 +62,11 @@ function step(dt) {
   if (S.mode === 'ascend') {
     S.a += dt;
     if (S.a > ASCEND.rise && Math.random() < dt * 18) S.sparks.push({ x: duckAt().x + 10 + (Math.random() - 0.5) * 16, y: duckAt().y + 8, age: 0 });
-    if (S.a >= ASCEND.white) { S.mode = 'gone'; $('hint').hidden = true; $('screen').hidden = true; sky.start(); }
+    if (S.a >= ASCEND.white) {
+      S.mode = 'gone'; $('hint').hidden = true; $('screen').hidden = true; sky.start();
+      // the bait: the CV's own skills
+      $('baitSel').replaceChildren(new Option('Bait: any', ''), ...sky.baits().map((k) => new Option(`Bait: ${k}`, k)));
+    }
   }
   for (const s of S.sparks) { s.age += dt; s.y += dt * 10; }
   S.sparks = S.sparks.filter((s) => s.age < 1);
@@ -159,13 +163,18 @@ function logical(e) { const r = cv.getBoundingClientRect(); return { x: (e.clien
 const onDuck = (p) => p.x >= L.duckX - 4 && p.x <= L.duckX + 24 && p.y >= L.duckY - 6 && p.y <= L.duckY + 20;
 cv.addEventListener('pointermove', (e) => cv.classList.toggle('over-duck', S.ready && S.mode === 'sleep' && onDuck(logical(e))));
 cv.addEventListener('pointerdown', (e) => {
-  if (sky.S.on) { sky.click(logical(e)); return; }
+  if (sky.S.on) { sky.down(logical(e)); return; }
   if (!S.ready || S.mode !== 'sleep' || !onDuck(logical(e))) return;
   S.mode = 'ascend'; S.a = 0; $('hint').hidden = true; cv.classList.remove('over-duck');
 });
 // the sky (step 4): it takes the canvas once the duck is up; its card's button goes on fishing, or, at sunset, home
 const toCss = (x, y) => { const r = cv.getBoundingClientRect(), st = $('stage').getBoundingClientRect(); return { x: r.left - st.left + x * K, y: r.top - st.top + y * K }; };
 sky = makeSky(g, () => ({ W, H }), toCss);
+addEventListener('pointerup', () => { if (sky && sky.S.on) sky.up(); });
+addEventListener('pointercancel', () => { if (sky && sky.S.on) sky.up(); });
+$('netBtn').addEventListener('click', () => sky.net());
+$('autoSky').addEventListener('click', () => { sky.S.auto = !sky.S.auto; $('autoSky').textContent = `Auto: ${sky.S.auto ? 'on' : 'off'}`; });
+$('baitSel').addEventListener('change', () => sky.bait($('baitSel').value));
 $('ctBack').addEventListener('click', () => {
   sky.closeCard();
   if (sky.S.over) { sky.S.on = false; $('skyHud').hidden = true; $('signs').replaceChildren(); S.mode = 'sleep'; S.sparks = []; $('hint').hidden = false; $('screen').hidden = false; }
