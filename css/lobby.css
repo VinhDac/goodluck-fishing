@@ -37,3 +37,33 @@ footer a { color: inherit; }
 .card button { font: 600 16px var(--ui); padding: 9px 16px; background: var(--yellow); color: var(--ink); border: 2px solid var(--edge);
   border-radius: 3px; box-shadow: 0 3px 0 var(--edge); cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .hint { animation: none; } }
+
+/* the three things asked once: a paper, sticky notes, a map card, over the scene */
+.sheet { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(380px, 88%); max-height: 86%; overflow: auto;
+  background: var(--paper); color: var(--ink); border: 3px solid var(--edge); box-shadow: 0 6px 0 var(--edge), 0 18px 40px rgba(0, 0, 0, .5);
+  border-radius: 3px; padding: 16px 18px; animation: rise .25s ease-out; }
+.sheet[hidden], .mycv[hidden] { display: none; }
+@keyframes rise { from { transform: translate(-50%, -44%); opacity: 0; } }
+.sheet.paper { transform: translate(-50%, -50%) rotate(-1.5deg); }
+.sheet.map { background: #e9f1e1; }
+.sheet h2 { margin: 0 0 4px; font-size: 22px; }
+.sheet p { margin: 0 0 12px; font: 14px/1.45 system-ui, sans-serif; color: #5a4a30; }
+.sheet .said { font: 13px/1.4 system-ui, sans-serif; color: #b03a2a; min-height: 1px; margin: 6px 0; }
+.sheet input:not([type]), .sheet textarea { width: 100%; font: 15px system-ui, sans-serif; padding: 8px 10px; border: 2px solid var(--edge); border-radius: 3px; background: #fff; color: var(--ink); }
+.sheet textarea { margin-top: 8px; resize: vertical; }
+.go, .pick, .own button { display: inline-block; font: 600 16px var(--ui); padding: 9px 16px; background: var(--yellow); color: var(--ink); border: 2px solid var(--edge);
+  border-radius: 3px; box-shadow: 0 3px 0 var(--edge); cursor: pointer; margin-top: 8px; }
+.go:active, .pick:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
+.sheet details { margin-top: 12px; font: 14px system-ui, sans-serif; }
+.sheet summary { cursor: pointer; color: #5a4a30; }
+.notelist { display: flex; flex-wrap: wrap; gap: 8px; }
+.note { font: 600 15px var(--ui); color: var(--ink); background: #fff6a8; border: 2px solid #c9a227; padding: 10px 12px; border-radius: 2px; cursor: pointer;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, .18); transform: rotate(-1deg); opacity: .5; text-decoration: line-through; }
+.note:nth-child(2n) { transform: rotate(1.2deg); background: #ffe0a0; }
+.note.on { opacity: 1; text-decoration: none; }
+.own { display: flex; gap: 6px; margin-top: 10px; align-items: center; }
+.own input { flex: 1; }
+.own button { margin-top: 0; padding: 8px 12px; }
+.tick { display: flex; align-items: center; gap: 6px; margin: 10px 0 0; font: 15px system-ui, sans-serif; }
+.mycv { position: fixed; top: 10px; right: 12px; font: 600 14px var(--ui); background: var(--paper); color: var(--ink); border: 2px solid var(--edge);
+  border-radius: 3px; padding: 6px 10px; cursor: pointer; box-shadow: 0 3px 0 var(--edge); }

@@ -16,7 +16,40 @@
     <canvas id="scene" aria-label="A duck asleep at its desk, late at night. Click the duck."></canvas>
     <!-- the computer's screen: the words in real text, laid over the drawing -->
     <div class="screen" id="screen"><b>Applications sent: 80</b><span>Replies: 1</span></div>
-    <div class="hint" id="hint">Click the duck</div>
+    <div class="hint" id="hint" hidden>Click the duck</div>
+    <button class="mycv" id="mycv" hidden>My CV</button>
+
+    <!-- 1. the paper on the desk: the CV -->
+    <div class="sheet paper" id="paper" hidden>
+      <h2>Drop your CV here</h2>
+      <p>A PDF, dropped anywhere. It is read in this browser and never sent anywhere.</p>
+      <label class="pick">Choose the PDF<input type="file" id="cvFile" accept=".pdf,application/pdf,.txt" hidden></label>
+      <details><summary>or paste its words</summary>
+        <textarea id="cvPaste" rows="4" placeholder="Paste your CV here…"></textarea>
+        <button class="go" id="pasteGo" type="button">Read it</button>
+      </details>
+      <div class="said"></div>
+    </div>
+
+    <!-- 2. the sticky notes: the job titles -->
+    <div class="sheet notes" id="notes" hidden>
+      <h2>The jobs you fish for</h2>
+      <p>From your CV. Keep up to three; press one to take it off.</p>
+      <div class="notelist" id="noteList"></div>
+      <div class="own"><input id="noteOwn" placeholder="Another title…"><button type="button" id="noteAdd">Add</button></div>
+      <div class="said"></div>
+      <button class="go" id="notesGo" type="button">Next</button>
+    </div>
+
+    <!-- 3. the map on the wall: where -->
+    <div class="sheet map" id="map" hidden>
+      <h2>Where?</h2>
+      <p>A city, or leave it empty for anywhere.</p>
+      <input id="city" placeholder="London">
+      <label class="tick"><input type="checkbox" id="remote" checked> Remote jobs too</label>
+      <div class="said"></div>
+      <button class="go" id="mapGo" type="button">Done</button>
+    </div>
     <div class="veil" id="sky" hidden>
       <div class="card">
         <h1>The sky</h1>

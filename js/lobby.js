@@ -3,6 +3,8 @@
 // duck wakes and floats up it into the sky. Our own scene: no character, picture or music of any cartoon.
 // Drawn small on a canvas whose shape follows the window (wide on a computer, tall on a phone), scaled up sharp.
 
+import { me, begin } from './setup.js';
+
 const cv = document.getElementById('scene');
 const g = cv.getContext('2d');
 const $ = (id) => document.getElementById(id);
@@ -73,7 +75,7 @@ function layout() {
 const STARS = [];
 
 // ---- the play ---------------------------------------------------------------------------------------------------------
-const S = { t: 0, mode: 'sleep', a: 0, zs: [], sparks: [] };   // sleep · ascend · gone
+const S = { t: 0, mode: 'sleep', a: 0, zs: [], sparks: [], ready: !!me };   // sleep · ascend · gone; ready once the CV is in
 const ASCEND = { beam: 1.0, steps: 2.2, wake: 2.4, rise: 2.8, top: 5.2, white: 6.0 };
 
 function step(dt) {
@@ -179,12 +181,18 @@ function place() {
 // ---- input: the mouse alone (a touch on a phone) ------------------------------------------------------------------------
 function logical(e) { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / K, y: (e.clientY - r.top) / K }; }
 const onDuck = (p) => p.x >= L.duckX - 4 && p.x <= L.duckX + 24 && p.y >= L.duckY - 6 && p.y <= L.duckY + 20;
-cv.addEventListener('pointermove', (e) => cv.classList.toggle('over-duck', S.mode === 'sleep' && onDuck(logical(e))));
+cv.addEventListener('pointermove', (e) => cv.classList.toggle('over-duck', S.ready && S.mode === 'sleep' && onDuck(logical(e))));
 cv.addEventListener('pointerdown', (e) => {
-  if (S.mode !== 'sleep' || !onDuck(logical(e))) return;
+  if (!S.ready || S.mode !== 'sleep' || !onDuck(logical(e))) return;
   S.mode = 'ascend'; S.a = 0; $('hint').hidden = true; cv.classList.remove('over-duck');
 });
 $('down').addEventListener('click', () => { S.mode = 'sleep'; S.sparks = []; $('sky').hidden = true; $('hint').hidden = false; });
+
+// the CV first (PLAN.md 9, part 2): asked once; a return goes straight to the duck, «My CV» asks again
+function ready() { S.ready = true; $('hint').hidden = false; $('mycv').hidden = false; }
+function ask() { S.ready = false; $('hint').hidden = true; $('mycv').hidden = true; begin(ready); }
+$('mycv').addEventListener('click', ask);
+if (me) ready(); else ask();
 
 addEventListener('resize', fit);
 fit();
