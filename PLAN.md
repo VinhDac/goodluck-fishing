@@ -497,7 +497,8 @@ Greenhouse, Lever, Ashby), tàu hiện trên bến và trên biển đúng như 
 ## 17. Câu cá cho ra câu cá; phần chơi là phần nổi (Vin, 15/11, sau khi thử bước 1: «không cần các tàu nhỏ ... hiện tại
 không có thả câu mà đợi, nó bị vội quá ... phần cho chơi chỉ là 1 phần nổi ... không thì cứ bật auto cho chạy từ đầu đến
 cuối, có process ở góc, xong thì popup kết quả ... text của vịt chắn thanh power ... cho nhiều mây lên, để thả như thả hồ
-cá, rồi bắt ... đóng vai người dùng ... bàn với tôi»)
+cá, rồi bắt ... đóng vai người dùng ... bàn với tôi»; rồi: «khi câu cá phải câu từ dưới lên, hiện tại đang câu ngang vịt,
+khá buồn cười, ta đang lãng phí đồ họa đẹp mắt ở dưới»)
 
 **Claude hiểu:** (1) bỏ các tàu nhỏ; (2) việc tìm luôn tự chạy hết, chỉ cần tiến độ ở góc, xong thì bảng kết quả bật lên;
 (3) phần chơi là phần nổi để kích thích: muốn thì cầm cần, không thì vịt tự câu; (4) câu phải có nhịp thật: thả rồi chờ;
@@ -514,13 +515,16 @@ chọn mồi, bấm thuyền.
 2. Tiến độ ở góc là máy dò cá (sonar) gắn trên thuyền: vạch quét, chấm hiện khi tìm thấy việc, chấm vàng là việc vàng, chữ
    «1,240/2,840 companies · 87 jobs · 12 golden». Tìm xong và kiểm xong các việc tốt nhất thì chuông reo, bảng «Catch of
    the day» bật lên.
-3. Hồ: mỗi việc tìm thấy bốc lên thành mây từ chính toà nhà công ty đó dưới thành phố (biển tên sáng lên), bay vào hồ trước
-   thuyền và bơi lượn ở đó, không trôi mất. Hồ hiện cùng lúc khoảng 30 con tốt nhất (điện thoại 20). Thành phố chạy khi đang
-   tìm, chậm dần và dừng khi tìm xong (thả neo): chuyển động là việc thật.
-4. Câu có nhịp thật, 15 đến 30 giây một con: ngắm chỗ, giữ để ngả cần, thả ra, dây cong, phao lơ lửng ở chỗ rơi; chờ: phao
-   nhấp nhô, cá lượn lại gần mồi (đúng kỹ năng thì tới nhanh), có cú rỉa nhẹ (giật lúc này là cá sợ bỏ đi); cắn thật: phao
-   chìm hẳn, chuông, dấu «!» trên đầu vịt, giật cần; kéo co: cần cong, dây rung, cá vùng hai bên, thanh lực cố định cạnh
-   thuyền; lên cá: vịt vớt bằng vợt, thẻ việc lật lên như khoe cá. Việc đã đóng thì câu lên chiếc ủng cũ.
+3. Hồ là khoảng trời BÊN DƯỚI thuyền, trên các mái nhà: thuyền nổi ở phần trên màn hình, thành phố là đáy hồ. Mỗi việc tìm
+   thấy bốc lên thành mây-cá từ chính toà nhà công ty đó (biển tên sáng lên) rồi bơi lượn giữa các tầng sâu, không trôi mất.
+   Cá càng hợp càng to và càng ở sâu, sát mái nhà: muốn cá vàng phải thả sâu. Hồ hiện cùng lúc khoảng 30 con tốt nhất (điện
+   thoại 20). Thành phố chạy khi đang tìm, chậm dần và dừng khi tìm xong (thả neo): chuyển động là việc thật.
+4. Câu thả đứng, kéo từ dưới lên, 15 đến 30 giây một con: vịt nghiêng qua mạn thuyền; ngắm chỗ (trái, phải) và độ sâu (giữ
+   càng lâu, mồi càng xuống sâu); thả ra: mồi chìm từ từ giữa các tầng mây, dây thẳng đứng, khẽ đung đưa; chờ: cá lượn lại
+   gần mồi (đúng kỹ năng thì tới nhanh), có cú rỉa nhẹ (đầu cần giật khẽ: giật lúc này là cá sợ bỏ đi); cắn thật: đầu cần
+   cắm xuống, chuông, dấu «!» trên đầu vịt, giật cần; kéo lên: cá vùng ngang và lặn xuống, giữ để quay, thả để nhả, thanh lực
+   cố định cạnh thuyền; tới mạn thuyền thì vịt vớt bằng vợt, thẻ việc lật lên như khoe cá. Việc đã đóng: câu lên chiếc ủng cũ.
+   Các nút điều khiển xuống dải dưới cùng; máy dò cá ở góc trên, nhìn xuống đáy như máy dò cá thật.
 5. Lời nói: bỏ bong bóng; một khung thoại cố định ở góc dưới (chân dung vịt hoặc mòng biển, 1 đến 2 dòng), ít câu hơn.
 6. Đồ vật (đều là thứ thật): máy dò cá = tiến độ; hộp đồ câu = mồi (kỹ năng) và lưỡi (ngưỡng); vợt = lưới mỗi ngày; xô cá
    đầy dần = số việc đã bắt; cần có ống quay, phao đỏ trắng; sổ câu ở văn phòng (cá to nhất tuần, công ty đã câu, chuỗi ngày).
@@ -529,7 +533,8 @@ chọn mồi, bấm thuyền.
 8. Từ ngày thứ hai: nhớ mồi và lưỡi; một nút «Go fishing» ở văn phòng, thang nhanh, thẳng ra hồ.
 
 **Cần Vin chọn:** A tự câu khi không chạm, hay giữ nút Auto; B hồ bao nhiêu con; C bảng kết quả gồm gì; D bỏ qua cảnh đi
-đường từ ngày thứ hai; E máy dò cá làm tiến độ ở góc; F thành phố chạy khi tìm, dừng khi xong; G chuyện cười giữ cái nào.
+đường từ ngày thứ hai; E máy dò cá làm tiến độ ở góc; F thành phố chạy khi tìm, dừng khi xong; G chuyện cười giữ cái nào;
+H cá vàng ở sâu (phải thả sâu mới tới), hay cá nào cũng bơi khắp hồ.
 
 **Quyết định:** (chờ Vin)
 
