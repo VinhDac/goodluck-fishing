@@ -288,6 +288,33 @@ Thử 15/11: 69 mây cho AI/ML ở London hoặc remote, quăng, kéo, thẻ vi�
   (`manifest.webmanifest`), thẻ chia sẻ 1200x630 khi dán link lên LinkedIn hay X (`img/card.png`), README cho repo.
   Tất cả vẽ từ chính con vịt của game bằng `tools/icons.py`.
 
+## 12. Lobby làm lại, chi tiết (Vin, 15/11: «chưa đạt về độ tiểu tiết ... 2D và cận 3D ... vịt có thoại ... bên phải có
+thang cuốn lên trời luôn ... bàn với tôi trước»)
+
+**Vì sao còn viền xanh đen:** cảnh vẽ nhỏ rồi phóng to theo số nguyên để pixel sắc, và khổ bị kẹp (rộng 240 đến 400,
+cao 180); phần thừa của cửa sổ thành viền. Sửa: cảnh phủ kín cửa sổ, mép tới mép; vẫn phóng số nguyên, nhưng khổ vẽ =
+cửa sổ chia cho hệ số, mọi vật xếp theo khổ đó (tường, trời kéo dài ra). Các nút nổi trên cảnh. Cả cảnh trời cũng vậy.
+
+**Phong cách «cận 3D» (2.5D):** vẫn pixel, nhưng pixel nhỏ hơn (cảnh cao khoảng 270 đến 360 điểm thay vì 180) để đủ
+chỗ cho tiểu tiết; nhìn chéo ba phần tư (thấy mặt bàn và mặt trước bàn); ánh sáng thật: vũng sáng đèn bàn, bóng đổ của
+vật, màn hình hắt xanh lên mặt vịt; ba lớp sâu (tường xa, bàn giữa, vật gần mép) lệch nhẹ theo chuột (parallax).
+
+**Bố cục (trái sang phải):** tường sau (cửa sổ mưa đêm, đồng hồ 3:47 sáng, lịch gạch kín «Day 214», bảng ghim thư từ
+chối có dấu REJECTED, poster vịt treo cành «Hang in there»); bàn giữa (vịt gục mặt lên bàn phím, ly cà phê rỗng, cốc
+mì, chậu cây héo, điện thoại, CV in «CV_final_v12_REALLYFINAL»); thùng rác tràn giấy vo; bên phải thang cuốn vàng có
+sẵn, chạy suốt, xuyên trần lên trời, dây chặn nhung «CV required», biển «↑ SKY».
+
+**Câu đùa sống:** mỏ vịt đè bàn phím, thư xin việc trên màn hình tự gõ «I am passionate about ffffffff»; điện thoại
+rung, vịt giật mình, đọc «Unfortunately…», gục lại; giấy vo thỉnh thoảng ném trượt thùng; cây héo dần.
+
+**Thoại:** bóng thoại pixel, chữ hiện dần. Nói mớ khi ngủ; nói khi nạp CV, chọn chức danh, nơi làm, lên thang; bấm vào
+vật nào vịt nói về vật đó (ly, điện thoại, bảng thư, cây, lịch, thùng rác); lần sau vào nói số hôm qua.
+
+**Cần Vin chọn:** A phong cách (pixel 2.5D / 3D thật / vẽ mịn); B tiếng của thoại; C âm thanh; D mức đùa và tên công ty
+trên thư từ chối; E thang cuốn trước khi có CV; F trước khi dựng, một ảnh tĩnh để duyệt.
+
+**Quyết định:** (chờ Vin)
+
 ---
 
 ## Nhật ký bàn bạc
