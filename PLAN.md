@@ -232,7 +232,7 @@ Khoá API là bí mật: để trong `data/keys.json` (thư mục `data/` không
 
 ---
 
-## 9. Bước 3: cảnh Lobby, phác hoạ (chờ Vin duyệt)
+## 9. Bước 3: cảnh Lobby (đã duyệt, chờ dựng)
 
 Phong cách: pixel art như bản ao đã làm (vẽ trên canvas, phóng to giữ nét). Chú vịt vàng: vẽ lại vịt GoodLuck bằng
 pixel, thân vàng, mỏ cam. Chỉ chuột (chạm trên điện thoại). Màn hình ngang và dọc đều bày được.
@@ -258,6 +258,9 @@ thang cuốn hạ xuống ngay. Một nút nhỏ «My CV» để đổi CV, ch�
   cửa); (b) bắt buộc trước khi lên trời; (c) chỉ hỏi sau chuyến câu đầu tiên, lúc có thùng cá để giữ.
 - B. CV nhận những dạng nào: PDF và dán chữ (Claude đề xuất), hay thêm cả Word (.docx).
 - C. Câu đùa trên màn hình máy tính: giữ, đổi chữ, hay bỏ.
+
+**Quyết định (Vin, 15/11: «A a, B PDF, C giữ»):** đăng nhập ở khung 5, có «Later»; CV nhận PDF và chữ dán; giữ câu
+đùa trên màn hình máy tính. Đọc PDF trong trình duyệt bằng pdf.js (thư viện của Mozilla, tải từ cdnjs).
 
 ---
 
