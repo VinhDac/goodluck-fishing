@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from discover import ask  # noqa: E402  a board asked politely, as the other tools ask
 
 HERE = Path(__file__).resolve().parent.parent
-BOARDS = HERE / "data" / "boards.json"
+BOARDS = HERE / "store" / "boards.json"            # the live boards, kept in the repo (public names)
 OUT = HERE / "data" / "jobs.jsonl"
 SKILLS = json.loads((HERE / "skills.json").read_text(encoding="utf-8"))
 # each skill's spellings as whole words, as js/score.js reads them

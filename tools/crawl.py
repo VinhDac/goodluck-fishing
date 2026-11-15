@@ -29,7 +29,7 @@ from discover import AGENT, SYSTEMS, ask  # noqa: E402  the boards' own addresse
 
 HERE = Path(__file__).resolve().parent.parent
 SLUGS = HERE / "data" / "slugs.json"
-BOARDS = HERE / "data" / "boards.json"
+BOARDS = HERE / "store" / "boards.json"            # the live boards, kept in the repo (public names)
 INDEX = "https://index.commoncrawl.org"
 # where each system's boards live on the web
 HOSTS = {"ashby": ["jobs.ashbyhq.com"], "lever": ["jobs.lever.co", "jobs.eu.lever.co"],

@@ -1,0 +1,29 @@
+# THE HARVEST, BY ITSELF (PLAN.md 5 and 7): every six hours, every live company board read (tools/harvest.py) and the
+# jobs written into Supabase (tools/upload.py), closed ones marked. The secret key is the repo's secret, never in the code.
+name: harvest
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"     # 00:17, 06:17, 12:17, 18:17 UTC
+  workflow_dispatch: {}         # and on a press, from the Actions tab
+
+concurrency:
+  group: harvest
+  cancel-in-progress: false
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Read every live board
+        run: python -u tools/harvest.py
+      - name: Write into Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: python -u tools/upload.py
