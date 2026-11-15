@@ -42,7 +42,7 @@ footer a { color: inherit; }
 .sheet { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(380px, 88%); max-height: 86%; overflow: auto;
   background: var(--paper); color: var(--ink); border: 3px solid var(--edge); box-shadow: 0 6px 0 var(--edge), 0 18px 40px rgba(0, 0, 0, .5);
   border-radius: 3px; padding: 16px 18px; animation: rise .25s ease-out; }
-.sheet[hidden], .mycv[hidden] { display: none; }
+.sheet[hidden] { display: none; }
 @keyframes rise { from { transform: translate(-50%, -44%); opacity: 0; } }
 .sheet.paper { transform: translate(-50%, -50%) rotate(-1.5deg); }
 .sheet.map { background: #e9f1e1; }
@@ -65,5 +65,14 @@ footer a { color: inherit; }
 .own input { flex: 1; }
 .own button { margin-top: 0; padding: 8px 12px; }
 .tick { display: flex; align-items: center; gap: 6px; margin: 10px 0 0; font: 15px system-ui, sans-serif; }
-.mycv { position: fixed; top: 10px; right: 12px; font: 600 14px var(--ui); background: var(--paper); color: var(--ink); border: 2px solid var(--edge);
+/* the corner: who is signed in, and the ways back to the questions */
+.corner { position: fixed; top: 10px; right: 12px; display: flex; gap: 8px; align-items: center; }
+.corner button { font: 600 14px var(--ui); background: var(--paper); color: var(--ink); border: 2px solid var(--edge);
   border-radius: 3px; padding: 6px 10px; cursor: pointer; box-shadow: 0 3px 0 var(--edge); }
+.corner button[hidden], .corner span[hidden] { display: none; }
+.corner span { font: 13px system-ui, sans-serif; opacity: .75; }
+.sheet.postcard { background: #fdf3e3; transform: translate(-50%, -50%) rotate(1deg); border-style: double; border-width: 6px; }
+.sheet.postcard input { width: 100%; font: 15px system-ui, sans-serif; padding: 8px 10px; border: 2px solid var(--edge); border-radius: 3px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.ghost { font: 600 16px var(--ui); padding: 9px 16px; background: #efe3c4; color: var(--ink); border: 2px solid var(--edge);
+  border-radius: 3px; box-shadow: 0 3px 0 var(--edge); cursor: pointer; margin-top: 8px; }

@@ -17,7 +17,17 @@
     <!-- the computer's screen: the words in real text, laid over the drawing -->
     <div class="screen" id="screen"><b>Applications sent: 80</b><span>Replies: 1</span></div>
     <div class="hint" id="hint" hidden>Click the duck</div>
-    <button class="mycv" id="mycv" hidden>My CV</button>
+    <div class="corner"><span id="who" hidden></span><button id="signin" hidden>Sign in</button><button id="mycv" hidden>My CV</button></div>
+
+    <!-- 4. the postcard: where to keep the bucket (sign in by an email link, or later) -->
+    <div class="sheet postcard" id="postcard" hidden>
+      <h2>Where should we send your bucket?</h2>
+      <p>Your email gets a link: open it and your bucket is kept from day to day, on any device. No password. Your CV
+        stays on this device either way.</p>
+      <input id="pcEmail" type="email" placeholder="you@example.com" autocomplete="email">
+      <div class="said" id="pcSaid"></div>
+      <div class="row"><button class="go" id="pcSend" type="button">Send the link</button><button class="ghost" id="pcLater" type="button">Later</button></div>
+    </div>
 
     <!-- 1. the paper on the desk: the CV -->
     <div class="sheet paper" id="paper" hidden>

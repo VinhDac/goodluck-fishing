@@ -4,6 +4,7 @@
 // Drawn small on a canvas whose shape follows the window (wide on a computer, tall on a phone), scaled up sharp.
 
 import { me, begin } from './setup.js';
+import { user, saveProfile, postcard } from './account.js';
 
 const cv = document.getElementById('scene');
 const g = cv.getContext('2d');
@@ -188,11 +189,22 @@ cv.addEventListener('pointerdown', (e) => {
 });
 $('down').addEventListener('click', () => { S.mode = 'sleep'; S.sparks = []; $('sky').hidden = true; $('hint').hidden = false; });
 
-// the CV first (PLAN.md 9, part 2): asked once; a return goes straight to the duck, «My CV» asks again
-function ready() { S.ready = true; $('hint').hidden = false; $('mycv').hidden = false; }
-function ask() { S.ready = false; $('hint').hidden = true; $('mycv').hidden = true; begin(ready); }
+// the CV first (PLAN.md 9, part 2): asked once; a return goes straight to the duck, «My CV» asks again. Then, for one
+// not signed in, the postcard (part 3); signed in, what they look for is kept with their account.
+function ready() { S.ready = true; $('hint').hidden = false; $('mycv').hidden = false; corner(); }
+async function corner() {
+  const u = await user();
+  $('who').hidden = !u; $('who').textContent = u ? `Signed in: ${u.email}` : '';
+  $('signin').hidden = !!u;
+  return u;
+}
+function asked(v) {
+  user().then((u) => { if (u) { saveProfile(v); ready(); } else postcard(ready); });
+}
+function ask() { S.ready = false; $('hint').hidden = true; $('mycv').hidden = true; $('signin').hidden = true; begin(asked); }
 $('mycv').addEventListener('click', ask);
-if (me) ready(); else ask();
+$('signin').addEventListener('click', () => { $('signin').hidden = true; postcard(ready); });
+if (me) { ready(); user().then((u) => { if (u) saveProfile(me); }); } else ask();
 
 addEventListener('resize', fit);
 fit();
