@@ -1,0 +1,39 @@
+:root {
+  --night: #0c0f24;
+  --paper: #fff8e7;
+  --ink: #1b1f3a;
+  --edge: #3a2a1a;
+  --yellow: #ffd84a;
+  --ui: "Pixelify Sans", ui-monospace, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--night); color: var(--paper); font-family: var(--ui); }
+body { display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+
+/* the scene fills the window, drawn small and scaled up so each pixel stays sharp */
+#stage { position: relative; }
+#scene { display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: default; touch-action: manipulation; }
+#scene.over-duck { cursor: pointer; }
+footer { position: fixed; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 12px; opacity: .45; letter-spacing: .04em; }
+footer a { color: inherit; }
+
+/* the words on the computer's screen, placed by lobby.js over the drawn screen */
+.screen { position: absolute; display: flex; flex-direction: column; justify-content: center; gap: .2em; padding: 0 .4em;
+  color: #9ff0b8; text-shadow: 0 0 6px rgba(120, 255, 170, .6); line-height: 1.1; pointer-events: none; white-space: nowrap; overflow: hidden; }
+.screen b { font-weight: 600; }
+
+.hint { position: absolute; transform: translateX(-50%); font-size: 16px; color: #fff; padding: 5px 10px; border-radius: 3px;
+  background: rgba(12, 15, 36, .7); border: 2px solid rgba(255, 216, 74, .7); pointer-events: none; white-space: nowrap;
+  animation: breathe 2.2s ease-in-out infinite; }
+.hint[hidden] { display: none; }
+@keyframes breathe { 50% { opacity: .45; } }
+
+.veil { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, .25); }
+.veil[hidden] { display: none; }
+.card { background: var(--paper); color: var(--ink); border: 3px solid var(--edge); box-shadow: 0 6px 0 var(--edge); padding: 18px 22px;
+  border-radius: 4px; width: min(420px, 90%); text-align: center; }
+.card h1 { margin: 0 0 6px; font-size: 26px; }
+.card p { font: 15px/1.5 system-ui, sans-serif; margin: 0 0 14px; }
+.card button { font: 600 16px var(--ui); padding: 9px 16px; background: var(--yellow); color: var(--ink); border: 2px solid var(--edge);
+  border-radius: 3px; box-shadow: 0 3px 0 var(--edge); cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .hint { animation: none; } }
