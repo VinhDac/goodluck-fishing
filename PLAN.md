@@ -435,6 +435,49 @@ tutorial. còn game thật, ứng dụng thật làm exe ... dùng chrome cào .
 - F. Thứ tự: (1) app chạy game + kho chung trên máy, (2) đội tàu nguồn (a), (3) Chrome cho (b) và (c), (4) web thành bản
   dạy chơi. Mỗi bước Vin xem rồi mới đi tiếp.
 
+**Quyết định (Vin, 15/11: «đồng ý theo đề xuất của bạn»):** A app riêng; B LinkedIn công khai, chậm, tự dừng; C Google chậm,
+để khám phá; D web dữ liệu mẫu; E bỏ Supabase và đăng nhập; F theo thứ tự trên. Trước bước 1: thống nhất trải nghiệm (mục 16).
+
+## 16. Chơi và tìm là một (Vin, 15/11: «không phải chạy ngầm, mà chơi với tìm nó phải gần như tương tác với nhau, là 1 chứ
+không phải 2 nguồn ... làm 1 game thống nhất không phải làm game trá hình»)
+
+**Luật:** mỗi thứ chuyển động trên màn hình là một việc thật đang xảy ra; mỗi thao tác của người chơi điều khiển việc tìm
+thật. Không có hoạt cảnh nào chỉ để che việc chạy ngầm. Không có kết quả nào đến mà không hiện ra trong trò chơi.
+
+| Trong game | Việc thật đang xảy ra |
+|---|---|
+| Bến: chọn chức danh, nơi chốn trên bảng | các câu tìm của hôm nay |
+| Mỗi con tàu của đội (một nguồn) | một bộ tìm: API công ty, cổng nhà nước, trang công ty bằng Chrome, LinkedIn công khai |
+| Bấm cho tàu nhổ neo | tàu đó bắt đầu tìm, ngay lúc đó |
+| Tàu ngoài khơi, lưới thả | yêu cầu đang chạy; thanh lưới đầy dần theo số trang đã đọc |
+| Mây hiện ra trên trời | một việc vừa tìm thấy, đúng lúc nó được tìm thấy |
+| Quăng câu vào một mây, chờ cắn | Chrome mở trang việc đó, đọc toàn bộ mô tả; thời gian chờ là thời gian tải thật |
+| Cá cắn, kéo lên, cá hiện cỡ thật | mô tả đã đọc xong, điểm hợp được chấm lại trên toàn văn (mây «ngoài nhìn nhỏ, câu lên to») |
+| Keep / Throw back | dạy mồi: kỹ năng của việc giữ thành mồi cho các tàu sau; việc bỏ thì tàu sau tránh loại đó |
+| Mồi (lọ kỹ năng) | từ khoá thêm vào câu tìm của tàu |
+| Tàu cảnh sát biển chặn tàu LinkedIn | LinkedIn chặn: dừng thật, báo thật, mai thử lại |
+| Ngọn hải đăng quét | Google tìm công ty mới; toà nhà mới mọc lên (cần cẩu) dưới thành phố = công ty vừa được khám phá |
+| Mây đen tan | kiểm lại việc cũ trong thùng: việc đã đóng tự đánh dấu Expired |
+| Hoàng hôn | mọi tàu về bến: hết buổi tìm |
+| Báo cáo | việc mới theo từng tàu, công ty mới tìm thấy, nguồn bị chặn, việc đã đóng |
+
+**Mười phút buổi sáng:**
+- 0:00 Văn phòng: số hôm qua; vịt dậy, lên thang.
+- 0:30 Bến: bảng là đội tàu thật (tàu nào, đi đâu, hôm qua mang về bao nhiêu); chọn mồi; bấm cho đội tàu nhổ neo (hoặc từng tàu).
+- 1:00 đến 3:00 Tàu nhanh (API) về trước: trời đầy mây nhanh; người chơi câu những mây vàng đầu tiên.
+- 3:00 đến 8:00 Tàu Chrome về rải rác (trang công ty); hải đăng thỉnh thoảng làm mọc toà nhà mới; tàu LinkedIn chậm, có khi
+  gặp cảnh sát biển. Người chơi câu, mỗi lần câu là một trang được đọc kỹ.
+- 8:00 đến 10:00 Giờ vàng: tàu cuối về; mây vàng chưa câu trôi dạt vào thùng.
+- Hoàng hôn: báo cáo, danh sách.
+- Không chơi cũng được: vịt tự câu, tàu vẫn đi; nhưng chơi thì mình điều khiển: tàu nào đi trước, mồi gì, việc nào được đọc kỹ.
+
+**Chỗ gây cười (đều là chuyện thật của nguồn):** thuyền trưởng tàu LinkedIn mặc vest hỏi «Would you like to connect?»; mòng
+biển than trang Workday tải lâu; tàu về không có gì: «Hiring freeze»; một toà nhà mới mọc lên rồi treo biển «We're hiring!
+(not really)» khi trang công ty không có việc; chai thư từ máy bay = việc ngoài chức danh mà CV vẫn hợp.
+
+**Bước 1 theo đó:** app riêng (exe), mở cửa sổ game, có bộ tìm thật bên trong ngay từ đầu cho tàu nhanh (API công ty đã có:
+Greenhouse, Lever, Ashby), tàu hiện trên bến và trên biển đúng như bảng trên. Chrome, LinkedIn, hải đăng ở các bước sau.
+
 **Quyết định:** (chờ Vin)
 
 ---
