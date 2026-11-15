@@ -28,7 +28,7 @@ footer a { color: inherit; }
 .hint[hidden] { display: none; }
 @keyframes breathe { 50% { opacity: .45; } }
 
-.veil { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, .25); }
+.veil { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(15, 18, 38, .35); }
 .veil[hidden] { display: none; }
 .card { background: var(--paper); color: var(--ink); border: 3px solid var(--edge); box-shadow: 0 6px 0 var(--edge); padding: 18px 22px;
   border-radius: 4px; width: min(420px, 90%); text-align: center; }
@@ -76,3 +76,20 @@ footer a { color: inherit; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
 .ghost { font: 600 16px var(--ui); padding: 9px 16px; background: #efe3c4; color: var(--ink); border: 2px solid var(--edge);
   border-radius: 3px; box-shadow: 0 3px 0 var(--edge); cursor: pointer; margin-top: 8px; }
+
+/* the sky's head-up display, the names on the roofs, the card of a cloud caught */
+.skyhud { position: fixed; top: 10px; left: 12px; right: 140px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.skyhud[hidden] { display: none; }
+.chip { font: 600 14px var(--ui); background: var(--paper); color: var(--ink); border: 2px solid var(--edge); border-radius: 3px; padding: 5px 9px; box-shadow: 0 3px 0 var(--edge); }
+.skyhud .said { font: 14px system-ui, sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+#signs { position: absolute; inset: 0; pointer-events: none; }
+.sign { position: absolute; transform: translate(-50%, -100%); font: 600 11px var(--ui); color: #fff; background: rgba(27,31,58,.75); padding: 1px 4px; border-radius: 2px; white-space: nowrap; }
+.sign.decor { opacity: .55; font-style: italic; }
+.kicker { font: 600 13px var(--ui); letter-spacing: .1em; text-transform: uppercase; color: #8a6a3a; }
+.card h1 { font-size: 22px; }
+.card .who { font: 600 16px system-ui, sans-serif; }
+.card .meta { font: 14px system-ui, sans-serif; color: #6a5a40; margin-top: 2px; }
+.card .fit { font: 13px/1.45 system-ui, sans-serif; color: #4a3a20; margin: 10px 0 4px; }
+.card .go { text-decoration: none; }
+.card .go[hidden] { display: none; }
+.screen[hidden] { display: none; }

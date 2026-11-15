@@ -4,7 +4,9 @@
 // Drawn small on a canvas whose shape follows the window (wide on a computer, tall on a phone), scaled up sharp.
 
 import { me, begin } from './setup.js';
+import { AWAKE, ASLEEP } from './art.js';
 import { user, saveProfile, postcard } from './account.js';
+import { makeSky } from './sky.js';
 
 const cv = document.getElementById('scene');
 const g = cv.getContext('2d');
@@ -12,6 +14,7 @@ const $ = (id) => document.getElementById(id);
 
 // ---- the stage: a small canvas shaped like the window ------------------------------------------------------------------
 let W = 320, H = 180, K = 1;
+let sky = null;                                    // the sky scene, made below once the page is laid out
 function fit() {
   const iw = innerWidth, ih = innerHeight - 28;
   if (iw >= ih) { H = 180; W = Math.max(240, Math.min(400, Math.round(H * iw / ih))); }
@@ -22,40 +25,12 @@ function fit() {
   cv.style.width = `${W * K}px`; cv.style.height = `${H * K}px`;
   g.imageSmoothingEnabled = false;
   layout();
+  if (sky) sky.resize();
 }
 
 // ---- pixel tools ------------------------------------------------------------------------------------------------------
 const rect = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
-function sprite(rows, ink) {
-  const c = document.createElement('canvas'); c.width = rows[0].length; c.height = rows.length;
-  const x = c.getContext('2d');
-  rows.forEach((r, y) => [...r].forEach((ch, i) => { if (ink[ch]) { x.fillStyle = ink[ch]; x.fillRect(i, y, 1, 1); } }));
-  return c;
-}
-
-// ---- the yellow duck: GoodLuck's duck (its round head, raised tail, little beak), now yellow ----------------------------
-const DUCK = [
-  '.........kkkkk......',
-  '........kwwwwwk.....',
-  '.......kwwwwwwwk....',
-  '.......kwwwwwEwk....',
-  '.......kwwwwwwwkkk..',
-  '.......kwwwwwwwoook.',
-  '........kwwwwwwkkk..',
-  '.kk......kwwwwwk....',
-  'kwwk....kwwwwwwk....',
-  'kwwwkkkkwwwwwwwwk...',
-  'kwwwwwwwwwwwwwwwwk..',
-  'kwwwwwwdddwwwwwwwk..',
-  'kwwwwwdwwwdwwwwwwk..',
-  '.kwwwwwwwwwwwwwwwk..',
-  '.ksssssssssssssssk..',
-  '..kssssssssssssk....',
-  '...kkkkkkkkkkkk.....',
-];
-const INK = { k: '#7a4a12', w: '#ffd84a', s: '#f2b52a', o: '#f2802a', d: '#e9a92a' };
-const AWAKE = sprite(DUCK, { ...INK, E: '#1b1f3a' });
-const ASLEEP = sprite(DUCK.map((r, i) => (i === 3 ? r.replace('wE', 'zz') : r)), { ...INK, z: '#5a3a10' });
+// the yellow duck: js/art.js, shared with the sky
 
 // ---- the room, laid out from the canvas's own size ---------------------------------------------------------------------
 const L = {};
@@ -87,7 +62,7 @@ function step(dt) {
   if (S.mode === 'ascend') {
     S.a += dt;
     if (S.a > ASCEND.rise && Math.random() < dt * 18) S.sparks.push({ x: duckAt().x + 10 + (Math.random() - 0.5) * 16, y: duckAt().y + 8, age: 0 });
-    if (S.a >= ASCEND.white) { S.mode = 'gone'; $('sky').hidden = false; }
+    if (S.a >= ASCEND.white) { S.mode = 'gone'; $('hint').hidden = true; $('screen').hidden = true; sky.start(); }
   }
   for (const s of S.sparks) { s.age += dt; s.y += dt * 10; }
   S.sparks = S.sparks.filter((s) => s.age < 1);
@@ -184,10 +159,17 @@ function logical(e) { const r = cv.getBoundingClientRect(); return { x: (e.clien
 const onDuck = (p) => p.x >= L.duckX - 4 && p.x <= L.duckX + 24 && p.y >= L.duckY - 6 && p.y <= L.duckY + 20;
 cv.addEventListener('pointermove', (e) => cv.classList.toggle('over-duck', S.ready && S.mode === 'sleep' && onDuck(logical(e))));
 cv.addEventListener('pointerdown', (e) => {
+  if (sky.S.on) { sky.click(logical(e)); return; }
   if (!S.ready || S.mode !== 'sleep' || !onDuck(logical(e))) return;
   S.mode = 'ascend'; S.a = 0; $('hint').hidden = true; cv.classList.remove('over-duck');
 });
-$('down').addEventListener('click', () => { S.mode = 'sleep'; S.sparks = []; $('sky').hidden = true; $('hint').hidden = false; });
+// the sky (step 4): it takes the canvas once the duck is up; its card's button goes on fishing, or, at sunset, home
+const toCss = (x, y) => { const r = cv.getBoundingClientRect(), st = $('stage').getBoundingClientRect(); return { x: r.left - st.left + x * K, y: r.top - st.top + y * K }; };
+sky = makeSky(g, () => ({ W, H }), toCss);
+$('ctBack').addEventListener('click', () => {
+  sky.closeCard();
+  if (sky.S.over) { sky.S.on = false; $('skyHud').hidden = true; $('signs').replaceChildren(); S.mode = 'sleep'; S.sparks = []; $('hint').hidden = false; $('screen').hidden = false; }
+});
 
 // the CV first (PLAN.md 9, part 2): asked once; a return goes straight to the duck, «My CV» asks again. Then, for one
 // not signed in, the postcard (part 3); signed in, what they look for is kept with their account.
@@ -211,12 +193,12 @@ fit();
 let last = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  step(dt); draw();
+  if (sky.S.on) { sky.step(dt); sky.draw(); } else { step(dt); draw(); }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 // ?debug: the scene's own hands, to try it where the page draws no frames
 if (new URLSearchParams(location.search).has('debug')) {
-  window.lobby = { S, L, run(sec) { for (let i = 0; i < sec * 20; i++) step(0.05); draw(); return S.mode; },
+  window.lobby = { S, L, sky, run(sec) { for (let i = 0; i < sec * 20; i++) step(0.05); draw(); return S.mode; },
     click() { S.mode = 'ascend'; S.a = 0; $('hint').hidden = true; } };
 }

@@ -60,11 +60,21 @@
       <div class="said"></div>
       <button class="go" id="mapGo" type="button">Done</button>
     </div>
-    <div class="veil" id="sky" hidden>
+    <!-- the sky: the day's clock, what was caught, a word from the sky; the names on the city's roofs -->
+    <div class="skyhud" id="skyHud" hidden>
+      <span class="chip">☀ <b id="skyClock">10:00</b></span><span class="chip">Caught <b id="skyCount">0</b></span>
+      <span class="said" id="skySaid"></span>
+    </div>
+    <div id="signs"></div>
+    <div class="veil" id="catch" hidden>
       <div class="card">
-        <h1>The sky</h1>
-        <p>Up here every cloud is a real job, just posted. The boat and the clouds come in the next part.</p>
-        <button id="down">Back to the office</button>
+        <div class="kicker" id="ctKicker">You caught</div>
+        <h1 id="ctTitle"></h1>
+        <div class="who" id="ctWho"></div>
+        <div class="meta" id="ctMeta"></div>
+        <p class="fit" id="ctFit"></p>
+        <a class="go" id="ctOpen" href="#" target="_blank" rel="noopener">Open the job ↗</a>
+        <button class="ghost" id="ctBack" type="button">Keep fishing</button>
       </div>
     </div>
   </main>
