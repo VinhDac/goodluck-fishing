@@ -264,6 +264,14 @@ thang cuốn hạ xuống ngay. Một nút nhỏ «My CV» để đổi CV, ch�
 
 ---
 
+## 10. Việc để quay lại (Vin, 15/11: «làm cái khác trước đi, quay lại cái này sau»)
+
+- Đăng nhập thật: link lần đầu đưa về localhost:3000 (Site URL mặc định chưa lưu); rồi chạm giới hạn thư của gói miễn phí
+  («email rate limit exceeded»). Cần: Vin lưu Site URL https://vinhdac.github.io/goodluck-fishing/ và Redirect URLs;
+  thử lại; đổi câu báo lỗi cho dễ hiểu; khi có người chơi thật, nối dịch vụ gửi thư riêng (vd. Resend).
+
+---
+
 ## Nhật ký bàn bạc
 
 - 13/11: tách folder riêng; thiết kế bản câu cá dưới ao; làm bước 1 đến 3 (ao, chấm điểm theo CV, giỏ nhớ qua ngày).
