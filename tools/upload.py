@@ -53,7 +53,10 @@ def main() -> int:
     url, key = keys()
     start = datetime.now(timezone.utc).isoformat()
     rows = []
-    for line in JOBS.read_text(encoding="utf-8").splitlines():
+    # line by line as the file has them: splitlines() also breaks at U+2028 inside a job's title (15 Nov 2026)
+    for line in JOBS.open(encoding="utf-8", newline="\n"):
+        if not line.strip():
+            continue
         j = json.loads(line)
         rows.append({"id": j["id"], "company": j["company"], "title": j["title"], "place": j["place"], "url": j["url"],
                      "posted": datetime.fromtimestamp(j["posted"], timezone.utc).isoformat() if j["posted"] else None,
