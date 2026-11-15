@@ -70,10 +70,7 @@ footer a { color: inherit; }
   border-radius: 3px; box-shadow: 0 3px 0 var(--edge); cursor: pointer; margin-top: 8px; }
 
 /* the sky's head-up display, the names on the roofs, the card of a cloud caught */
-.skyhud { position: fixed; top: max(10px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: calc(104px + env(safe-area-inset-right)); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.skyhud[hidden] { display: none; }
 .chip { font: 600 14px var(--ui); background: var(--paper); color: var(--ink); border: 2px solid var(--edge); border-radius: 3px; padding: 5px 9px; box-shadow: 0 3px 0 var(--edge); }
-.skyhud .said { font: 14px system-ui, sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
 .kicker { font: 600 13px var(--ui); letter-spacing: .1em; text-transform: uppercase; color: #8a6a3a; }
 .card h1 { font-size: 22px; }
 .card .who { font: 600 16px system-ui, sans-serif; }
@@ -114,7 +111,6 @@ select.chip { max-width: 11em; text-overflow: ellipsis; }
 .sheet input, .sheet textarea, .sheet.postcard input { font-size: 16px; }
 @media (max-width: 560px) {
   .chip, .corner button { font-size: 13px; padding: 4px 7px; }
-  .skyhud { gap: 6px; right: calc(88px + env(safe-area-inset-right)); }
   .corner { gap: 6px; }
   .corner span { display: none; }
   .card, .panel.report { padding: 14px; }
@@ -137,3 +133,15 @@ button.chip:disabled { opacity: .55; cursor: default; }
 .card button.ghost { background: #efe3c4; }
 .sheet { z-index: 10; }
 .veil { z-index: 10; }
+
+/* out fishing: the talk box at the bottom (PLAN.md 17: words never over the gauges) */
+.talk { position: fixed; z-index: 4; display: flex; gap: 8px; align-items: center; box-sizing: border-box; padding: 4px 10px 4px 6px;
+  background: var(--paper); color: var(--ink); border: 3px solid var(--edge); border-radius: 4px; box-shadow: 0 3px 0 var(--edge);
+  font: 15px/1.25 var(--ui); pointer-events: none; animation: pop .18s ease-out; overflow: hidden; }
+.talk[hidden] { display: none; }
+.talk canvas { width: 30px; height: 30px; image-rendering: pixelated; flex: none; background: #9fd4f8; border: 2px solid var(--edge); }
+body[data-scene="sea"] .corner { display: none; }
+.rplist li.head .fold { margin-left: 10px; font: 600 12px var(--ui); padding: 2px 8px; background: #efe3c4; color: var(--ink); border: 2px solid var(--edge); border-radius: 3px; cursor: pointer; }
+#rpActs { margin-top: 10px; }
+@media (max-width: 560px) { .talk { font-size: 13px; } }
+.corner button.gofish { background: var(--yellow); }

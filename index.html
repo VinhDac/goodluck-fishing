@@ -32,7 +32,7 @@
     <canvas id="scene" aria-label="A duck asleep at its desk, late at night, a golden escalator beside it."></canvas>
     <!-- what the duck, the gull or the sky says, in a bubble over the speaker -->
     <div class="bubble" id="say" hidden></div>
-    <div class="corner"><span id="who" hidden></span><button id="bucket" hidden>Bucket</button><button id="signin" hidden>Sign in</button><button id="mycv" hidden>My CV</button><button id="sound" type="button" title="Sound on or off">Sound: off</button></div>
+    <div class="corner"><span id="who" hidden></span><button id="bucket" hidden>Bucket</button><button id="signin" hidden>Sign in</button><button id="mycv" hidden>My CV</button><button id="gofish" class="gofish" hidden>Go fishing</button><button id="sound" type="button" title="Sound on or off">Sound: off</button></div>
 
     <!-- 4. the postcard: where to keep the bucket (sign in by an email link, or later) -->
     <div class="sheet postcard" id="postcard" hidden>
@@ -75,13 +75,8 @@
       <div class="said"></div>
       <button class="go" id="mapGo" type="button">Done</button>
     </div>
-    <!-- out fishing: the time left before sunset, what is caught, the bait and the hook, the net, auto -->
-    <div class="skyhud" id="skyHud" hidden>
-      <span class="chip" title="Time left before sunset">☀ <b id="skyClock">7:00</b></span><span class="chip">Caught <b id="skyCount">0</b></span>
-      <span class="chip soft" id="skyGear"></span>
-      <button class="chip" id="netBtn" type="button" title="Once a day: scoop every small cloud in sight">Net</button>
-      <button class="chip" id="autoSky" type="button" title="Let the duck fish by itself: the same jobs, no game">Auto: off</button>
-    </div>
+    <!-- out fishing: what the duck (or the gull) says, in a box at the bottom, over nothing that matters -->
+    <div class="talk" id="talk" hidden><canvas id="talkFace" width="16" height="16"></canvas><span id="talkText"></span></div>
     <div class="veil" id="catch" hidden>
       <div class="card">
         <div class="kicker" id="ctKicker">You caught</div>
@@ -100,7 +95,7 @@
         <div class="stats" id="rpStats"></div>
         <ol class="rplist" id="rpList"></ol>
         <div class="away" id="rpAway"></div>
-        <button class="go" id="rpBack" type="button">Close</button>
+        <div class="row" id="rpActs"></div>
       </div>
     </div>
   </main>

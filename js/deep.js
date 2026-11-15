@@ -28,7 +28,7 @@ export function makeDeep(g) {
     city.layout(W, H);
     L.boat = wide ? { x: Math.round(W * 0.05), y: 68 } : { x: 6, y: 92 };
     L.top = L.boat.y + 16;                                           // the lake: from under the boat's cloud ...
-    L.bottom = Math.round(H * (wide ? 0.75 : 0.7));                  // ... down to the roofs
+    L.bottom = Math.round(H * (wide ? 0.76 : 0.78));                 // ... down to the roofs
     L.deep = L.top + (L.bottom - L.top) * 0.62;                      // where the golden ones swim
     L.sonar = wide ? { x: W - 94, y: 6, w: 88, h: 66 } : { x: W - 90, y: 6, w: 84, h: 64 };
     L.bar = wide ? { x: W - 150, y: H - 38, w: 144, h: 32 } : { x: 6, y: H - 38, w: W - 12, h: 32 };
@@ -39,6 +39,7 @@ export function makeDeep(g) {
 
   // ---- a cloud-fish: a cloud with a tail, a fin and an eye; its size the fit, gold from the mark ---------------------------
   function fish(x, y, r, dir, kind, t, ph, { fresh = false, shy = 0 } = {}) {
+    if (kind === 'bottle') return bottle(x, y, t, ph);
     const [edge, top, body, belly] = FISH[kind] || FISH.near;
     const wag = Math.sin(t * 7 + ph) * r * 0.28, bx = x - dir * r * 1.15;
     const c = px.ctx;
@@ -62,11 +63,29 @@ export function makeDeep(g) {
     if (shy) for (let i = 0; i < 2; i++) P(x + dir * (r + 3 + i * 2), y - r - 2 - i * 2, 'rgba(255,255,255,0.8)');   // bubbles: it is looking at the bait
   }
 
+  function bottle(x, y, t, ph) {                                       // a message in a bottle, drifting down, turning a little
+    const tilt = Math.round(Math.sin(t * 1.2 + ph) * 2);
+    poly([[x - 3, y - 6 + tilt], [x + 3, y - 6 - tilt], [x + 3, y + 6 - tilt], [x - 3, y + 6 + tilt]], 'rgba(120,200,160,0.85)');
+    R(x - 1, y - 9 + tilt, 3, 3, '#8a5a32'); R(x - 1, y - 3, 2, 6, '#f4efe2'); P(x + 1, y - 5, 'rgba(255,255,255,0.8)');
+    if (Math.sin(t * 5 + ph) > 0.6) P(x + 4, y - 7, '#ffffff');
+  }
+  // an old boot, on the hook in place of a fish: the posting had closed
+  function boot(x, y) {
+    R(x - 3, y - 6, 5, 9, '#6a4628'); R(x - 3, y + 2, 9, 4, '#6a4628'); R(x + 5, y + 3, 2, 3, '#4a2e16');
+    R(x - 3, y + 5, 10, 1, '#2a1a10'); R(x - 2, y - 5, 1, 7, '#8a6040'); P(x + 1, y - 4, '#d8c8a0'); P(x + 1, y - 2, '#d8c8a0');
+  }
+
   // ---- the boat on its cloud, the duck leaning over with its rod -------------------------------------------------------------
   function boatAndCloud(t, st) {
     const { x, y } = L.boat;
     for (const [dx, dy, r] of [[8, 10, 10], [26, 12, 13], [46, 11, 12], [62, 9, 9], [-2, 7, 7]]) px.lump(x + dx, y + dy, r, 'near');
-    return drawBoat(px, x, y, t, { duck: true, rod: st.rod ?? 0.3, bend: st.bend || 0, shadow: false });
+    const tip = drawBoat(px, x, y, t, { duck: true, rod: st.rod ?? 0.3, bend: st.bend || 0, shadow: false });
+    if (st.idle && Math.sin(t * 0.6) > 0.55) {                           // a sip of coffee between fish
+      const yy = y + Math.round(Math.sin(t * 1.6) * 1.2);
+      R(x + 62, yy - 26, 4, 4, '#f1ead6'); R(x + 66, yy - 25, 1, 2, '#f1ead6'); R(x + 62, yy - 26, 4, 1, '#5a3a1a');
+      if (Math.sin(t * 3) > 0) P(x + 63, yy - 28, 'rgba(255,255,255,0.7)');
+    }
+    return tip;
   }
 
   // ---- the line, straight down to the bait, sagging a little; the bait on its hook ----------------------------------------------
@@ -126,7 +145,12 @@ export function makeDeep(g) {
     R(sx + sw - 2, sy, 1, sh, 'rgba(127,224,160,0.6)');                                       // the sweep, at the right
     const k = sn.total ? sn.read / sn.total : 0, by2 = sy + sh + 3;
     R(sx, by2, sw, 3, '#14161e'); R(sx, by2, Math.round(sw * k), 3, '#7fe0a0');
-    text(`${(sn.read || 0).toLocaleString('en-GB')}/${(sn.total || 0).toLocaleString('en-GB')}`, sx, by2 + 5, '#c9d0ff');
+    text(sn.what === 'store' ? 'THE HARBOUR STORE' : `${(sn.read || 0).toLocaleString('en-GB')}/${(sn.total || 0).toLocaleString('en-GB')}`, sx, by2 + 5, '#c9d0ff');
+    const spx = x + w - 30, spy = y + 2;                                                      // the speaker: sound on or off
+    R(spx, spy + 2, 2, 3, '#c9d0ff'); poly([[spx + 2, spy + 2], [spx + 5, spy], [spx + 5, spy + 7], [spx + 2, spy + 5]], '#c9d0ff');
+    if (sn.sound) { P(spx + 7, spy + 2, '#c9d0ff'); P(spx + 7, spy + 4, '#c9d0ff'); P(spx + 8, spy + 3, '#c9d0ff'); }
+    else { P(spx + 7, spy + 2, '#d03a2a'); P(spx + 8, spy + 3, '#d03a2a'); P(spx + 7, spy + 4, '#d03a2a'); P(spx + 9, spy + 2, '#d03a2a'); P(spx + 9, spy + 4, '#d03a2a'); }
+    L.spots.sound = { x: spx - 2, y: spy - 1, w: 13, h: 10 };
     const jobs = `${sn.found || 0} JOBS`, gold = `${sn.gold || 0} GOLD`;
     text(jobs, sx, by2 + 11, '#7fe0a0'); text(gold, sx + sw - textW(gold), by2 + 11, '#ffd84a');
     L.spots.sonar = { x, y, w, h };
@@ -172,7 +196,7 @@ export function makeDeep(g) {
 
   // ---- the line's tension, beside the boat, while a fish fights ---------------------------------------------------------------
   function gauge(fg) {
-    const x = L.boat.x + 92, y = L.boat.y - 44, h = 34;
+    const x = L.boat.x + 92, y = L.boat.y - 30, h = 30;
     text('LINE', x - 3, y - 7, '#fff8e7');
     R(x - 1, y - 1, 7, h + 2, '#1b1f3a'); R(x, y, 5, h, '#3a3f6a');
     R(x, y + h * 0.25, 5, h * 0.45, '#2e6a4a'); R(x, y, 5, h * 0.1, '#7a2a2a');
@@ -182,8 +206,14 @@ export function makeDeep(g) {
   }
 
   // ---- a gull, following the boat in the hope of a scrap --------------------------------------------------------------------
-  function gull(t) {
-    const x = L.boat.x + 110 + Math.sin(t * 0.4) * 30, y = L.boat.y - 40 + Math.sin(t * 0.9) * 6, f = Math.sin(t * 8) > 0;
+  function gull(t, steal) {
+    let x = L.boat.x + 110 + Math.sin(t * 0.4) * 30, y = L.boat.y - 40 + Math.sin(t * 0.9) * 6;
+    const f = Math.sin(t * 8) > 0;
+    if (steal) {                                                                              // down to the bait, and off with it
+      const k = steal.k, to = k < 0.5 ? k * 2 : 1, away = k < 0.5 ? 0 : (k - 0.5) * 2;
+      x = x + (steal.x - x) * to + away * 120; y = y + (steal.y - y) * to - away * 90;
+      if (k >= 0.5) { R(x + 4, y + 1, 2, 2, '#e88a8a'); }
+    }
     ell(x, y, 3, 2, '#f6f6f8'); R(x + 3, y - 1, 2, 1, '#f0b030'); P(x + 1, y - 1, '#1b1f3a');
     line(x - 1, y - 1, x - 6, y - (f ? 4 : -1), '#d8dce4'); line(x + 1, y - 1, x + 4, y - (f ? 4 : -1), '#d8dce4');
   }
@@ -194,15 +224,30 @@ export function makeDeep(g) {
   function draw(W, H, t, st) {
     px.use(g);
     L.spots = {};
+    const sh = st.shake || 0, sx0 = Math.round(Math.sin(t * 61) * sh * 2), sy0 = Math.round(Math.cos(t * 53) * sh * 2);
+    g.save(); g.translate(sx0, sy0);                                                       // a golden one bites: the picture shakes
     city.draw(W, H, t, { day: st.day, at: st.at, speed: st.speed ?? 0, names: st.names });
     L.tops = city.L.tops || [];
     for (const r of st.rising || []) rising(r, t);
     for (const f of st.fish || []) fish(f.x, f.y, f.r, f.dir, f.kind, t, f.ph || 0, f);
     for (const r of st.rising || []) risingName(r);
-    gull(t);
+    gull(t, st.gullSteal);
     const tip = boatAndCloud(t, st);
     L.tip = { x: tip[0], y: tip[1] };
     if (st.bait) lineTo(tip, st.bait, t, st);
+    if (st.boot) { line(tip[0], tip[1], st.boot.x, st.boot.y - 6, 'rgba(255,255,255,0.85)'); boot(st.boot.x, st.boot.y); }
+    if (st.net) {                                                                          // the landing net, swung down and back
+      const k = Math.sin(Math.PI * Math.min(1, st.net.k)), bx = L.boat.x + 66, by = L.boat.y - 2;
+      const ex = bx + (st.net.x - bx) * k, ey = by + (st.net.y - by) * k;
+      line(bx, by, ex, ey, '#8a5a32', 2); ell(ex, ey + 2, 5, 4, '#d8c8a0'); ell(ex, ey + 2, 4, 3, 'rgba(90,60,30,0.5)');
+      for (let i = -3; i <= 3; i += 2) line(ex + i, ey - 1, ex + i, ey + 5, '#d8c8a0');
+    }
+    const c = px.ctx;
+    for (const pf of st.puffs || []) { c.globalAlpha = Math.max(0, 1 - pf.age / 0.8); px.lump(pf.x, pf.y - pf.age * 6, Math.round(pf.r * (1 + pf.age)), 'near'); }
+    c.globalAlpha = 1;
+    for (const sp of st.sparks || []) { c.globalAlpha = Math.max(0, 1 - sp.age / 1.2); P(sp.x, sp.y, sp.col || '#fff2b0'); }
+    c.globalAlpha = 1;
+    g.restore();
     if (st.bite) {                                                                         // «!»: over the duck, nothing else hidden
       const bx = L.boat.x + 50, by = L.boat.y - 48;
       R(bx, by, 7, 10, '#fff8e7'); R(bx, by, 7, 1, '#3a2a1a'); R(bx, by + 9, 7, 1, '#3a2a1a'); R(bx + 3, by + 2, 1, 4, '#d03a2a'); R(bx + 3, by + 7, 1, 1, '#d03a2a');

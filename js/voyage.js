@@ -210,6 +210,7 @@ export function makeVoyage(g, opts = {}) {
     for (let k = 0; k < 3; k++) { const cc = cols[(o + k) % 4]; box(x + w - 12, z - 10 + (k % 2) * 3, 10, 5, 5, { top: rgb(mix(cc, [255, 255, 255], 0.25)), side: rgb(cc), front: rgb(mix(cc, [0, 0, 0], 0.3)), lift: k * 5 }); }
   }
   function crane(x, z, h, seed) {                                     // a tower crane, its arm swinging slowly
+    if (opts.deep) return;                                              // not into the lake: it would stand among the fish
     const [a, b] = S(x, z, 0), [, c] = S(x, z, h + 30);
     for (let y = c; y < b; y += 3) { R(a, y, 3, 1, '#e8b030'); P(a + 1, y + 1, '#a87820'); }
     R(a - 1, c, 5, 3, '#e8b030');
