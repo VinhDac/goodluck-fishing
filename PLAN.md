@@ -209,6 +209,12 @@ thử, đầy đủ £8/tháng. Reed (miễn phí): 302 và 759 việc, khoảng
 4. Việc của môi giới: mặc định ẩn; người chơi tự bật lại trong cài đặt.
 Để sau: đọc trang tuyển dụng Workday của các công ty lớn (công khai, miễn phí).
 
+**Thu gọn (Vin, 15/11: «sao càng làm càng bẩn thế ... chấp nhận, giữ nó ở mức sạch sẽ thôi, và thực sự hiệu quả thôi»):**
+- Một nguồn duy nhất: trang tuyển dụng gốc của các công ty Common Crawl biết (2.840 công ty đang tuyển, khoảng 128.000
+  việc). Danh sách công ty làm mới mỗi tháng; thu việc mỗi 6 giờ.
+- Chấp nhận giới hạn: việc ngoài công nghệ ít được chấm điểm (hiện là cá «chưa đọc»); Anh chiếm phần nhỏ của kho.
+- Gác lại: Reed, Adzuna, Workday, Workable, dò từ sổ bảo lãnh. Chỉ mở lại khi người dùng thật sự thiếu việc.
+
 Khoá API là bí mật: để trong `data/keys.json` (thư mục `data/` không vào git); lên GitHub Actions thì thành secrets của repo.
 
 ---
@@ -217,6 +223,7 @@ Khoá API là bí mật: để trong `data/keys.json` (thư mục `data/` không
 
 - 13/11: tách folder riêng; thiết kế bản câu cá dưới ao; làm bước 1 đến 3 (ao, chấm điểm theo CV, giỏ nhớ qua ngày).
 - 14/11: chốt mục 5: Supabase; không cào LinkedIn; CV chỉ trên máy người dùng.
+- 15/11: thu gọn: một nguồn (Common Crawl), chấp nhận giới hạn, gác các nguồn khác.
 - 14/11: Common Crawl 4.411 công ty; Adzuna chưa trả; Reed chỉ công ty trực tiếp; ẩn môi giới.
 - 14/11: đo nguồn từ sổ bảo lãnh (9 công ty, 625 việc trên 1.000 tên); chốt: Adzuna và Reed trước, Common Crawl, sổ bảo lãnh chạy nền.
 - 14/11: chốt mục 4 (ba nút, thêm Not for me) và mục 6 (thứ tự làm); bắt đầu bước 1.
