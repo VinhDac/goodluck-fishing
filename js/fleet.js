@@ -33,6 +33,13 @@ export async function sail(me, first, on) {
   }, 600);
 }
 export function callHome() { clearInterval(timer); timer = null; post('/api/fleet/stop').catch(() => {}); }
+// a job's own page, never in place of the game (Vin, 15/11): in the app the person's own browser opens it (the window holds
+// the game alone); on the web, a new tab
+export function openOut(url) {
+  if (!/^https?:\/\//i.test(url || '')) return;
+  if (inApp) post('/api/open', { url }).catch(() => window.open(url, '_blank', 'noopener'));
+  else window.open(url, '_blank', 'noopener');
+}
 export async function stillOpen(id) {                                 // true, false, or null when it cannot be told
   try { return (await (await fetch(`/api/check?id=${encodeURIComponent(id)}`)).json()).open; } catch (e) { return null; }
 }

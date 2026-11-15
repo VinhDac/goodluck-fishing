@@ -15,7 +15,7 @@ import { makeFishing, shortOf } from './fishing.js';
 import { readLake, boardOf, baitsOf, HOOKS } from './lake.js';
 import { numbers, fished } from './progress.js';
 import { sfx, soundOn, setSound } from './sound.js';
-import { inApp, boats, moored, sail, callHome, stillOpen } from './fleet.js';
+import { inApp, boats, moored, sail, callHome, stillOpen, openOut } from './fleet.js';
 
 const $ = (id) => document.getElementById(id);
 const cv = $('scene'), g = cv.getContext('2d');
@@ -282,9 +282,9 @@ function homeFromLake() {                                             // home: t
   fishing.sunset(true); fishing.stop();
   go('office', '#0c0f24');
 }
-function done({ caught, found: n, gold }) {                          // the search done and a dozen in the bucket: the results
+function done({ caught, found: n }) {                                // the search done and a dozen in the bucket: the results
   sfx('fanfare');
-  openReport(`Catch of the day: ${caught} caught this morning, from ${n} jobs found (${gold} golden)`, null, {
+  openReport(`Catch of the day: ${caught} caught this morning, from ${n} jobs found`, null, {   // «golden» is the bucket's own number, below
     pond: fishing.rest(),
     actions: [{ label: 'Keep fishing', fn: () => talk('Back to it. The sun sets on its own.', 'duck', 2.5) }, { label: 'Home', quiet: true, fn: homeFromLake }],
   });
@@ -314,7 +314,7 @@ function tool(name) {
   }
   if (name === 'bar:net') { if (fishing.net()) sfx('net'); return; }
   if (name === 'bar:who') return fishing.toggleWho();
-  if (name === 'bar:bucket') return openReport('Your bucket', () => { office.n = numbers(); });
+  if (name === 'bar:bucket') return openReport('Your bucket', () => { office.n = numbers(); }, { pond: fishing.rest() });   // the lake under it, for the search
   if (name === 'sound') { setSound(!soundOn()); $('sound').textContent = `Sound: ${soundOn() ? 'on' : 'off'}`; sfx('quack'); }
 }
 
@@ -339,6 +339,7 @@ addEventListener('pointerup', () => { if (scene === 'sea') fishing.up(); });
 addEventListener('pointercancel', () => { if (scene === 'sea') fishing.up(); });
 $('ctKeep').addEventListener('click', () => answer(true));
 $('ctThrow').addEventListener('click', () => answer(false));
+$('ctOpen').addEventListener('click', (e) => { e.preventDefault(); openOut($('ctOpen').href); });   // outside the game, never in its place
 $('sound').addEventListener('click', () => { setSound(!soundOn()); $('sound').textContent = `Sound: ${soundOn() ? 'on' : 'off'}`; sfx('quack'); });
 $('sound').textContent = `Sound: ${soundOn() ? 'on' : 'off'}`;
 $('bucket').addEventListener('click', () => openReport('Your bucket', () => { office.n = numbers(); }));

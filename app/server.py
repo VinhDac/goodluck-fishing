@@ -1,7 +1,8 @@
 """THE APP'S OWN LITTLE SERVER (PLAN.md 15, step 1): it hands the game its pages (the same game as the web's), and stands
 between the game and the fleet: the game sends the boats out (/api/fleet/start), asks what has happened since it last
 asked (/api/fleet/poll), calls them home (/api/fleet/stop), and, when a cloud is hooked, asks whether its posting is still
-up (/api/check). Only this computer can reach it (127.0.0.1). Standard library alone.
+up (/api/check). A job's own page it opens in the person's browser (/api/open), never in the game's window. Only this
+computer can reach it (127.0.0.1). Standard library alone.
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ import json
 import mimetypes
 import threading
 import urllib.parse
+import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -64,7 +66,21 @@ def make(data: Path, port: int = 0) -> ThreadingHTTPServer:
             if u.path == "/api/fleet/stop":
                 threading.Thread(target=fleet.stop, daemon=True).start()
                 return self._json({"ok": True})
+            if u.path == "/api/open":                                       # a job's page, in the person's own browser
+                url = str(b.get("url") or "")
+                p = urllib.parse.urlparse(url)
+                if p.scheme not in ("http", "https") or not p.netloc or not self._own():
+                    return self._json({"ok": False}, 400)
+                webbrowser.open(url, new=2)
+                return self._json({"ok": True})
             self.send_error(404)
+
+        def _own(self) -> bool:
+            """Asked by the game's own page: no other site's page can have this computer open things. A page elsewhere
+            sends its own Origin, and its JSON is held back by the browser (no CORS here)."""
+            origin = self.headers.get("Origin")
+            mine = f"http://127.0.0.1:{self.server.server_address[1]}"
+            return (origin is None or origin == mine) and (self.headers.get("Content-Type") or "").startswith("application/json")
 
         def _file(self, path: str):
             rel = path.lstrip("/") or "index.html"

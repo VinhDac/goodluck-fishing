@@ -1,17 +1,23 @@
 // THE REPORT (PLAN.md 4, and 17 C): the day's numbers, then the list of jobs to act on, each with I applied, Expired, Not for
 // me; those applied to below, with the day. The list goes on from day to day (js/box.js). Opened as the morning's results
 // («Catch of the day»), it may also hold what is still in the lake, folded (each can be kept from there), and the buttons
-// the moment calls for (Keep fishing, Home) in place of Close.
+// the moment calls for (Keep fishing, Home) in place of Close. A search over all of it (Vin, 15/11): every word typed is in
+// the job's title, company, place or skills. A job's page opens outside the game (js/fleet.js openOut).
 import { all, mark, replied, add } from './box.js';
+import { openOut } from './fleet.js';
 
 const $ = (id) => document.getElementById(id);
 const ago = (ms) => { const h = Math.max(0, (Date.now() - ms) / 36e5), n = h < 48 ? Math.round(h) : Math.round(h / 24), u = h < 48 ? 'hour' : 'day'; return h < 1 ? 'within the hour' : `${n} ${u}${n === 1 ? '' : 's'} ago`; };
-let onClose = null, pond = [], showPond = false;
+const LAKE_SHOWN = 80;                                               // of what is still in the lake, shown at once: the search finds the rest
+let onClose = null, pond = [], showPond = false, words = [];
+
+$('rpFind').addEventListener('input', () => { words = $('rpFind').value.toLowerCase().split(/\s+/).filter(Boolean); draw(); });
 
 // opts: { pond: jobs still in the lake (not in the bucket), actions: [{ label, fn }] in place of Close }
 export function openReport(head, closed, opts = {}) {
   onClose = closed || null;
   pond = opts.pond || []; showPond = false;
+  $('rpFind').value = ''; words = [];
   $('rpHead').textContent = head || 'Your bucket';
   const acts = $('rpActs'); acts.replaceChildren();
   for (const { label, fn, quiet } of opts.actions || [{ label: 'Close', fn: null }]) {
@@ -23,6 +29,9 @@ export function openReport(head, closed, opts = {}) {
   $('report').hidden = false;
 }
 
+const said = (j) => [j.title, j.company, j.place, ...Object.keys(j.skills || {})].join(' ').toLowerCase();
+const found = (j) => words.every((w) => said(j).includes(w));
+
 function draw() {
   const items = all(), day = new Date().toLocaleDateString('en-CA'), week = Date.now() - 7 * 864e5;
   const todays = items.filter((e) => e.day === day && e.how !== 'ashore' && e.status !== 'not_for_me' && e.status !== 'expired');   // kept today, as the sunset counts
@@ -33,21 +42,30 @@ function draw() {
     [todays.length, 'caught today'], [todays.filter((e) => e.job.size === 'gold').length, 'golden'],
     [fresh.length, 'to look at'], [applied.filter((e) => Date.parse(e.at) >= week).length, 'applied this week'],
   ].map(([n, w]) => { const d = document.createElement('div'); d.innerHTML = `<b>${n}</b><span>${w}</span>`; return d; }));
+  // what is still in the lake: not in the bucket, the best first; any of them can be kept from here
+  const kept = new Set(items.map((e) => e.job.id)), left = pond.filter((j) => !kept.has(j.id));
+  const freshHit = fresh.filter((e) => found(e.job)), appliedHit = applied.filter((e) => found(e.job)), leftHit = left.filter(found);
   const list = $('rpList'); list.replaceChildren();
   const section = (title) => { const h = document.createElement('li'); h.className = 'head'; h.textContent = title; list.appendChild(h); return h; };
-  if (!fresh.length && !applied.length && !pond.length) { const li = document.createElement('li'); li.className = 'empty'; li.textContent = 'Nothing in the bucket yet. Go fishing!'; list.appendChild(li); }
-  if (fresh.length) section(`To look at: ${fresh.length}`);
-  for (const e of fresh) list.appendChild(row(e, [['I applied', 'applied'], ['Expired', 'expired'], ['Not for me', 'not_for_me']]));
-  if (applied.length) section(`Applied: ${applied.length}`);
-  for (const e of applied) list.appendChild(row(e, [[e.replied ? 'Reply: yes' : 'Got a reply', 'reply'], ['Undo', 'new']], `applied ${new Date(e.at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`));
-  // what is still in the lake: not in the bucket; folded, the best first; any of them can be kept from here
-  const left = pond.filter((j) => !items.some((e) => e.job.id === j.id));
-  if (left.length) {
-    const h = section(`Still in the lake: ${left.length}`);
-    const tog = document.createElement('button'); tog.type = 'button'; tog.className = 'fold'; tog.textContent = showPond ? 'Hide' : 'See all';
-    tog.onclick = () => { showPond = !showPond; draw(); };
-    h.appendChild(tog);
-    if (showPond) for (const j of left.slice(0, 80)) list.appendChild(row({ job: j, how: 'lake' }, [['Keep', 'keep']]));
+  const note = (text) => { const li = document.createElement('li'); li.className = 'empty'; li.textContent = text; list.appendChild(li); };
+  const of = (hit, whole) => (words.length ? `${hit.length} of ${whole.length}` : `${whole.length}`);
+  if (!fresh.length && !applied.length && !left.length) note('Nothing in the bucket yet. Go fishing!');
+  else if (!freshHit.length && !appliedHit.length && !leftHit.length) note('Nothing here has those words.');
+  if (freshHit.length) section(`To look at: ${of(freshHit, fresh)}`);
+  for (const e of freshHit) list.appendChild(row(e, [['I applied', 'applied'], ['Expired', 'expired'], ['Not for me', 'not_for_me']]));
+  if (appliedHit.length) section(`Applied: ${of(appliedHit, applied)}`);
+  for (const e of appliedHit) list.appendChild(row(e, [[e.replied ? 'Reply: yes' : 'Got a reply', 'reply'], ['Undo', 'new']], `applied ${new Date(e.at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`));
+  if (leftHit.length) {
+    const h = section(`Still in the lake: ${of(leftHit, left)}`);
+    if (!words.length) {                                              // folded, unless a search is looking in it
+      const tog = document.createElement('button'); tog.type = 'button'; tog.className = 'fold'; tog.textContent = showPond ? 'Hide' : 'See all';
+      tog.onclick = () => { showPond = !showPond; draw(); };
+      h.appendChild(tog);
+    }
+    if (showPond || words.length) {
+      for (const j of leftHit.slice(0, LAKE_SHOWN)) list.appendChild(row({ job: j, how: 'lake' }, [['Keep', 'keep']]));
+      if (leftHit.length > LAKE_SHOWN) note(`And ${leftHit.length - LAKE_SHOWN} more. Search to find one.`);
+    }
   }
   $('rpAway').textContent = away ? `${away} put away (expired or not for you).` : '';
 }
@@ -61,6 +79,7 @@ function row(e, buttons, note) {
     .filter(Boolean).join(' · ');
   t.append(b, s);
   const a = document.createElement('a'); a.href = j.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Open ↗';
+  a.onclick = (ev) => { ev.preventDefault(); openOut(j.url); };
   const acts = document.createElement('div'); acts.className = 'acts';
   acts.append(a, ...buttons.map(([label, status]) => {
     const x = document.createElement('button'); x.type = 'button'; x.textContent = label;

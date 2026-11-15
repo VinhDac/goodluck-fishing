@@ -143,5 +143,9 @@ button.chip:disabled { opacity: .55; cursor: default; }
 body[data-scene="sea"] .corner { display: none; }
 .rplist li.head .fold { margin-left: 10px; font: 600 12px var(--ui); padding: 2px 8px; background: #efe3c4; color: var(--ink); border: 2px solid var(--edge); border-radius: 3px; cursor: pointer; }
 #rpActs { margin-top: 10px; }
-@media (max-width: 560px) { .talk { font-size: 13px; } }
+/* the report's search: one field over the whole list */
+.report .find { width: 100%; box-sizing: border-box; margin: 0 0 8px; padding: 7px 10px; font: 15px system-ui, sans-serif; color: var(--ink);
+  background: #fff; border: 2px solid var(--edge); border-radius: 3px; }
+.report .find:focus { outline: 2px solid var(--yellow); outline-offset: 1px; }
+@media (max-width: 560px) { .talk { font-size: 13px; } .report .find { font-size: 16px; } }   /* 16px: the phone does not zoom in on it */
 .corner button.gofish { background: var(--yellow); }
