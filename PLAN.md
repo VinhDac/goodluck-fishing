@@ -232,6 +232,35 @@ Khoá API là bí mật: để trong `data/keys.json` (thư mục `data/` không
 
 ---
 
+## 9. Bước 3: cảnh Lobby, phác hoạ (chờ Vin duyệt)
+
+Phong cách: pixel art như bản ao đã làm (vẽ trên canvas, phóng to giữ nét). Chú vịt vàng: vẽ lại vịt GoodLuck bằng
+pixel, thân vàng, mỏ cam. Chỉ chuột (chạm trên điện thoại). Màn hình ngang và dọc đều bày được.
+
+**Lần đầu vào (khoảng 1 phút):**
+1. **Mở cảnh:** văn phòng ban đêm, đèn bàn vàng, chồng giấy cao. Vịt vàng gục trên bàn, cạnh màn hình máy tính ghi
+   «Applications sent: 80 · Replies: 1» (câu đùa đúng nỗi khổ người tìm việc). Tiếng quạt máy, ngáy khe khẽ.
+2. **Nạp CV:** một tờ giấy dán trên bàn: «Drop your CV here». Kéo thả file PDF vào bàn (hoặc bấm để chọn file, hoặc
+   dán chữ). Vịt giật mình tỉnh, đọc CV, giấy bay lả tả. CV đọc ngay trong trình duyệt, không gửi đi đâu.
+3. **Chức danh:** 3 tờ giấy nhớ hiện lên trên màn hình, mỗi tờ một chức danh app gợi ý từ CV. Bấm để giữ hay bỏ, bấm
+   tờ trống để gõ chức danh khác. Tối đa 3.
+4. **Nơi làm:** một tấm bản đồ nhỏ trên tường: gõ thành phố (gợi ý sẵn theo CV), một công tắc «Remote too».
+5. **Giữ thùng cá (đăng nhập):** một tấm bưu thiếp: «Where should we send your bucket?», ô email, nút gửi. Bấm link
+   trong thư là vào. Có nút «Later»: chơi ngay, danh sách giữ tạm trên máy, đăng nhập lúc nào cũng được.
+6. **Lên trời:** một vệt sáng từ trần nhà, cầu thang cuốn vàng hạ xuống, vịt bay lơ lửng theo thang lên mây. Chuyển
+   sang cảnh Trên trời. (Cảnh của riêng mình: không nhân vật, hình, nhạc của Tom & Jerry.)
+
+**Lần sau vào:** vịt vẫn gục trên bàn, màn hình ghi số hôm qua («Yesterday: 12 caught, 2 applied»); bấm vào vịt là
+thang cuốn hạ xuống ngay. Một nút nhỏ «My CV» để đổi CV, chức danh, nơi làm.
+
+**Cần Vin chọn:**
+- A. Đăng nhập lúc nào: (a) ở bước 5 như trên, có «Later» (Claude đề xuất: người mới chơi được ngay, không bị chặn ở
+  cửa); (b) bắt buộc trước khi lên trời; (c) chỉ hỏi sau chuyến câu đầu tiên, lúc có thùng cá để giữ.
+- B. CV nhận những dạng nào: PDF và dán chữ (Claude đề xuất), hay thêm cả Word (.docx).
+- C. Câu đùa trên màn hình máy tính: giữ, đổi chữ, hay bỏ.
+
+---
+
 ## Nhật ký bàn bạc
 
 - 13/11: tách folder riêng; thiết kế bản câu cá dưới ao; làm bước 1 đến 3 (ao, chấm điểm theo CV, giỏ nhớ qua ngày).
