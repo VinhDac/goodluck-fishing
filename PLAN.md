@@ -226,7 +226,9 @@ Khoá API là bí mật: để trong `data/keys.json` (thư mục `data/` không
   not_for_me). Đăng nhập bằng email (link trong thư), Google để sau.
 - Kiểm 15/11: khoá công khai đọc được kho việc, bị từ chối khi ghi kho hay đọc hồ sơ; ghi, đọc, xoá thử đều đúng.
 - Kho việc lên Supabase (`tools/upload.py`): 128.694 việc trong 53 giây; trên Supabase đếm đúng 128.694, London 5.354.
-- Còn lại: cho thu và tải tự chạy mỗi 6 giờ trên GitHub Actions (cần đưa dự án lên GitHub, khoá vào secrets).
+- 15/11 (Vin: «chọn A», «đồng ý, làm cả ba bước đi»): repo công khai VinhDac/goodluck-fishing; hai khoá Supabase trong
+  secrets; thu và tải tự chạy mỗi 6 giờ (.github/workflows/harvest.yml). Lượt đầu trên GitHub: 2.840 công ty, 133.302 việc,
+  đọc 58 phút, ghi Supabase 114 giây, thành công.
 
 ---
 
