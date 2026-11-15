@@ -15,6 +15,7 @@ import { makeFishing, DAY } from './fishing.js';
 import { readLake, boardOf, baitsOf, HOOKS } from './lake.js';
 import { numbers, fished } from './progress.js';
 import { sfx, soundOn, setSound } from './sound.js';
+import { inApp, boats, moored, sail, callHome, stillOpen } from './fleet.js';
 
 const $ = (id) => document.getElementById(id);
 const cv = $('scene'), g = cv.getContext('2d');
@@ -39,6 +40,7 @@ const fishing = makeFishing(makePix(g), {
   onCard: (job, how) => card(job, how),
   onSay: (t) => { if (t) say(t, 'sky'); },
   onSunset: (r) => sunset(r),
+  onCheck: inApp ? (job) => stillOpen(job.id) : undefined,              // in the app, a hooked cloud's posting is asked if it is still up
 });
 const logical = (e) => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / K, y: (e.clientY - r.top) / K }; };
 const inside = (p, s) => s && p.x >= s.x && p.x <= s.x + s.w && p.y >= s.y && p.y <= s.y + s.h;
@@ -139,6 +141,10 @@ async function arrive() {
     const { lake, bottles } = await readLake(person);
     dock.lake = lake; dock.bottles = bottles;
     dock.board = boardOf(lake, person);
+    if (inApp) {                                                       // the departures are the fleet: each boat, its boards
+      await moored();
+      dock.board = Object.values(boats).map((b) => [b.name.toUpperCase(), b.total || '', 'READY']);
+    }
     dock.skills = baitsOf(lake, person).slice(0, 4);
     if (dock.skills.length < 4) for (const k of person.skills || []) if (dock.skills.length < 4 && !dock.skills.includes(k)) dock.skills.push(k);
     if (!dock.skills.includes(dock.bait)) dock.bait = dock.skills[0] || '';
@@ -150,12 +156,17 @@ async function arrive() {
   setTimeout(() => { if (scene === 'pier' && dock.pose === 'stand') { dock.told = 1; say(gullTip(), 'gull', 6); } }, 3200);
 }
 function gullTip() {
+  if (inApp) {
+    const n = Object.values(boats).length;
+    return `Ahoy! Your fleet: ${n} boats, ${(dock.board || []).reduce((a, r) => a + (+r[1] || 0), 0).toLocaleString('en-GB')} company boards between them. Pick a bait and a hook, then ${PRESS.toLowerCase()} the boat: they all set sail with you.`;
+  }
   const n = dock.lake ? dock.lake.length : 0, gold = dock.lake ? dock.lake.filter((j) => j.size === 'gold').length : 0;
   if (!n) return 'Ahoy. A quiet sky today: nothing new for you. Come back tomorrow, the harbour will be busier.';
   return `Ahoy! ${n} cloud${n === 1 ? '' : 's'} out today, ${gold} golden. Pick a bait jar (a skill from your CV) and a hook, then ${PRESS.toLowerCase()} the boat.`;
 }
 const PIER_SAYS = {
-  board: () => 'The departures: how many clouds are out today where you look, and how many are golden: the ones that fit you.',
+  board: () => (inApp ? 'The departures: your fleet. Each boat reads one kind of company job board, live, the moment you sail.'
+    : 'The departures: how many clouds are out today where you look, and how many are golden: the ones that fit you.'),
   hut: () => 'The harbour master is out fishing. Like everyone.',
   crates: () => 'HOPE: handle with care. CV13: the thirteenth draft, the best one yet.',
   gull: () => gullTip(),
@@ -192,11 +203,36 @@ function pierStep(dt) {
 let autoOn = false;
 function setSail() {
   fished();
+  if (inApp) return sailWithFleet();
   fishing.start({ W, H }, { lake: dock.lake || [], bottles: dock.bottles || [], bait: dock.bait, hook: dock.hook, auto: autoOn });
   $('skyCount').textContent = '0';
   $('skyGear').textContent = `Bait: ${dock.bait || 'any'} · Hook: ${dock.hook}`;
   netLabel();
 }
+const SYSTEM = { gh: 'greenhouse', lv: 'lever', ab: 'ashby' };
+function sailWithFleet() {
+  fishing.start({ W, H }, { lake: [], bottles: dock.bottles || [], bait: dock.bait, hook: dock.hook, auto: autoOn, stream: true, skills: person.skills });
+  $('skyCount').textContent = '0';
+  $('skyGear').textContent = `Bait: ${dock.bait || 'any'} · Hook: ${dock.hook}`;
+  netLabel();
+  found = [];
+  // the boards the shared store knows have jobs for them, read first
+  const first = [...new Set((dock.lake || []).map((j) => { const [p, slug] = j.id.split(':'); return SYSTEM[p] ? `${SYSTEM[p]}:${slug}` : null; }).filter(Boolean))];
+  const firstFrom = {};
+  sail(person, first, {
+    job: (j) => {
+      found.push(j); if (found.length % 15 === 0) namesCache = null;     // the city's billboards follow what is found
+      if (fishing.feed(j) && !firstFrom[j.boat]) { firstFrom[j.boat] = 1; say(`The ${boats[j.boat] ? boats[j.boat].name : j.boat} boat found one: ${j.title}, ${j.company}. Up it goes!`, 'sky', 3.5); }
+    },
+    boat: (e) => {
+      const b = boats[e.boat] || { name: e.boat, read: 0 };
+      if (e.kind === 'home' && !e.stopped) say(e.found ? `The ${b.name} boat is home: ${e.found} job${e.found === 1 ? '' : 's'} for you from ${b.read.toLocaleString('en-GB')} boards.`
+        : `The ${b.name} boat came home empty. «Hiring freeze», they say.`, 'sky', 4);
+    },
+    allHome: () => { fishing.fleetHome(); say('The whole fleet is home. What is in the sky is today\'s catch.', 'sky', 4); },
+  }).catch((e) => { fishing.fleetHome(); say(`The fleet could not sail (${e.message}).`, 'sky'); });
+}
+let found = [];
 function netLabel() { $('netBtn').disabled = !!fishing.F.netUsed; $('netBtn').textContent = fishing.F.netUsed ? 'Net: used today' : 'Net'; }
 const ago = (ms) => { const h = Math.max(0, (Date.now() - ms) / 36e5), n = h < 48 ? Math.round(h) : Math.round(h / 24), u = h < 48 ? 'hour' : 'day'; return h < 1 ? 'posted within the hour' : `posted ${n} ${u}${n === 1 ? '' : 's'} ago`; };
 function card(job, how) {
@@ -220,6 +256,7 @@ function answer(keep) {
   say(keep ? 'In the bucket.' : 'Thrown back. Not for us.', 'sky', 1.6);
 }
 function sunset({ caught, ashore }) {
+  if (inApp) callHome();
   sfx('dusk');
   openReport(`The sun has set: ${caught} caught${ashore ? `, ${ashore} golden washed ashore` : ''}`, () => { fishing.stop(); go('office', '#0c0f24'); });
 }
@@ -295,9 +332,11 @@ function tick(now) {
     pier.draw(W, H, t, { board: dock.board, loading: dock.loading, skills: dock.skills, bait: dock.bait, hook: dock.hook, duck: { pose: dock.pose, k: dock.k } });
   } else {
     const paused = !$('catch').hidden || !$('report').hidden;
+    if (inApp) fishing.F.fleet = boats;
     fishing.step(dt, paused);
     const F = fishing.F, k = F.cast, rod = k && k.phase === 'fight' ? -0.55 - Math.sin(t * 20) * 0.05 * (k.burst || 0) : F.charging ? -1.4 : -0.95;
     const tip = sky.draw(W, H, t, { day: F.day * 0.92 + 0.05, names: names(), rod, speed: 16 });
+    F.boatBox = { x: sky.L.boat.x - 4, y: sky.L.boat.y - 56, w: 80, h: 66 };     // where the boat is, for the clouds passing it
     fishing.draw(t, { x: tip[0], y: tip[1] });
     $('skyCount').textContent = String(F.caught);
     if (!paused) {
@@ -314,9 +353,9 @@ let namesCache = null;
 function names() {
   if (namesCache) return namesCache;
   const by = {};
-  for (const j of dock.lake || []) by[j.company] = (by[j.company] || 0) + 1;
+  for (const j of inApp && found.length ? found : dock.lake || []) by[j.company] = (by[j.company] || 0) + 1;
   const list = Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 24).map(([n]) => n);
-  namesCache = list.length ? list : null;
+  namesCache = list.length >= 6 ? list : null;                          // once there are enough to fill the city
   return namesCache || ['Goggle', 'Amazoom', 'Snoozle', 'Facepalm'];
 }
 requestAnimationFrame(frame);

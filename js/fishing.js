@@ -9,7 +9,7 @@
 
 import { hash } from './pix.js';
 import { add, has } from './box.js';
-import { RADIUS, HOOKS } from './lake.js';
+import { RADIUS, HOOKS, fitOf, sizeOf } from './lake.js';
 import { sfx } from './sound.js';
 
 export const DAY = 420;                                              // seconds from morning to sunset: seven minutes
@@ -18,17 +18,21 @@ const NET_KEY = 'glf.net';
 const rand = (a, b) => a + Math.random() * (b - a);
 const today = () => new Date().toLocaleDateString('en-CA');
 
-export function makeFishing(px, { onCard, onSay, onSunset }) {
+export function makeFishing(px, { onCard, onSay, onSunset, onCheck }) {
   const { R, P, ell, line, text, textW } = px;
   const F = { on: false };
   let W = 384, H = 216;
 
   // ---- a day out: the lake as read at the pier, the bait and the hook chosen there -------------------------------------
-  function start(view, { lake, bottles, bait, hook, auto }) {
+  let fits = () => true, order = () => 0, mine = new Set();
+  function start(view, { lake, bottles, bait, hook, auto, stream, skills }) {
     W = view.W; H = view.H;
-    const min = HOOKS[hook] ?? 0, fits = (j) => (min ? j.fit != null && j.fit >= min : true);
-    const asks = (j) => (bait && j.skills && j.skills[bait] ? 1 : 0);
+    const min = HOOKS[hook] ?? 0, asks = (j) => (bait && j.skills && j.skills[bait] ? 1 : 0);
+    fits = (j) => (min ? j.fit != null && j.fit >= min : true);
+    order = (a, b) => asks(b) - asks(a) || (b.fit ?? -1) - (a.fit ?? -1) || b.posted - a.posted;
+    mine = new Set(skills || []);
     Object.assign(F, {
+      stream: !!stream, waiting: !!stream, fleet: {}, ships: {},
       on: true, over: false, t: 0, day: 0, bait, hook, auto: !!auto,
       lake: lake.filter((j) => fits(j) && !has(j.id)).sort((a, b) => asks(b) - asks(a) || (b.fit ?? -1) - (a.fit ?? -1) || b.posted - a.posted),
       later: [], clouds: [], bottles: bottles.slice(), bottle: null, bottlesDropped: 0,
@@ -36,6 +40,7 @@ export function makeFishing(px, { onCard, onSay, onSunset }) {
       caught: 0, spawnIn: 0.4, golden: false, autoWait: 1.5,
       netUsed: (() => { try { return localStorage.getItem(NET_KEY) === today(); } catch (e) { return false; } })(),
     });
+    if (stream) return onSay('The fleet is out. A cloud rises each time a boat finds a job for you.');
     for (let i = 0; i < 3; i++) { spawn(); const c = F.clouds[F.clouds.length - 1]; if (c) c.x = W * (0.5 + i * 0.17); }   // a few already in sight
     const n = F.lake.length + F.clouds.length;
     onSay(n ? `${n} cloud${n === 1 ? '' : 's'} out there today${bait ? `, the ${bait} ones first` : ''}. Hold to charge, let go to cast.` : 'The sky is quiet today: no new clouds for you. Come back tomorrow.');
@@ -48,10 +53,22 @@ export function makeFishing(px, { onCard, onSay, onSunset }) {
     if (F.golden) { const i = F.lake.findIndex((j) => j.size === 'gold'); if (i >= 0) job = F.lake.splice(i, 1)[0]; }
     if (!job) job = F.lake.shift() || (F.later.length && F.t > (F.later[0].back || 0) ? F.later.shift() : null);
     if (!job) return;
-    const [y0, y1] = band(), r = RADIUS[job.size];
-    F.clouds.push({ job, r, x: W + r + 4, y: rand(y0 + r, y1 - r), v: rand(6, 9) * (W >= H ? 1 : 0.7), bob: rand(0, 6), shake: 0 });
+    const [y0, y1] = band(), r = RADIUS[job.size], ship = job.boat && F.ships[job.boat];
+    const c = { job, r, x: W + r + 4, y: rand(y0 + r, y1 - r), v: rand(6, 9) * (W >= H ? 1 : 0.7), bob: rand(0, 6), shake: 0 };
+    if (ship && ship.x < W - 10) { c.rise = c.y; c.x = ship.x; c.y = ship.y - 4; }   // it rises from the boat that found it
+    F.clouds.push(c);
   }
   const back = (job) => F.later.push({ ...job, back: F.t + 25 });     // it comes round again, in a while
+  function feed(job) {
+    if (!F.on || F.over || has(job.id)) return false;
+    const fit = fitOf(job.skills, mine), j = { ...job, fit, size: sizeOf(fit) };
+    if (!fits(j)) return false;
+    const i = F.lake.findIndex((x) => order(j, x) < 0);
+    F.lake.splice(i < 0 ? F.lake.length : i, 0, j);
+    if (F.clouds.length < SHOWN()) spawn();
+    return true;
+  }
+  function fleetHome() { F.waiting = false; }
 
   // ---- the rod's tip, given by the scene each frame ---------------------------------------------------------------------
   let tip = { x: 60, y: 60 };
@@ -96,13 +113,14 @@ export function makeFishing(px, { onCard, onSay, onSunset }) {
     if (!paused && !F.over) {
       F.day = Math.min(1, F.day + dt / DAY);
       if (!F.golden && F.day >= 1 - GOLDEN / DAY) { F.golden = true; if (F.lake.some((j) => j.size === 'gold')) onSay('The golden hour: the golden clouds are rising.'); }
-      if ((F.day >= 1 || (!F.lake.length && !F.later.length && !F.clouds.length && !F.cast && !F.bottle && !F.charging && F.t > 3)) && !F.pending) return sunset();
+      if ((F.day >= 1 || (!F.waiting && !F.lake.length && !F.later.length && !F.clouds.length && !F.cast && !F.bottle && !F.charging && F.t > 3)) && !F.pending) return sunset();
     }
     if (paused) return;
     if ((F.spawnIn -= dt) <= 0) { spawn(); F.spawnIn = rand(2.5, 5); }
     const k = F.cast;
     for (const c of F.clouds.slice()) {                                 // the clouds drift by, from right to left
       if (k && k.hit === c && k.phase !== 'fly') continue;
+      if (c.rise != null) { c.y -= 22 * dt; if (c.y <= c.rise) { c.y = c.rise; c.rise = null; } continue; }
       c.x -= c.v * dt;
       if (c.x < -c.r - 6) { F.clouds.splice(F.clouds.indexOf(c), 1); back(c.job); }
     }
@@ -118,11 +136,18 @@ export function makeFishing(px, { onCard, onSay, onSunset }) {
       k.hit = F.clouds.find((c) => Math.hypot(c.x - k.to.x, c.y - k.to.y) <= c.r + 3) || null;
       if (!k.hit) { k.phase = 'back'; k.age = 0; sfx('splash'); onSay(F.auto ? '' : 'Splash: nothing there. Watch the marker on the line.'); return; }
       k.phase = 'wait'; k.age = 0; k.wait = rand(0.7, 2.0) * (F.bait && k.hit.job.skills && k.hit.job.skills[F.bait] ? 0.5 : 1);
+      k.open = onCheck ? undefined : true;
+      if (onCheck) onCheck(k.hit.job).then((v) => { k.open = v; }, () => { k.open = null; });
       return;
     }
     if (k.phase === 'wait') {                                           // the float sits on the cloud; it takes its time
       k.hit.x -= k.hit.v * dt * 0.3;
-      if (k.age >= k.wait) { k.phase = 'bite'; k.age = 0; k.window = k.hit.job.size === 'gold' ? 0.7 : 0.9; sfx('bite'); }
+      if (k.age >= k.wait && k.open === false) {                       // the posting has closed: the cloud melts away
+        F.clouds.splice(F.clouds.indexOf(k.hit), 1); add(k.hit.job, 'caught', 'expired'); F.cast = null;
+        onSay(`Gone: ${k.hit.job.company} has closed that posting. Marked expired, so you need not look.`);
+        return;
+      }
+      if (k.age >= k.wait && k.open !== undefined) { k.phase = 'bite'; k.age = 0; k.window = k.hit.job.size === 'gold' ? 0.7 : 0.9; sfx('bite'); }
       return;
     }
     if (k.phase === 'bite') {                                           // «!»: press now
@@ -224,17 +249,48 @@ export function makeFishing(px, { onCard, onSay, onSunset }) {
   }
 
   // ---- drawing, over the sky ------------------------------------------------------------------------------------------------
+  const HULL = { greenhouse: '#3a8a5a', lever: '#3a6ab0', ashby: '#8a4ab0' };
+  function ships(t, dt) {
+    const keys = Object.keys(F.fleet || {});
+    keys.forEach((k, i) => {
+      const b = F.fleet[k], s = F.ships[k] || (F.ships[k] = { x: W * (0.38 + i * 0.2), y: H * (W >= H ? 0.5 : 0.44), gone: false });
+      if (b.state === 'home') s.x += 14 * dt; else s.x += Math.sin(t * 0.3 + i) * 2 * dt;   // home: it sails off
+      if (s.x > W + 30) { s.gone = true; return; }
+      const x = Math.round(s.x), y = Math.round(s.y + Math.sin(t * 1.4 + i) * 1), hull = HULL[k] || '#6a4224';
+      // a trawler seen as the Good Luck is: its hull's near side, its deck seen from above, a wheelhouse, a mast and a flag
+      px.poly([[x - 14, y - 4], [x + 14, y - 4], [x + 11, y + 3], [x - 11, y + 3]], hull);
+      R(x - 14, y - 5, 28, 1, '#ffffff'); R(x - 12, y - 1, 24, 1, 'rgba(0,0,0,0.25)');
+      px.poly([[x - 12, y - 5], [x + 12, y - 5], [x + 10, y - 9], [x - 10, y - 9]], '#b88a58');             // its deck
+      R(x - 9, y - 15, 9, 7, '#f1ead6'); R(x - 9, y - 15, 9, 1, '#ffffff'); R(x - 7, y - 13, 2, 2, '#8ec8e6'); R(x - 4, y - 13, 2, 2, '#8ec8e6');   // the wheelhouse
+      R(x - 10, y - 16, 11, 2, hull);
+      R(x + 4, y - 26, 1, 18, '#5a3a22'); px.poly([[x + 5, y - 26], [x + 13, y - 23 + Math.sin(t * 6 + i)], [x + 5, y - 20]], hull);
+      ell(x + 4, y - 8, 2, 1, '#c8c8d4');                                                                      // a winch
+      if (b.state === 'out') {                                       // its net down over the stern, filling as it reads its boards
+        const k2 = b.total ? b.read / b.total : 0;
+        line(x + 4, y - 20, x + 16, y + 6, '#c8b888'); ell(x + 17, y + 7, 3 + Math.round(k2 * 2), 2, '#c8b888');
+        R(x - 12, y + 5, 24, 2, '#3a3f6a'); R(x - 12, y + 5, Math.round(24 * k2), 2, '#7fe0a0');
+      }
+      const name = (b.name || k).toUpperCase(), w = textW(name);
+      R(x - w / 2 - 2, y + 9, w + 4, 7, 'rgba(27,31,58,0.75)'); text(name, x - w / 2, y + 10, '#fff8e7');
+      if (b.state === 'home' && !s.said) s.said = true;
+    });
+  }
+  let lastT = 0;
   function draw(t, rodTip) {
     if (!F.on) return;
-    tip = rodTip;
+    tip = rodTip; F.tip = rodTip;
     const ctx = px.ctx;
+    if (F.stream) { ships(t, Math.min(0.05, Math.max(0, t - lastT))); lastT = t; }
     for (const c of F.clouds) {                                          // the clouds: their size the fit, gold the mark
       const shake = c.shake ? Math.round(Math.sin(t * 40) * 1.5) : 0, y = Math.round(c.y + Math.sin(t * 1.3 + c.bob) * 1.2);
       const old = Date.now() - c.job.posted > 14 * 864e5, fresh = Date.now() - c.job.posted < 864e5;
       if (c.job.size === 'gold') { ctx.globalCompositeOperation = 'lighter'; ell(c.x, y, c.r + 5, c.r * 0.7 + 4, 'rgba(255,200,80,0.18)'); ctx.globalCompositeOperation = 'source-over'; }
       ell(c.x + shake, y + c.r * 0.12, c.r + 2, c.r * 0.72 + 2, c.job.size === 'gold' ? '#a8701a' : '#7a84aa');      // an outline: a job's cloud, not the sky's
+      const behind = F.boatBox && c.x > F.boatBox.x && c.x < F.boatBox.x + F.boatBox.w && y > F.boatBox.y && y < F.boatBox.y + F.boatBox.h;
+      if (behind) ctx.globalAlpha = 0.35;                                  // passing the boat: seen through, the duck stays in sight
       px.lump(c.x + shake, y, c.r, c.job.size === 'gold' ? 'gold' : old ? 'old' : 'near');
       if (c.job.size === 'unread') text('?', c.x - 1, y - 3, '#8a90a8');
+      ctx.globalAlpha = 1;
       if (fresh) for (let i = 0; i < 3; i++) { const a = t * 2 + i * 2.1; if (Math.sin(t * 6 + i * 3) > 0.2) P(c.x + Math.cos(a) * (c.r + 3), y + Math.sin(a) * (c.r * 0.6 + 2), '#ffffff'); }
     }
     const k = F.cast;
@@ -286,5 +342,5 @@ export function makeFishing(px, { onCard, onSay, onSunset }) {
     const [y0, y1] = band();
     for (const c of F.clouds) { c.y = Math.max(y0 + c.r, Math.min(y1 - c.r, c.y)); if (c.x > W + c.r + 4) c.x = W + c.r + 4; }
   }
-  return { F, start, step, draw, down, up, move, net, answer, resize, stop() { F.on = false; } };
+  return { F, start, step, draw, down, up, move, net, answer, resize, feed, fleetHome, stop() { F.on = false; } };
 }

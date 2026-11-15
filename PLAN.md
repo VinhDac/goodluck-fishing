@@ -478,7 +478,21 @@ biển than trang Workday tải lâu; tàu về không có gì: «Hiring freeze�
 **Bước 1 theo đó:** app riêng (exe), mở cửa sổ game, có bộ tìm thật bên trong ngay từ đầu cho tàu nhanh (API công ty đã có:
 Greenhouse, Lever, Ashby), tàu hiện trên bến và trên biển đúng như bảng trên. Chrome, LinkedIn, hải đăng ở các bước sau.
 
-**Quyết định:** (chờ Vin)
+**Quyết định (Vin, 15/11: «được, đúng ý tôi rồi, làm bước 1 đi»).**
+
+**Bước 1 đã dựng (15/11):**
+- `app/sources.py`: cách đọc bảng việc dùng chung cho app và bộ thu 6 giờ (`tools/harvest.py`, `tools/discover.py` nay đọc
+  qua đây); bộ lọc chức danh và nơi chốn bằng Python, đúng như `js/score.js`; hỏi một việc còn mở không (`still_open`).
+- `app/fleet.py`: đội tàu, mỗi hệ thống bảng một tàu, 10 bảng một lúc; Greenhouse đọc danh sách gọn rồi mới đọc mô tả của
+  việc hợp; bảng có việc cho người này hôm trước được đọc trước (`hits.json`), rồi bảng kho chung biết có việc, rồi bảng nhỏ.
+  Đo 15/11: một phút đọc gần hết 2.840 bảng, 169 việc AI/ML London hoặc remote; cả đội về bến trong khoảng 2 phút.
+- `app/server.py`, `app/main.py`: máy chủ chỉ máy này với tới, cửa sổ pywebview (trình duyệt nếu không có), dữ liệu ở
+  %LOCALAPPDATA%\goodluck-fishing (`GLF_DATA` để thử trên thư mục khác: không bao giờ đổi LOCALAPPDATA khi chạy python,
+  trình quản lý Python của Windows tưởng chưa có Python và tải bản mới).
+- Game ở chế độ app (`js/fleet.js`): bảng DEPARTURES là đội tàu; bấm thuyền là cả đội nhổ neo; tàu kéo lưới trên biển, thanh
+  lưới đầy theo số bảng đã đọc; mây bay lên từ con tàu tìm thấy, đúng lúc tìm thấy; lúc câu móc, hỏi trang việc còn mở không
+  (đóng rồi thì mây tan, tự đánh dấu Expired); tàu về tay không: «Hiring freeze».
+- `tools/make_exe.py`: GoodLuckFishing.exe và bộ cài, như GoodLuck Office.
 
 ---
 

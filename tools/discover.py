@@ -17,13 +17,15 @@ import json
 import random
 import re
 import sqlite3
+import sys
 import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-AGENT = "GoodLuckFishing/0.1 (finding public job boards; vinhdac.github.io)"
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from app.sources import AGENT, ask  # noqa: E402  one polite way of asking, for every tool
 DROP = {"limited", "ltd", "plc", "llp", "lp", "uk", "group", "holdings", "holding", "inc", "llc", "the", "co", "company",
         "services", "service", "international", "global", "europe", "trading", "as", "t/a", "and", "of"}
 
@@ -45,23 +47,6 @@ def slugs(name: str) -> list:
     if len(words) > 1:
         out.append("-".join(words))
     return [s for s in dict.fromkeys(out) if 2 < len(s) <= 40]
-
-
-def ask(url: str):
-    """The answer as JSON, or None when there is no board (or no answer)."""
-    req = urllib.request.Request(url, headers={"User-Agent": AGENT, "Accept": "application/json"})
-    for attempt in range(2):
-        try:
-            with urllib.request.urlopen(req, timeout=12) as r:
-                return json.loads(r.read().decode("utf-8", "replace"))
-        except urllib.error.HTTPError as e:
-            if e.code == 429:
-                time.sleep(3 + attempt * 5)
-                continue
-            return None
-        except (urllib.error.URLError, TimeoutError, ValueError, OSError):
-            return None
-    return None
 
 
 def probe(name: str) -> list:
