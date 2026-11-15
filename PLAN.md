@@ -536,7 +536,10 @@ chọn mồi, bấm thuyền.
 đường từ ngày thứ hai; E máy dò cá làm tiến độ ở góc; F thành phố chạy khi tìm, dừng khi xong; G chuyện cười giữ cái nào;
 H cá vàng ở sâu (phải thả sâu mới tới), hay cá nào cũng bơi khắp hồ.
 
-**Quyết định:** (chờ Vin)
+**Quyết định (Vin, 15/11: «đồng ý theo đề xuất của bạn, vẽ ảnh tĩnh đi»):** A vịt tự câu khi người chơi không chạm, chạm là
+cầm cần; B hồ 30 con (điện thoại 20); C bảng kết quả: việc đã câu và mây vàng chưa câu, còn lại để trong hồ cho mai, có
+«xem tất cả»; D từ ngày thứ hai một nút «Go fishing»; E máy dò cá là tiến độ ở góc; F thành phố chạy khi tìm, dừng khi xong;
+G giữ cả ba chuyện cười (ủng cũ, cá ma, mòng biển cướp mồi); H cá vàng ở sâu. Vẽ ảnh tĩnh trước, duyệt rồi mới làm.
 
 ---
 

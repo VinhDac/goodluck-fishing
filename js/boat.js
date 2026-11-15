@@ -5,7 +5,7 @@
 
 import { upright } from './ducks.js';
 
-export function drawBoat(px, x, y, t, { duck = false, sailing = false, rod = -0.95, shadow = true } = {}) {
+export function drawBoat(px, x, y, t, { duck = false, sailing = false, rod = -0.95, shadow = true, bend = 0 } = {}) {
   const { R, P, ell, line, poly, text, textW } = px;
   const bob = Math.round(Math.sin(t * 1.6) * 1.2), yy = y + bob, w = 66, inD = 12;
   if (shadow) ell(x + w / 2 - 6, y + 9, w / 2, 3, 'rgba(110,118,170,0.35)');
@@ -30,9 +30,15 @@ export function drawBoat(px, x, y, t, { duck = false, sailing = false, rod = -0.
   let tip;
   if (duck) {
     upright(px, x + 52, yy - 9, { sit: true, blink: (t % 5) > 4.85 });
-    const hx = x + 58, hy = yy - 19;
-    tip = [hx + Math.cos(rod) * 30, hy + Math.sin(rod) * 30];
-    line(hx, hy, tip[0], tip[1], '#5a3a1a'); R(hx - 1, hy - 1, 3, 3, '#2a1a10'); P(hx, hy, '#c8c8d4');
+    const hx = x + 58, hy = yy - 19, len = 30, a2 = rod + bend * 0.9;     // bend: a fish on, the rod curves toward the line
+    tip = [hx + Math.cos(a2) * len, hy + Math.sin(a2) * len];
+    const cx = hx + Math.cos(rod) * len * 0.62, cy = hy + Math.sin(rod) * len * 0.62;
+    for (let i = 0; i <= 24; i++) {
+      const u = i / 24, px0 = (1 - u) * (1 - u) * hx + 2 * (1 - u) * u * cx + u * u * tip[0], py0 = (1 - u) * (1 - u) * hy + 2 * (1 - u) * u * cy + u * u * tip[1];
+      R(px0, py0, u < 0.3 ? 2 : 1, u < 0.3 ? 2 : 1, u < 0.3 ? '#3a2410' : '#5a3a1a');                   // the handle thicker
+      if (i === 10 || i === 18) P(px0, py0 - 1, '#c8c8d4');                                              // its line guides
+    }
+    R(hx - 1, hy, 4, 3, '#2a1a10'); P(hx + 1, hy + 1, '#c8c8d4');                                     // the reel
   } else {
     tip = [x + 70, yy - 37];
     line(x + 54, yy - 12, x + 70, yy - 36, '#5a3a1a'); P(x + 70, yy - 37, '#e03a3a');

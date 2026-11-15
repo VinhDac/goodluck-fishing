@@ -15,7 +15,9 @@ const KX = 0.5, KY = 0.6;
 const KINDS = ['downtown', 'oldtown', 'river', 'park', 'downtown', 'campus', 'harbour', 'oldtown', 'downtown', 'park'];
 const DISTRICT = 260;                                                // how long a district runs, in the city's own units
 
-export function makeVoyage(g) {
+// opts.deep: the city as the bed of the fishing lake (PLAN.md 17): lower, so the sky between the boat and the roofs is the
+// lake; no boat and no rushing wisps of its own (the fishing scene draws those it needs); where each roof is, kept in L.tops
+export function makeVoyage(g, opts = {}) {
   const px = makePix(g), { R, P, ell, line, poly, text, textW } = px;
   const L = {};
   let names = ['Goggle', 'Amazoom', 'Snoozle', 'Facepalm'];
@@ -25,11 +27,16 @@ export function makeVoyage(g) {
     const wide = W >= H;
     Object.assign(L, { W, H, wide });
     L.G = H + (wide ? 8 : -24);                                      // where the city's ground meets the bottom of the picture
-    L.rows = [
+    L.rows = opts.deep ? [
+      { z: 92, lot: 30, seed: 11, hi: wide ? 40 : 110, lo: wide ? 16 : 40 },
+      { z: 54, lot: 34, seed: 23, hi: wide ? 30 : 76, lo: wide ? 12 : 26 },
+      { z: 16, lot: 40, seed: 37, hi: wide ? 20 : 44, lo: wide ? 8 : 14 },
+    ] : [
       { z: 92, lot: 30, seed: 11, hi: wide ? 110 : 200, lo: wide ? 40 : 70 },
       { z: 54, lot: 34, seed: 23, hi: wide ? 76 : 140, lo: wide ? 26 : 44 },
       { z: 16, lot: 40, seed: 37, hi: wide ? 44 : 80, lo: wide ? 14 : 24 },
     ];
+    if (opts.deep) L.G = H + (wide ? 16 : 14);                     // the roofs low: the sky above them is the lake
     L.boat = { x: Math.round(W * (wide ? 0.07 : 0.05)), y: Math.round(H * (wide ? 0.42 : 0.36)) };
     return L;
   }
@@ -256,16 +263,17 @@ export function makeVoyage(g) {
   // ---- a lot of the city: what stands on it, from its own number -------------------------------------------------------------
   function lot(row, i) {
     const x = i * row.lot, seed = i * 13.7 + row.seed, kind = kindAt(x + row.lot / 2);
+    const roofAt = (hh) => { const [a, b] = S(x + row.lot / 2, row.z + 12, hh); L.tops.push({ x: a, y: b, row: row.seed, lot: i }); };
     const r = hash(seed), gap = 3 + Math.round(hash(seed + 1) * 4), w = row.lot - gap, d = 20 + Math.round(hash(seed + 2) * 8), z = row.z;
     const h = Math.round(row.lo + (row.hi - row.lo) * hash(seed + 3) ** (kind === 'downtown' ? 0.7 : 1.4));
     if (kind === 'river') { river(x, z, row.lot, d, seed, Math.abs(i) % 9 === 4); return; }
     if (kind === 'park' && r < 0.75) { park(x, z, row.lot, d, seed); return; }
     if (r > 0.95 && kind !== 'oldtown') { frame(x, z, w, d, Math.min(h, 40), seed); return; }
-    if (kind === 'downtown') { if (r < 0.62) glassTower(x + 2, z, w - 4, d, h, seed); else office(x, z, w, d, Math.round(h * 0.8), seed, kind); return; }
-    if (kind === 'oldtown') { brick(x, z, w, d, Math.min(h, 34), seed); return; }
-    if (kind === 'campus') { campus(x + 2, z, w - 4, d - 4, Math.min(h, 18), seed); return; }
-    if (kind === 'harbour') { warehouse(x, z, w, d, Math.min(h, 20), seed); if (r > 0.9 && row.seed === 37) crane(x + w - 4, z + d, 40, seed); return; }
-    office(x, z, w, d, Math.round(h * 0.7), seed, kind);
+    if (kind === 'downtown') { if (r < 0.62) { glassTower(x + 2, z, w - 4, d, h, seed); roofAt(h); } else { office(x, z, w, d, Math.round(h * 0.8), seed, kind); roofAt(Math.round(h * 0.8)); } return; }
+    if (kind === 'oldtown') { brick(x, z, w, d, Math.min(h, 34), seed); roofAt(Math.min(h, 34) + 8); return; }
+    if (kind === 'campus') { campus(x + 2, z, w - 4, d - 4, Math.min(h, 18), seed); roofAt(Math.min(h, 18)); return; }
+    if (kind === 'harbour') { warehouse(x, z, w, d, Math.min(h, 20), seed); roofAt(Math.min(h, 20)); if (r > 0.9 && row.seed === 37) crane(x + w - 4, z + d, 40, seed); return; }
+    office(x, z, w, d, Math.round(h * 0.7), seed, kind); roofAt(Math.round(h * 0.7));
   }
   function street(row) {                                               // the street in front of a row, its cars going by
     const z0 = row.z - 12, from = s - row.z * KX - 40, to = from + L.W + 80;
@@ -344,7 +352,10 @@ export function makeVoyage(g) {
   function draw(W, H, t = 0, data = {}) {
     px.use(g);
     if (data.names && data.names.length) names = data.names;
-    T = t; day = data.day ?? 0.3; s = t * (data.speed ?? 16);
+    const dt = Math.min(0.1, Math.max(0, t - T));
+    T = t; day = data.day ?? 0.3;
+    s = data.at != null ? data.at : s + dt * (data.speed ?? 16);
+    L.tops = [];
     late = Math.max(0, (day - 0.7) / 0.3); lit = Math.max(0, (day - 0.55) / 0.45);
     sky(t); balloon(t); plane(t);
     farCity();
@@ -353,6 +364,7 @@ export function makeVoyage(g) {
     cityRow(mid); haze(0.10);
     R(0, L.G - (front.z - 12) * KY, W, H, dusk([96, 100, 110]));                                          // the near pavement, under the front row
     cityRow(front);
+    if (opts.deep) { if (late > 0) R(0, 0, W, H, `rgba(60,30,90,${(late * 0.12).toFixed(3)})`); return null; }
     ell(L.boat.x + 30 + Math.sin(t * 0.5) * 4, L.G - 70 * KY - 30, 22, 3, 'rgba(40,40,80,0.18)');    // the boat's shadow far below
     const tip = drawBoat(px, L.boat.x, L.boat.y, t, { duck: true, sailing: true, shadow: false, rod: data.rod ?? -0.95 });
     for (const c of data.clouds || []) px.lump(c.x, c.y, c.r, c.gold ? 'gold' : 'near');
@@ -363,5 +375,5 @@ export function makeVoyage(g) {
     if (late > 0) R(0, 0, W, H, `rgba(60,30,90,${(late * 0.12).toFixed(3)})`);
     return tip;
   }
-  return { layout, draw, L };
+  return { layout, draw, L, get late() { return late; }, get lit() { return lit; } };
 }

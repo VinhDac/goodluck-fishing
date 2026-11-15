@@ -18,16 +18,19 @@
   .bubble::after { content: ""; position: absolute; left: 22px; bottom: -11px; border: 8px solid transparent; border-top-color: #3a2a1a; }
   .bubble i { font-style: normal; opacity: .55; }
   .label { color: #8890b8; font: 13px system-ui, sans-serif; margin-top: 6px; }
+  .talk { position: absolute; display: flex; gap: 8px; align-items: center; box-sizing: border-box; padding: 4px 10px; background: #fff8e7; color: #1b1f3a;
+    border: 3px solid #3a2a1a; border-radius: 4px; box-shadow: 0 3px 0 #3a2a1a; line-height: 1.2; }
+  .talk canvas { width: 32px; height: 32px; image-rendering: pixelated; flex: none; background: #9fd4f8; border: 2px solid #3a2a1a; }
 </style>
 </head>
 <body>
 <h2>1. The office</h2><div class="row" id="office"></div>
 <h2>2. The cloud pier</h2><div class="row" id="pier"></div>
-<h2>3. Fishing: the city goes by (the computer's runs a whole day in a minute and a half; the phone's is at sunset)</h2><div class="row" id="voyage"></div>
+<h2>3. The lake: fishing straight down into the city (waiting for a bite; a golden one coming up; a phone)</h2><div class="row" id="lake"></div>
 <script type="module">
   import { makeRoom } from '../js/room.js';
   import { makePier } from '../js/pier.js';
-  import { makeVoyage } from '../js/voyage.js';
+  import { makeDeep } from '../js/deep.js';
   const scenes = [];
   function show(where, make, W, H, K, label, bubble, data) {
     const box = document.createElement('div'), fr = document.createElement('div'); fr.className = 'frame';
@@ -56,8 +59,25 @@
   const clouds = (t, W, H) => [0, 1, 2, 3, 4].map((i) => ({ x: ((W * (0.4 + i * 0.17) - t * (6 + i)) % (W * 0.75) + W * 0.75) % (W * 0.75) + W * 0.3,
     y: H * (0.14 + ((i * 37) % 30) / 100), r: i === 2 ? 9 : 6 + (i % 3) * 2, gold: i === 2 }));
   const names = ['Toast', 'AssemblyAI', 'Samsara', 'Harvey', 'PhysicsX', 'Magentic', 'Monzo', 'Wise'];
-  show('voyage', makeVoyage, 384, 216, wideK, 'A computer', null, (t, W, H) => ({ day: ((t / 90) + 0.2) % 1, names, clouds: clouds(t, W, H) }));
-  show('voyage', makeVoyage, 195, 422, 2, 'A phone', null, (t, W, H) => ({ day: 0.88, names, clouds: clouds(t, W, H) }));
+  // the lake: each scene draws itself from its own demo of a morning; the duck's words in the talk box at the bottom
+  function lake(W, H, K, label, variant, say) {
+    const box = document.createElement('div'), fr = document.createElement('div'); fr.className = 'frame';
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H; cv.style.width = W * K + 'px'; cv.style.height = H * K + 'px';
+    fr.appendChild(cv); box.appendChild(fr);
+    const lab = document.createElement('div'); lab.className = 'label'; lab.textContent = label; box.appendChild(lab);
+    document.getElementById('lake').appendChild(box);
+    const s = makeDeep(cv.getContext('2d')), L = s.layout(W, H);
+    const talk = document.createElement('div'); talk.className = 'talk';
+    talk.innerHTML = `<canvas width="16" height="16"></canvas><span>${say}</span>`;
+    Object.assign(talk.style, { left: L.talk.x * K + 'px', top: L.talk.y * K + 'px', width: L.talk.w * K + 'px', height: L.talk.h * K + 'px', fontSize: (K >= 3 ? 15 : 12) + 'px' });
+    fr.appendChild(talk);
+    const face = talk.querySelector('canvas').getContext('2d');                      // the duck's face, in the talk box
+    face.fillStyle = '#ffd84a'; face.beginPath(); face.arc(8, 8, 6, 0, 7); face.fill(); face.fillStyle = '#f2802a'; face.fillRect(12, 8, 4, 2); face.fillStyle = '#1b1f3a'; face.fillRect(9, 5, 1, 2);
+    scenes.push({ s: { draw: (W2, H2, t) => s.draw(W2, H2, t, s.demo(t, variant)) }, W, H });
+  }
+  lake(384, 216, wideK, 'A computer: waiting for a bite', 'wait', 'Something is nibbling the bait… wait for it.');
+  lake(384, 216, wideK, 'A computer: a golden one, coming up', 'fight', 'A golden one! Let go when it pulls.');
+  lake(195, 422, 2, 'A phone', 'wait', 'Something is nibbling… wait for it.');
   const t0 = performance.now();
   (function frame(now) { const t = (now - t0) / 1000; for (const { s, W, H, data } of scenes) s.draw(W, H, t, data ? data(t, W, H) : undefined); requestAnimationFrame(frame); })(t0);
 </script>
