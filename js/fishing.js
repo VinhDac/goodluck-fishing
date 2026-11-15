@@ -66,9 +66,9 @@ export function makeFishing(px, { onCard, onSay, onSunset }) {
   function down(p) {
     if (!F.on || F.over || F.auto) return;
     F.holding = true; F.aim = p;
-    if (F.bottle && Math.hypot(p.x - F.bottle.x, p.y - F.bottle.y) < 9) { const job = F.bottle.job; F.bottle = null; card(job, 'bottle'); return; }
     const k = F.cast;
-    if (!k) { F.charging = { age: 0 }; return; }
+    if (!k && F.bottle && Math.hypot(p.x - F.bottle.x, p.y - F.bottle.y) < 9) { const job = F.bottle.job; F.bottle = null; card(job, 'bottle'); return; }
+    if (!k) { if (!F.charging) F.charging = { age: 0 }; return; }   // a second finger does not start the power again
     if (k.phase === 'bite') return hook(k);
   }
   function move(p) { if (F.on) F.aim = p; }
@@ -96,7 +96,7 @@ export function makeFishing(px, { onCard, onSay, onSunset }) {
     if (!paused && !F.over) {
       F.day = Math.min(1, F.day + dt / DAY);
       if (!F.golden && F.day >= 1 - GOLDEN / DAY) { F.golden = true; if (F.lake.some((j) => j.size === 'gold')) onSay('The golden hour: the golden clouds are rising.'); }
-      if ((F.day >= 1 || (!F.lake.length && !F.later.length && !F.clouds.length && !F.cast && F.t > 3)) && !F.pending) return sunset();
+      if ((F.day >= 1 || (!F.lake.length && !F.later.length && !F.clouds.length && !F.cast && !F.bottle && !F.charging && F.t > 3)) && !F.pending) return sunset();
     }
     if (paused) return;
     if ((F.spawnIn -= dt) <= 0) { spawn(); F.spawnIn = rand(2.5, 5); }
@@ -162,7 +162,8 @@ export function makeFishing(px, { onCard, onSay, onSunset }) {
     else card(k.hit.job, 'caught');
   }
   function card(job, how) { F.pending = { job, how }; onCard(job, how); }
-  function keep(job, how, status = 'new') { add(job, how === 'bottle' ? 'caught' : how, status); F.caught++; }
+  // into the bucket; counted as caught only when it is new there and kept (thrown back is put away, not caught)
+  function keep(job, how, status = 'new') { if (add(job, how === 'bottle' ? 'caught' : how, status) && status === 'new') F.caught++; }
   // the card's answer: Keep, or Throw back (not for me); either way the cloud is out of the sky
   function answer(keepIt) {
     const p = F.pending; F.pending = null;
@@ -278,5 +279,12 @@ export function makeFishing(px, { onCard, onSay, onSunset }) {
     text('LINE', x - 2, y - 7, '#fff8e7');
   }
 
-  return { F, start, step, draw, down, up, move, net, answer, stop() { F.on = false; } };
+  // the window changed shape at sea: the clouds kept inside the new band
+  function resize(w, h) {
+    W = w; H = h;
+    if (!F.on) return;
+    const [y0, y1] = band();
+    for (const c of F.clouds) { c.y = Math.max(y0 + c.r, Math.min(y1 - c.r, c.y)); if (c.x > W + c.r + 4) c.x = W + c.r + 4; }
+  }
+  return { F, start, step, draw, down, up, move, net, answer, resize, stop() { F.on = false; } };
 }

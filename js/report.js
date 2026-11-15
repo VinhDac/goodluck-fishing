@@ -16,7 +16,7 @@ $('rpBack').addEventListener('click', () => { $('report').hidden = true; if (onC
 
 function draw() {
   const items = all(), day = new Date().toLocaleDateString('en-CA'), week = Date.now() - 7 * 864e5;
-  const todays = items.filter((e) => e.day === day);
+  const todays = items.filter((e) => e.day === day && e.how !== 'ashore' && e.status !== 'not_for_me');   // kept today, as the sunset counts
   const fresh = items.filter((e) => e.status === 'new').sort((a, b) => (b.job.fit ?? -1) - (a.job.fit ?? -1) || b.job.posted - a.job.posted);
   const applied = items.filter((e) => e.status === 'applied').sort((a, b) => b.at.localeCompare(a.at));
   const away = items.filter((e) => e.status === 'expired' || e.status === 'not_for_me').length;

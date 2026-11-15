@@ -40,7 +40,7 @@ export async function readLake(me) {
   const city = String(me.city || '').trim().toLowerCase();
   const region = Object.entries(REGION_OF).find(([, cities]) => cities.includes(city));
   const names = region ? [region[0], ...(me.remote ? ['remote'] : [])] : [...Object.keys(REGION_OF), 'remote', 'other'];
-  const parts = await Promise.all(names.map((n) => fetch(`${STORE}/${n}.json`).then((r) => (r.ok ? r.json() : { jobs: [] })).catch(() => ({ jobs: [] }))));
+  const parts = await Promise.all(names.map((n) => fetch(`${STORE}/${n}.json`, { signal: AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined }).then((r) => (r.ok ? r.json() : { jobs: [] })).catch(() => ({ jobs: [] }))));
   const seen = new Set(), rows = [];
   for (const p of parts) for (const r of p.jobs || []) if (!seen.has(r[0])) { seen.add(r[0]); rows.push(r); }
   const since = Date.now() - FRESH_DAYS * 864e5, mineTitles = me.titles || [];

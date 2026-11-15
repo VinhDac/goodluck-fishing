@@ -15,10 +15,11 @@ export const has = (id) => !!box[id];
 
 // a catch into the box; a job already there keeps its state
 export function add(job, how, status = 'new') {
-  if (box[job.id]) return;
+  if (box[job.id]) return false;
   box[job.id] = { job: slim(job), day: today(), how, status, at: new Date().toISOString() };
   keep();
   push(box[job.id]);
+  return true;
 }
 // the person's own word on a job: applied, expired, not for me (or back to new)
 export function mark(id, status) {
@@ -56,7 +57,8 @@ export async function sync() {
     const mine = box[r.job_id];
     if (!mine || (r.status_at > mine.at)) {
       box[r.job_id] = { job: { id: r.job_id, ...(r.jobs || {}), posted: Date.parse((r.jobs || {}).posted) || 0, fit: mine ? mine.job.fit : null,
-        size: mine ? mine.job.size : 'unread' }, day: r.day, how: r.how, status: r.status, at: r.status_at };
+        size: mine ? mine.job.size : 'unread' }, day: r.day, how: r.how, status: r.status, at: r.status_at,
+        ...(mine && mine.replied ? { replied: true } : {}) };
     }
   }
   keep();

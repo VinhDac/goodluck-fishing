@@ -32,6 +32,7 @@ function fit() {
   cv.style.width = `${W * K}px`; cv.style.height = `${H * K}px`;
   g.imageSmoothingEnabled = false;
   for (const s of [room, pier, sky]) s.layout(W, H);
+  fishing.resize(W, H);
 }
 const room = makeRoom(g), pier = makePier(g), sky = makeVoyage(g);
 const fishing = makeFishing(makePix(g), {
@@ -298,6 +299,7 @@ function tick(now) {
     const F = fishing.F, k = F.cast, rod = k && k.phase === 'fight' ? -0.55 - Math.sin(t * 20) * 0.05 * (k.burst || 0) : F.charging ? -1.4 : -0.95;
     const tip = sky.draw(W, H, t, { day: F.day * 0.92 + 0.05, names: names(), rod, speed: 16 });
     fishing.draw(t, { x: tip[0], y: tip[1] });
+    $('skyCount').textContent = String(F.caught);
     if (!paused) {
       const left = Math.max(0, Math.ceil(DAY * (1 - F.day)));
       $('skyClock').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
