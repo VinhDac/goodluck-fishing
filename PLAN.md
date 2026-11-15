@@ -317,6 +317,21 @@ trên thư từ chối; E thang cuốn trước khi có CV; F trước khi dựn
 có nút bật; D thư từ chối chỉ tên công ty bịa; E thang cuốn có sẵn, dây nhung «CV required» hạ khi nạp CV; F vẽ ảnh
 tĩnh trước để duyệt, rồi mới làm chuyển động và thoại.
 
+## 13. Bến mây và trời đi câu (Vin, 15/11: «khi lên rồi thì phải có 1 cái bến ... cảnh trời tòa nhà cho nó di chuyển
+liên tục để tạo cảm giác nó đang đi»)
+
+- **Bến mây** (`js/pier.js`): buổi sáng trên biển mây; thang cuốn trồi lên ở bên trái, vịt bước ra; chòi CLOUD PIER (phao
+  cứu sinh, chuông, chậu hoa); bảng DEPARTURES là số của chính hôm đó (bao nhiêu mây theo nơi làm, bao nhiêu mây vàng);
+  quầy BAIT với lọ mồi là kỹ năng trong CV (có con giun ngó ra); cờ dây; mòng biển đội mũ thuyền trưởng; biển FISHING;
+  thuyền GOOD LUCK buộc dây, nhấp nhô; lỗ mây nhìn xuống thành phố.
+- **Trời đi câu** (`js/voyage.js`): thuyền chạy, thế giới trôi qua bốn lớp, mỗi lớp một tốc độ: mây mỏng trên cao, thành
+  phố xa trong sương, thành phố gần (biển quảng cáo trên nóc là tên các công ty có việc trên trời; tháp nước, ăng-ten
+  nhấp nháy, vườn, sân trực thăng; cửa sổ sáng dần về chiều), mây bay vụt qua phía trước. Thỉnh thoảng máy bay kéo băng
+  NOW HIRING. Ngày đi từ sáng tới hoàng hôn.
+- Dùng chung: `js/pix.js` (bút vẽ pixel), `js/ducks.js` (vịt các tư thế), `js/boat.js` (thuyền).
+
+**Quyết định:** (chờ Vin xem trang thử)
+
 ---
 
 ## Nhật ký bàn bạc

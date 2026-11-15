@@ -1,41 +1,65 @@
 <!doctype html>
-<!-- THE LOBBY AS A STILL (PLAN.md 12, F): the room as js/room.js draws it, on a computer and on a phone, for Vin to
-     approve before it moves and talks. Open through a local server: python -m http.server, then /tools/still.html -->
+<!-- THE SCENES, MOVING, FOR VIN TO APPROVE (PLAN.md 12 and 13) before they go into the game: the office, the cloud pier,
+     the sky while fishing; each as on a computer and on a phone. Open through a local server: python -m http.server,
+     then /tools/still.html -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Lobby, still</title>
+<title>Scenes, to approve</title>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  body { margin: 0; background: #05060f; display: flex; gap: 24px; padding: 24px; align-items: flex-start; font-family: "Pixelify Sans", monospace; }
+  body { margin: 0; background: #05060f; color: #c9d0ff; font-family: "Pixelify Sans", monospace; padding: 16px 24px 40px; }
+  h2 { font-weight: 600; font-size: 20px; margin: 22px 0 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
   .frame { position: relative; }
   canvas { display: block; image-rendering: pixelated; }
   .bubble { position: absolute; background: #fff8e7; color: #1b1f3a; border: 3px solid #3a2a1a; border-radius: 4px; padding: 6px 10px;
-    font-size: 17px; line-height: 1.25; max-width: 260px; box-shadow: 0 3px 0 #3a2a1a; }
+    line-height: 1.25; max-width: 260px; box-shadow: 0 3px 0 #3a2a1a; }
   .bubble::after { content: ""; position: absolute; left: 22px; bottom: -11px; border: 8px solid transparent; border-top-color: #3a2a1a; }
   .bubble i { font-style: normal; opacity: .55; }
   .label { color: #8890b8; font: 13px system-ui, sans-serif; margin-top: 6px; }
 </style>
 </head>
 <body>
-<div><div class="frame" id="wide"></div><div class="label">A computer: 384 by 216, each pixel 4 by 4</div></div>
-<div><div class="frame" id="tall"></div><div class="label">A phone: 195 by 422, each pixel 2 by 2</div></div>
+<h2>1. The office</h2><div class="row" id="office"></div>
+<h2>2. The cloud pier</h2><div class="row" id="pier"></div>
+<h2>3. Fishing: the world goes by (the computer's runs a whole day in a minute; the phone's is at sunset)</h2><div class="row" id="voyage"></div>
 <script type="module">
   import { makeRoom } from '../js/room.js';
-  function show(id, W, H, K, say, size) {
+  import { makePier } from '../js/pier.js';
+  import { makeVoyage } from '../js/voyage.js';
+  const scenes = [];
+  function show(where, make, W, H, K, label, bubble, data) {
+    const box = document.createElement('div'), fr = document.createElement('div'); fr.className = 'frame';
     const cv = document.createElement('canvas'); cv.width = W; cv.height = H; cv.style.width = W * K + 'px'; cv.style.height = H * K + 'px';
-    document.getElementById(id).appendChild(cv);
-    const room = makeRoom(cv.getContext('2d'));
-    const L = room.layout(W, H); room.draw(W, H, 0.3, {});
-    const b = document.createElement('div'); b.className = 'bubble'; b.innerHTML = say; b.style.fontSize = size + 'px';
-    document.getElementById(id).appendChild(b);
-    const r = b.getBoundingClientRect();
-    const right = L.mcx + L.mon.w / 2 + 6;                         // beside the screen if there is room, else above it
-    if ((W - right) * K > r.width + 12) { b.style.left = right * K + 'px'; b.style.top = ((L.deskT - 16) * K - r.height - 12) + 'px'; }
-    else { b.style.left = '8px'; b.style.top = ((L.monTop - 4) * K - r.height - 12) + 'px'; }
+    fr.appendChild(cv); box.appendChild(fr);
+    const lab = document.createElement('div'); lab.className = 'label'; lab.textContent = label; box.appendChild(lab);
+    document.getElementById(where).appendChild(box);
+    const s = make(cv.getContext('2d')), L = s.layout(W, H);
+    s.draw(W, H, 0);
+    if (bubble) {
+      const b = document.createElement('div'); b.className = 'bubble'; b.innerHTML = bubble.say; b.style.fontSize = (K >= 3 ? 17 : 14) + 'px';
+      fr.appendChild(b);
+      const r = b.getBoundingClientRect(), [x, y] = bubble.at(L);
+      b.style.left = Math.max(6, Math.min(x * K, W * K - r.width - 6)) + 'px'; b.style.top = (y * K - r.height - 12) + 'px';
+    }
+    scenes.push({ s, W, H, data });
   }
-  show('wide', 384, 216, 4, '<i>zzz…</i> entry level… eight years of experience required… <i>zzz</i>', 17);
-  show('tall', 195, 422, 2, '<i>zzz…</i> yes… I am a team player… <i>zzz</i>', 14);
+  const wideK = Math.min(4, (innerWidth - 48) / 384);
+  const officeSays = (say) => ({ say, at: (L) => { const right = L.mcx + L.mon.w / 2 + 6; return (L.W - right) > 70 ? [right, L.deskT - 16] : [4, L.monTop - 4]; } });
+  show('office', makeRoom, 384, 216, wideK, 'A computer', officeSays('<i>zzz…</i> entry level… eight years of experience required… <i>zzz</i>'));
+  show('office', makeRoom, 195, 422, 2, 'A phone', officeSays('<i>zzz…</i> yes… I am a team player… <i>zzz</i>'));
+  const pierSays = (say) => ({ say, at: (L) => [L.duck.x - 6, L.duck.y - 30] });
+  show('pier', makePier, 384, 216, wideK, 'A computer', pierSays('Huh. So this is where jobs come from.'));
+  show('pier', makePier, 195, 422, 2, 'A phone', pierSays('Huh. So this is where jobs come from.'));
+  // a few job clouds drifting by, one golden, for the picture (the game's own clouds take their place)
+  const clouds = (t, W, H) => [0, 1, 2, 3, 4].map((i) => ({ x: ((W * (0.4 + i * 0.17) - t * (6 + i)) % (W * 0.75) + W * 0.75) % (W * 0.75) + W * 0.3,
+    y: H * (0.14 + ((i * 37) % 30) / 100), r: i === 2 ? 9 : 6 + (i % 3) * 2, gold: i === 2 }));
+  const names = ['Toast', 'AssemblyAI', 'Samsara', 'Harvey', 'PhysicsX', 'Magentic', 'Monzo', 'Wise'];
+  show('voyage', makeVoyage, 384, 216, wideK, 'A computer', null, (t, W, H) => ({ day: (t / 60) % 1, names, clouds: clouds(t, W, H) }));
+  show('voyage', makeVoyage, 195, 422, 2, 'A phone', null, (t, W, H) => ({ day: 0.86, names, clouds: clouds(t, W, H) }));
+  const t0 = performance.now();
+  (function frame(now) { const t = (now - t0) / 1000; for (const { s, W, H, data } of scenes) s.draw(W, H, t, data ? data(t, W, H) : undefined); requestAnimationFrame(frame); })(t0);
 </script>
 </body>
 </html>

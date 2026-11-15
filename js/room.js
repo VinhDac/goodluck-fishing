@@ -4,49 +4,11 @@
 // is given. Pixel art seen three quarters on, lit by the desk lamp, the screen and the light from above (the rest of the
 // room in the dark). Laid out from the canvas's own size: wide on a computer, tall on a phone.
 
-const FONT = {
-  A: ['.#.', '#.#', '###', '#.#', '#.#'], B: ['##.', '#.#', '##.', '#.#', '##.'], C: ['.##', '#..', '#..', '#..', '.##'],
-  D: ['##.', '#.#', '#.#', '#.#', '##.'], E: ['###', '#..', '##.', '#..', '###'], F: ['###', '#..', '##.', '#..', '#..'],
-  G: ['.##', '#..', '#.#', '#.#', '.##'], H: ['#.#', '#.#', '###', '#.#', '#.#'], I: ['###', '.#.', '.#.', '.#.', '###'],
-  J: ['..#', '..#', '..#', '#.#', '.#.'], K: ['#.#', '#.#', '##.', '#.#', '#.#'], L: ['#..', '#..', '#..', '#..', '###'],
-  M: ['#.#', '###', '###', '#.#', '#.#'], N: ['##.', '#.#', '#.#', '#.#', '#.#'], O: ['.#.', '#.#', '#.#', '#.#', '.#.'],
-  P: ['##.', '#.#', '##.', '#..', '#..'], Q: ['.#.', '#.#', '#.#', '##.', '.##'], R: ['##.', '#.#', '##.', '#.#', '#.#'],
-  S: ['.##', '#..', '.#.', '..#', '##.'], T: ['###', '.#.', '.#.', '.#.', '.#.'], U: ['#.#', '#.#', '#.#', '#.#', '###'],
-  V: ['#.#', '#.#', '#.#', '#.#', '.#.'], W: ['#.#', '#.#', '###', '###', '#.#'], X: ['#.#', '#.#', '.#.', '#.#', '#.#'],
-  Y: ['#.#', '#.#', '.#.', '.#.', '.#.'], Z: ['###', '..#', '.#.', '#..', '###'],
-  0: ['###', '#.#', '#.#', '#.#', '###'], 1: ['.#.', '##.', '.#.', '.#.', '###'], 2: ['##.', '..#', '.#.', '#..', '###'],
-  3: ['##.', '..#', '.#.', '..#', '##.'], 4: ['#.#', '#.#', '###', '..#', '..#'], 5: ['###', '#..', '##.', '..#', '##.'],
-  6: ['.##', '#..', '###', '#.#', '###'], 7: ['###', '..#', '.#.', '.#.', '.#.'], 8: ['###', '#.#', '###', '#.#', '###'],
-  9: ['###', '#.#', '###', '..#', '##.'], ':': ['.', '#', '.', '#', '.'], '.': ['.', '.', '.', '.', '#'],
-  ',': ['.', '.', '.', '#', '#'], '!': ['#', '#', '#', '.', '#'], '-': ['...', '...', '###', '...', '...'],
-  '_': ['...', '...', '...', '...', '###'], '^': ['.#.', '###', '.#.', '.#.', '.#.'], ' ': ['..', '..', '..', '..', '..'],
-};
+import { makePix } from './pix.js';
+import { sleeping } from './ducks.js';
 
 export function makeRoom(g) {
-  // ---- pixel tools ----------------------------------------------------------------------------------------------------
-  let c = g;                                                      // the context drawn on (the room, or its darkness)
-  const R = (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
-  const P = (x, y, col) => R(x, y, 1, 1, col);
-  function ell(cx, cy, rx, ry, col) {                               // a filled ellipse, row by row: pixel edges
-    c.fillStyle = col;
-    for (let y = -ry; y <= ry; y++) {
-      const w = Math.round(rx * Math.sqrt(Math.max(0, 1 - (y * y) / (ry * ry))));
-      c.fillRect(Math.round(cx - w), Math.round(cy + y), w * 2 + 1, 1);
-    }
-  }
-  function line(x0, y0, x1, y1, col, w = 1) {
-    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1);
-    for (let i = 0; i <= n; i++) R(x0 + ((x1 - x0) * i) / n - (w >> 1), y0 + ((y1 - y0) * i) / n - (w >> 1), w, w, col);
-  }
-  function poly(pts, col) { c.fillStyle = col; c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.closePath(); c.fill(); }
-  const textW = (s) => [...s].reduce((n, ch) => n + (FONT[ch] || FONT[' '])[0].length + 1, -1);
-  function text(s, x, y, col) {
-    for (const ch of s) {
-      const f = FONT[ch] || FONT[' '];
-      f.forEach((row, j) => [...row].forEach((b, i) => { if (b === '#') P(x + i, y + j, col); }));
-      x += f[0].length + 1;
-    }
-  }
+  const px = makePix(g), { R, P, ell, line, poly, text, textW } = px;
 
   // ---- the layout, from the canvas's size -------------------------------------------------------------------------------
   const L = {};
@@ -227,22 +189,6 @@ export function makeRoom(g) {
     const w = L.wide ? 44 : 36, x = L.mx - w / 2 - 6, y = on(-1);
     R(x, y, w, 4, '#3a3a48'); for (let i = 1; i < w - 1; i += 3) { R(x + i, y + 1, 2, 1, '#6a6a7a'); R(x + i + 1, y + 2, 2, 1, '#6a6a7a'); }
   }
-  // the duck: asleep face down on the keyboard, facing left, its beak on the keys, a drop of drool
-  function duck(hx, hy) {
-    const K = '#6b3f10', Y = '#ffd84a', S = '#e5a928', H = '#fff1a8', O = '#f2802a';
-    // outline first, every part a pixel bigger
-    ell(hx + 17, hy - 9, 15, 11, K); ell(hx + 1, hy - 5, 9, 7, K); ell(hx - 10, hy - 1, 6, 3, K);
-    poly([[hx + 27, hy - 14], [hx + 35, hy - 24], [hx + 34, hy - 12]], K);
-    ell(hx + 17, hy - 9, 14, 10, S); ell(hx + 17, hy - 11, 13, 8, Y);                  // the body, shaded below
-    poly([[hx + 28, hy - 14], [hx + 33, hy - 21], [hx + 32, hy - 13]], Y);              // the tail, up
-    ell(hx + 11, hy - 16, 6, 2, H);                                                     // the light on its back
-    ell(hx + 15, hy - 5, 9, 4, K); ell(hx + 15, hy - 6, 8, 3, S);                       // the wing, drooping
-    R(hx + 8, hy - 3, 4, 3, S); R(hx + 8, hy, 4, 1, K);                                  // its tip over the desk
-    ell(hx + 1, hy - 5, 8, 6, Y); ell(hx + 3, hy - 2, 6, 3, S);                         // the head, lying on its cheek
-    ell(hx - 10, hy - 1, 5, 2, O); R(hx - 14, hy, 8, 1, '#c85a18');                     // the beak, flat on the keys
-    R(hx - 3, hy - 7, 3, 1, '#3a2410'); P(hx - 4, hy - 8, '#3a2410');                   // an eye, shut
-    P(hx - 15, hy + 1, '#9fd8ff'); P(hx - 15, hy + 2, '#9fd8ff');                       // drool
-  }
   function mug(x, kind) {
     const y = on(), col = ['#f1ead6', '#e05a4a', '#4a7be0', '#f1ead6', '#5ab07a'][kind % 5];
     shadow(x, 7);
@@ -337,8 +283,7 @@ export function makeRoom(g) {
   let dark = null;
   function light(W, H) {
     if (!dark || dark.width !== W || dark.height !== H) { dark = document.createElement('canvas'); dark.width = W; dark.height = H; }
-    const d = dark.getContext('2d'), keep = c;
-    c = d;
+    const d = dark.getContext('2d'), keep = px.use(d);
     d.globalCompositeOperation = 'source-over'; d.clearRect(0, 0, W, H);
     R(0, 0, W, H, 'rgba(6,8,30,0.55)');
     d.globalCompositeOperation = 'destination-out';
@@ -346,7 +291,7 @@ export function makeRoom(g) {
     for (const [rx, ry, a] of [[96, 46, 0.3], [70, 32, 0.35], [44, 20, 0.5]]) ell(lx, ly, rx, ry, `rgba(0,0,0,${a})`);
     for (const [rx, ry, a] of [[58, 42, 0.3], [38, 28, 0.35]]) ell(L.mcx, L.monTop + L.mon.h / 2, rx, ry, `rgba(0,0,0,${a})`);
     beam(0.45); beam(0.3);
-    c = keep;
+    px.use(keep);
     g.drawImage(dark, 0, 0);
     // the light's colours: warm from the lamp and from above, green from the screen
     g.globalCompositeOperation = 'lighter';
@@ -359,7 +304,7 @@ export function makeRoom(g) {
 
   // ---- the whole room -------------------------------------------------------------------------------------------------------
   function draw(W, H, t = 0, state = {}) {
-    c = g;
+    px.use(g);
     walls();
     const wl = L.wall;
     if (wl.window) window_(wl.window);
@@ -374,7 +319,7 @@ export function makeRoom(g) {
     L.lampX = x0 + 14; lamp(L.lampX);
     if (L.mcx - L.mon.w / 2 - (x0 + 26) >= 18) papers(x0 + 28);
     monitor(); keyboard();
-    duck(L.mx - 2, on(-2));
+    sleeping(px, L.mx - 2, on(-2));
     phone(L.mx + 26);
     let x = L.mx + 40;
     const right = L.deskR - 16;
