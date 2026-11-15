@@ -380,6 +380,63 @@ và hướng, chờ cắn, móc, kéo co, lưới, chai thư, giờ vàng, trôi
 `js/progress.js` (số thật của văn phòng), `js/sound.js` (âm thanh tự tổng hợp, mặc định tắt). Văn phòng và bến bấm được từng
 đồ vật; vịt và mòng biển nói. Mây vàng từ ngưỡng 70 (MARK). Bỏ `js/lobby.js`, `js/sky.js`, `js/duck.js`.
 
+## 15. Bước ngoặt: web là bản dạy chơi, app thật là exe có Chrome đi tìm (Vin, 15/11: «trên web ta làm mô phỏng game
+tutorial. còn game thật, ứng dụng thật làm exe ... dùng chrome cào ... chạy nhiều chrome 1 lúc ... search mọi web có thể
+... bước ngoặt của toàn bộ dự án ... bàn lại chuẩn chỉ, đừng tự phức tạp hoá»)
+
+**Claude hiểu ý Vin như sau (Vin sửa nếu sai):**
+1. Hai bản, một trò chơi. **Web** = bản dạy chơi, để người lạ thử 2 phút và tải app; không cần đăng nhập. **App (exe)** =
+   game thật, dùng hằng ngày.
+2. App chạy trên máy người dùng nên **mọi thứ của họ ở trên máy họ**: CV, thùng cá, lịch sử. Không cần Supabase, không cần
+   đăng nhập (bỏ luôn phần email đang hỏng).
+3. App có **Chrome riêng của nó** (như GoodLuck): đi đọc việc ở những nơi máy chủ không với tới, nhiều tab hay nhiều Chrome
+   cùng lúc cho nhanh.
+4. **Không chỉ LinkedIn**: mọi nguồn có việc thật, mọi nước; người dùng chỉ cần đúng từ khoá và nơi chốn.
+
+**Những gì đã có, dùng lại (không làm lại từ đầu):**
+- GoodLuck (JobA-Z): `browser/chrome.py`, `cdp.py`, `ws.py` (Chrome riêng, profile riêng, cổng riêng, không cài gì thêm);
+  `ingest/web/linkedin.py` (đọc trang công khai LinkedIn khi chưa đăng nhập, tự dừng khi bị chặn: `Blocked`); `ingest/` Greenhouse,
+  Lever, Ashby; cách đóng gói exe (Nuitka + Inno Setup, như GoodLuck Office).
+- GoodLuck Fishing: 2.840 bảng việc công ty (Common Crawl), bộ thu, chấm điểm, cả game 2.5D (chạy được trong cửa sổ app y
+  như trên web).
+
+**Sự thật cần nói thẳng trước khi làm (để không hứa quá):**
+- «Search mọi web như Google» không có một cửa duy nhất. Có ba loại nguồn, mỗi loại một cách đọc:
+  a. **Nguồn có cửa mở** (API công khai): Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Recruitee, Personio,
+     Teamtailor, Workday (JSON của chính trang), cổng việc nhà nước (Find a Job UK, USAJobs, Bundesagentur, EURES), và
+     Adzuna, Reed, Jooble (có khoá). Đọc bằng HTTP thường: nhanh, nhẹ, không cần Chrome, không bị chặn.
+  b. **Trang công ty tự làm**: đa số có dán chuẩn JobPosting (schema.org) mà Google for Jobs đọc. Cần Chrome khi trang
+     vẽ bằng JavaScript. Đây là chỗ Chrome mạnh nhất.
+  c. **Sàn lớn cấm máy đọc** (LinkedIn, Indeed, Glassdoor): đọc được trang công khai nhưng chậm, ít, hay bị chặn; dùng tài
+     khoản của người dùng thì có nguy cơ bị khoá tài khoản. Không vượt captcha, không giả người: gặp chặn thì dừng và nói.
+- **Google search** để tìm thêm trang việc: được, nhưng Google chặn rất nhanh khi hỏi dồn; chỉ dùng chậm, ít, như một cách
+  khám phá công ty mới, không làm xương sống.
+- **Nhiều Chrome cùng lúc**: mỗi Chrome ăn khoảng 200 đến 400 MB RAM. Nhanh nhất là: HTTP song song cho loại (a) (hàng
+  nghìn công ty trong vài phút), MỘT Chrome với vài tab cho loại (b), và đọc chậm từng trang cho loại (c). Nhiều Chrome chỉ
+  có ích khi loại (b) nhiều; tốc độ thật nằm ở (a).
+- **Mọi nước**: nguồn (a) và (b) không phụ thuộc nước người dùng ngồi. Sàn (c) đổi kết quả theo IP, và đó là giới hạn thật.
+
+**Đề xuất của Claude (gọn, sạch):**
+- **Một app, ba tầng tìm**, chạy nền khi game mở và theo lịch:
+  1. Kho chung (file tĩnh 6 giờ một lần, đã có) để lần đầu mở có ngay việc.
+  2. «Đội tàu» trên máy người dùng: đọc trực tiếp nguồn (a) cho đúng chức danh và nơi chốn của họ, song song.
+  3. Chrome của app: trang công ty (b) và, nếu người dùng bật, trang công khai LinkedIn (c), chậm và tự dừng khi bị chặn.
+- Mỗi nguồn trong game là **một tàu cá** của đội; người dùng thấy tàu nào đang đi, mang về bao nhiêu (bảng DEPARTURES thành
+  bảng thật của đội tàu). Khớp với «mọi đồ vật là thứ thật».
+- **Web**: bản dạy chơi có hướng dẫn từng bước (mòng biển dẫn), dữ liệu mẫu cố định, nút «Get the app». Không đăng nhập.
+- **App**: Windows trước (exe, tự cập nhật như GoodLuck), Mac sau. Python thư viện chuẩn + cửa sổ webview, như GoodLuck.
+
+**Cần Vin chọn:**
+- A. App mới riêng («GoodLuck Fishing.exe», như Office) hay nhập vào GoodLuck đang có?
+- B. LinkedIn: đọc trang công khai, chậm, tự dừng khi bị chặn (như GoodLuck đang làm), hay bỏ hẳn? Không bao giờ đăng nhập.
+- C. Google: dùng chậm để khám phá công ty mới, hay không dùng?
+- D. Web bản dạy chơi: dữ liệu mẫu cố định (gọn, không tốn gì), hay vẫn đọc kho thật?
+- E. Bỏ Supabase và đăng nhập email?
+- F. Thứ tự: (1) app chạy game + kho chung trên máy, (2) đội tàu nguồn (a), (3) Chrome cho (b) và (c), (4) web thành bản
+  dạy chơi. Mỗi bước Vin xem rồi mới đi tiếp.
+
+**Quyết định:** (chờ Vin)
+
 ---
 
 ## Nhật ký bàn bạc
