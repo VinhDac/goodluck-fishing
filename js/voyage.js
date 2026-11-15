@@ -304,10 +304,12 @@ export function makeVoyage(g) {
       const x = ((hash(i) * (W + 80) - t * (2 + i * 0.6)) % (W + 80) + W + 80) % (W + 80) - 40, y = 10 + hash(i + 9) * H * 0.28, w = 26 + hash(i + 3) * 30;
       R(x, y, w, 2, 'rgba(255,255,255,0.6)'); R(x + 5, y + 2, w - 10, 1, late > 0.3 ? 'rgba(255,190,150,0.7)' : 'rgba(220,230,250,0.6)');
     }
-    for (let i = 0; i < 7; i++) {                                     // big clouds far off, slow
-      const x = ((hash(i + 40) * (W + 120) - t * 1.5) % (W + 120) + W + 120) % (W + 120) - 60, y = H * (0.3 + hash(i + 50) * 0.14);
-      px.lump(x, y, 8 + hash(i + 60) * 8, late > 0.4 ? 'dusk' : 'far');
+    g.globalAlpha = 0.5;                                              // clouds far off, low and hazy: never taken for the jobs' clouds
+    for (let i = 0; i < 7; i++) {
+      const x = ((hash(i + 40) * (W + 120) - t * 1.5) % (W + 120) + W + 120) % (W + 120) - 60, y = H * (0.46 + hash(i + 50) * 0.08);
+      px.lump(x, y, 5 + hash(i + 60) * 5, late > 0.4 ? 'dusk' : 'far');
     }
+    g.globalAlpha = 1;
   }
   function farCity() {                                                 // the far city in the haze, slower than the near one
     const { W, H } = L, off = s * 0.35, base = L.G - 120 * KY, c = rgb(mix([168, 190, 218], [110, 100, 150], late));

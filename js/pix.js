@@ -26,6 +26,7 @@ const LUMP = {
   far: ['#fbe3e0', '#f0d4d8', '#dcc0cc', '#c8aec0'],
   gold: ['#fff2b0', '#ffd65a', '#e8b030', '#c88a20'],
   dusk: ['#ffe0c8', '#f4c0b0', '#c890a8', '#9a7098'],
+  old: ['#eceef2', '#d8dce4', '#c0c4d0', '#a4a8b6'],
 };
 
 export function makePix(ctx) {

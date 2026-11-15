@@ -5,11 +5,13 @@
 // room in the dark). Laid out from the canvas's own size: wide on a computer, tall on a phone.
 
 import { makePix } from './pix.js';
-import { sleeping } from './ducks.js';
+import { sleeping, upright } from './ducks.js';
 import { drawEscalator } from './escalator.js';
 
 export function makeRoom(g) {
   const px = makePix(g), { R, P, ell, line, poly, text, textW } = px;
+  let N = {}, T = 0;                                                  // the person's numbers (js/progress.js), the time
+  const spot = (name, x, y, w, h) => { L.spots[name] = { x, y, w, h }; };   // where each thing can be pressed
 
   // ---- the layout, from the canvas's size -------------------------------------------------------------------------------
   const L = {};
@@ -82,6 +84,7 @@ export function makeRoom(g) {
     }
     R(x + w / 2 - 1, y, 3, h, '#3b3462'); R(x, y + h / 2 - 1, w, 3, '#3b3462');      // the frame's cross
     R(x - 5, y + h + 3, w + 10, 3, '#4a4278');                                        // the sill
+    spot('window', x, y, w, h);
   }
   function clock(o) {
     const cx = o.x + 10, cy = o.y + 10;
@@ -91,16 +94,22 @@ export function makeRoom(g) {
     line(cx, cy, cx + Math.sin(hr) * 4, cy - Math.cos(hr) * 4, '#1b1f3a');
     line(cx, cy, cx + Math.sin(mn) * 6, cy - Math.cos(mn) * 6, '#1b1f3a');
     P(cx, cy, '#b03a2a');
+    spot('clock', o.x - 1, o.y - 1, 22, 22);
   }
   function calendar(o) {
     const { x, y, w, h } = o;
     R(x + 2, y + 2, w, h, 'rgba(0,0,0,0.3)');                                         // its shadow on the wall
     R(x, y, w, h, '#f1ead6'); R(x, y, w, 9, '#b03a2a');
-    text('DAY 214', x + (w - textW('DAY 214')) / 2, y + 2, '#fff8e7');
-    for (let r = 0; r < 4; r++) for (let k = 0; k < 5; k++) {                         // every day crossed out
-      const cx = x + 3 + k * 5, cy = y + 12 + r * 5;
-      line(cx, cy, cx + 2, cy + 2, '#c0392b'); line(cx + 2, cy, cx, cy + 2, '#c0392b');
+    const day = `DAY ${N.day || 1}`;                                                  // the days of their search
+    text(day, x + (w - textW(day)) / 2, y + 2, '#fff8e7');
+    const crossed = Math.min(20, (N.day || 1) - 1);
+    for (let r = 0; r < 4; r++) for (let k = 0; k < 5; k++) {                         // the days gone, crossed out; today
+      const cx = x + 3 + k * 5, cy = y + 12 + r * 5, n = r * 5 + k;
+      if (n < crossed) { line(cx, cy, cx + 2, cy + 2, '#c0392b'); line(cx + 2, cy, cx, cy + 2, '#c0392b'); }
+      else if (n === crossed) { R(cx - 1, cy - 1, 5, 5, '#ffd84a'); R(cx, cy, 3, 3, '#f1ead6'); }
+      else R(cx, cy + 1, 3, 1, '#d8d0b8');
     }
+    spot('calendar', x, y, w, h);
     R(x + w / 2 - 1, y - 2, 2, 3, '#555');
   }
   function board(o) {
@@ -114,15 +123,22 @@ export function makeRoom(g) {
       for (let yy = py + 3; yy < py + ph - 2; yy += 2) R(px + 2, yy, pw - 4 - ((yy * 3) % 5), 1, '#b9b3a3');
       ell(px + pw / 2, py + 1, 1, 1, pin);
     };
-    paper(x + 5, y + 5, 34, 24, '#e03a3a');
-    R(x + 4, y + 13, textW('REJECTED') + 2, 7, '#f4efe2');
-    text('REJECTED', x + 5, y + 14, '#c0392b'); R(x + 4, y + 12, textW('REJECTED') + 2, 1, '#c0392b'); R(x + 4, y + 20, textW('REJECTED') + 2, 1, '#c0392b');
-    paper(x + 43, y + 4, 15, 19, '#3a7be0'); text('NO', x + 47, y + 13, '#c0392b');
-    paper(x + w - 18, y + 8, 13, 17, '#3ae07b');
-    paper(x + 8, y + 33, 16, 19, '#e0c03a'); text('SORRY', x + 5, y + 44, '#c0392b');
-    paper(x + 30, y + 31, 22, h - 36, '#e03a3a');
-    text('UNFORTU', x + 31, y + 36, '#5a5040'); text('NATELY', x + 31, y + 42, '#5a5040');
-    if (w > 70) { paper(x + w - 22, y + 30, 16, 20, '#3a7be0'); line(x + w - 20, y + 34, x + w - 10, y + 44, '#c0392b'); line(x + w - 10, y + 34, x + w - 20, y + 44, '#c0392b'); }
+    const letters = [
+      () => { paper(x + 5, y + 5, 34, 24, '#e03a3a'); R(x + 4, y + 13, textW('REJECTED') + 2, 7, '#f4efe2');
+        text('REJECTED', x + 5, y + 14, '#c0392b'); R(x + 4, y + 12, textW('REJECTED') + 2, 1, '#c0392b'); R(x + 4, y + 20, textW('REJECTED') + 2, 1, '#c0392b'); },
+      () => { paper(x + 43, y + 4, 15, 19, '#3a7be0'); text('NO', x + 47, y + 13, '#c0392b'); },
+      () => { paper(x + 8, y + 33, 16, 19, '#e0c03a'); text('SORRY', x + 5, y + 44, '#c0392b'); },
+      () => { paper(x + 30, y + 31, 22, h - 36, '#e03a3a'); text('UNFORTU', x + 31, y + 36, '#5a5040'); text('NATELY', x + 31, y + 42, '#5a5040'); },
+      () => paper(x + w - 18, y + 8, 13, 17, '#3ae07b'),
+      () => { if (w > 70) { paper(x + w - 22, y + 30, 16, 20, '#3a7be0'); line(x + w - 20, y + 34, x + w - 10, y + 44, '#c0392b'); line(x + w - 10, y + 34, x + w - 20, y + 44, '#c0392b'); } },
+    ];
+    const n = Math.min(letters.length, N.letters || 0);
+    letters.slice(0, n).forEach((f) => f());
+    if (!n) {                                                                          // nothing let go yet: a note of good luck
+      R(x + w / 2 - 15, y + h / 2 - 7, 30, 14, '#fff176'); text('GOOD', x + w / 2 - 7, y + h / 2 - 5, '#8a6a20'); text('LUCK!', x + w / 2 - 9, y + h / 2 + 1, '#8a6a20');
+      ell(x + w / 2, y + h / 2 - 7, 1, 1, '#e03a3a');
+    }
+    spot('board', x, y, w, h);
   }
   function poster(o) {
     const { x, y, w, h } = o;
@@ -134,6 +150,7 @@ export function makeRoom(g) {
     P(x + w / 2 - 2, y + 15, '#1b1f3a'); R(x + w / 2 - 7, y + 16, 3, 2, '#f2802a');
     text('HANG IN', x + (w - textW('HANG IN')) / 2, y + h - 12, '#1b1f3a');
     text('THERE', x + (w - textW('THERE')) / 2, y + h - 6, '#1b1f3a');
+    spot('poster', x, y, w, h);
   }
 
   function shelf(x, y, w) {
@@ -147,6 +164,7 @@ export function makeRoom(g) {
     R(tx + 4, y - 2, 8, 2, '#5a3a20'); R(tx + 7, y - 6, 2, 4, '#d9a63a');
     poly([[tx + 3, y - 14], [tx + 13, y - 14], [tx + 11, y - 7], [tx + 5, y - 7]], '#e8c25a'); R(tx + 4, y - 13, 2, 4, '#fff0a8');
     R(tx + 1, y - 13, 2, 3, '#e8c25a'); R(tx + 13, y - 13, 2, 3, '#e8c25a');
+    spot('trophy', tx, y - 15, 16, 15);
   }
 
   // ---- the desk and what is on it ---------------------------------------------------------------------------------------
@@ -174,17 +192,21 @@ export function makeRoom(g) {
   }
   function papers(x) {
     shadow(x, 16);
-    for (let i = 0; i < 14; i++) R(x + (i % 3) - 1, on(-1) - i * 2, 16, 2, i % 4 ? '#f1ead6' : '#ddd2b6');
+    const n = Math.min(18, 2 + (N.papers || 0));                                    // the jobs in the bucket not looked at yet
+    for (let i = 0; i < n; i++) R(x + (i % 3) - 1, on(-1) - i * 2, 16, 2, i % 4 ? '#f1ead6' : '#ddd2b6');
+    spot('papers', x - 1, on(-1) - n * 2, 18, n * 2 + 2);
   }
   function monitor() {
     const { w, h } = L.mon, x = L.mcx - w / 2, y = L.monTop;
     R(L.mcx - 3, y + h, 6, 5, '#2c2c3a'); ell(L.mcx, on(-1), 9, 1, '#2c2c3a');           // the stand
     R(x - 2, y - 2, w + 4, h + 4, '#2c2c3a'); R(x, y, w, h, '#0c2a1c');
     const g1 = '#7fe0a0', g2 = '#4fae74';
-    const lines = L.wide ? ['SENT: 80', 'REPLIES: 1', '', 'DEAR HIRING', 'MANAGER, I AM', 'PASSIONATE', 'ABOUT FFFFFFFF'] : ['SENT: 80', 'REPLIES: 1', '', 'DEAR HIRING', 'MANAGER, I', 'AM FFFFFFFF'];
+    const f = 'F'.repeat(1 + Math.floor((T * 2.5) % 13)), sent = `SENT: ${N.applied || 0}`, rep = `REPLIES: ${N.replies || 0}`;   // the beak, still typing
+    const lines = L.wide ? [sent, rep, '', 'DEAR HIRING', 'MANAGER, I AM', 'PASSIONATE', `ABOUT ${f}`.slice(0, 16)] : [sent, rep, '', 'DEAR HIRING', 'MANAGER, I', `AM ${f}`.slice(0, 11)];
     lines.forEach((s, i) => text(s.slice(0, Math.floor((w - 4) / 4)), x + 2, y + 2 + i * 6, i < 2 ? g1 : g2));
     R(x + 2 + textW(lines[lines.length - 1].slice(0, Math.floor((w - 4) / 4))) + 1, y + 2 + (lines.length - 1) * 6, 2, 5, g1);   // the cursor
     R(x + w - 9, y - 1, 8, 7, '#fff176'); text('V12', x + w - 9, y + 1, '#8a7a30');   // a sticky note: «CV final v12»
+    spot('screen', x - 2, y - 2, w + 4, h + 4);
   }
   function keyboard() {
     const w = L.wide ? 44 : 36, x = L.mx - w / 2 - 6, y = on(-1);
@@ -196,25 +218,42 @@ export function makeRoom(g) {
     R(x, y - 8, 7, 8, col); R(x, y - 8, 7, 1, '#2a1a10'); R(x + 7, y - 6, 2, 1, col); R(x + 8, y - 6, 1, 4, col); R(x + 7, y - 3, 2, 1, col);
     if (kind === 3) { line(x + 2, y - 8, x + 1, y - 4, '#d9d0b0'); R(x - 1, y - 4, 3, 3, '#e8c060'); }   // a tea bag's tag
     ell(x + 3, y + 3, 4, 1, 'rgba(90,50,20,0.5)');                                      // the ring it left
+    const m = L.spots.mugs; spot('mugs', m ? m.x : x - 1, y - 9, m ? x + 10 - m.x : 11, 12);
   }
   function noodles(x) {
     const y = on();
     shadow(x, 9);
     poly([[x, y - 10], [x + 9, y - 10], [x + 8, y], [x + 1, y]], '#f4efe2'); R(x, y - 7, 9, 2, '#c0392b');
     line(x + 6, y - 10, x + 9, y - 19, '#a8a8b8'); R(x + 8, y - 21, 3, 2, '#a8a8b8');     // a fork, standing in it
+    spot('noodles', x - 1, y - 21, 12, 22);
   }
   function plant(x) {
     const y = on();
     shadow(x, 10);
     poly([[x, y - 8], [x + 10, y - 8], [x + 9, y], [x + 1, y]], '#b5562f'); R(x, y - 8, 10, 1, '#8a3e20');
-    line(x + 5, y - 8, x + 3, y - 15, '#6a7a2a'); line(x + 3, y - 15, x - 2, y - 11, '#6a7a2a');   // stems, bent over
-    line(x + 6, y - 8, x + 10, y - 13, '#6a7a2a'); line(x + 10, y - 13, x + 13, y - 7, '#6a7a2a');
-    R(x - 3, y - 11, 3, 2, '#8a8a3a'); R(x + 12, y - 7, 3, 2, '#9a7a3a'); R(x + 14, y + 2, 3, 1, '#9a6a3a');   // brown leaves, one fallen
+    const away = N.away || 0;
+    if (away <= 1) {                                                                    // green and upright: they come every day
+      line(x + 5, y - 8, x + 3, y - 17, '#3e8a3a'); line(x + 6, y - 8, x + 9, y - 16, '#3e8a3a'); line(x + 5, y - 8, x + 5, y - 19, '#3e8a3a');
+      for (const [a, b] of [[1, -15], [10, -14], [3, -19], [7, -18], [0, -11], [11, -11]]) R(x + a, y + b, 3, 2, '#5ab05a');
+      if ((N.streak || 0) >= 3) { ell(x + 5, y - 21, 2, 2, '#ffd84a'); P(x + 5, y - 21, '#e8643a'); }   // a flower, for a streak
+    } else if (away <= 4) {                                                             // drooping
+      line(x + 5, y - 8, x + 3, y - 15, '#6a7a2a'); line(x + 3, y - 15, x - 2, y - 11, '#6a7a2a');
+      line(x + 6, y - 8, x + 10, y - 13, '#6a7a2a'); line(x + 10, y - 13, x + 13, y - 7, '#6a7a2a');
+      R(x - 3, y - 11, 3, 2, '#8a8a3a'); R(x + 12, y - 7, 3, 2, '#9a7a3a'); R(x + 14, y + 2, 3, 1, '#9a6a3a');
+    } else {                                                                            // brown: they have been away
+      line(x + 5, y - 8, x + 2, y - 11, '#7a5a2a'); line(x + 6, y - 8, x + 11, y - 9, '#7a5a2a');
+      R(x - 1, y - 12, 3, 1, '#8a6a3a'); R(x + 10, y - 10, 3, 1, '#8a6a3a'); R(x + 12, y + 2, 3, 1, '#8a6a3a'); R(x - 4, y + 2, 3, 1, '#8a6a3a');
+    }
+    spot('plant', x - 3, y - 22, 17, 23);
   }
   function phone(x) {
     const y = on(2);
-    R(x, y - 1, 10, 3, '#15151f'); R(x + 1, y - 1, 8, 2, '#2a3a6a');
-    P(x + 8, y - 2, '#e03a3a');                                                        // one new email
+    const buzz = Math.sin(T * 1.1) > 0.93, dx = buzz ? Math.round(Math.sin(T * 60)) : 0;   // now and then it buzzes
+    R(x + dx, y - 1, 10, 3, '#15151f'); R(x + 1 + dx, y - 1, 8, 2, buzz ? '#8ab0ff' : '#2a3a6a');
+    P(x + 8 + dx, y - 2, '#e03a3a');                                                   // one new email
+    if (buzz) { P(x - 2, y - 3, '#c9d0ff'); P(x + 12, y - 3, '#c9d0ff'); P(x - 3, y - 1, '#c9d0ff'); P(x + 13, y - 1, '#c9d0ff'); }
+    L.buzz = buzz;
+    spot('phone', x - 2, y - 4, 14, 7);
   }
   function bin() {
     const x = Math.round(L.deskL + L.deskW * 0.52), y = L.fy + 11;
@@ -222,6 +261,9 @@ export function makeRoom(g) {
     poly([[x, y - 14], [x + 14, y - 14], [x + 12, y], [x + 2, y]], '#5a5a6a'); R(x, y - 14, 14, 2, '#7a7a8a');
     for (let i = 0; i < 4; i++) ell(x + 3 + i * 3, y - 16 - (i % 2) * 2, 2, 2, '#e8e2d0');   // paper balls, too many
     ell(x + 20, y - 1, 2, 2, '#e8e2d0'); ell(x - 6, y + 1, 2, 2, '#e8e2d0');              // and two that missed
+    const k = (T % 9) / 1.2;                                                          // every so often one more, thrown and missed
+    if (k < 1) ell(x + 30 - k * 22, y - 30 + k * k * 30, 2, 2, '#e8e2d0');
+    spot('bin', x - 2, y - 19, 18, 20);
   }
 
   // ---- the escalator, the light it goes up into, the rope ------------------------------------------------------------------
@@ -239,6 +281,8 @@ export function makeRoom(g) {
     R(sx + 2, sy + 2, sw, 17, 'rgba(0,0,0,0.35)'); R(sx, sy, sw, 17, '#1b1f3a');
     R(sx, sy, sw, 1, '#d9a63a'); R(sx, sy + 16, sw, 1, '#d9a63a'); R(sx, sy, 1, 17, '#d9a63a'); R(sx + sw - 1, sy, 1, 17, '#d9a63a');
     text('^ SKY', sx + 4, sy + 3, '#ffd84a'); text('JOBS THIS WAY', sx + 4, sy + 10, '#fff8e7');
+    spot('sign', sx, sy, sw, 17);
+    spot('escalator', bx - 12, by - 70, Math.round(70 * slope) + 30, 74);
   }
   function beam(a) {                                                // the light from the opening, down the steps
     const o = L.out, { bx, by } = L;
@@ -249,6 +293,7 @@ export function makeRoom(g) {
     const { bx, by } = L, a = bx - 46, b = bx - 8, y = by + 1;
     for (const x of [a, b]) { ell(x, y + 1, 3, 1, '#6a5018'); R(x - 1, y - 15, 2, 16, '#d9a63a'); ell(x, y - 16, 2, 2, '#ffe58a'); }
     if (open) return;
+    spot('rope', a - 4, y - 20, b - a + 8, 24);
     for (let x = a; x <= b; x++) { const k = (x - a) / (b - a); R(x, y - 14 + Math.round(Math.sin(Math.PI * k) * 5), 1, 2, '#b0202a'); }
     const w = textW('REQUIRED') + 6, sx = Math.round((a + b) / 2 - w / 2), sy = y - 9;
     R(sx, sy, w, 14, '#1b1f3a'); R(sx, sy, w, 1, '#d9a63a'); R(sx, sy + 13, w, 1, '#d9a63a');
@@ -279,8 +324,10 @@ export function makeRoom(g) {
   }
 
   // ---- the whole room -------------------------------------------------------------------------------------------------------
+  // state: n (the numbers of js/progress.js), open (a CV is given), duck: { pose: sleep | wake | walk | ride, k: 0..1 on the way }
   function draw(W, H, t = 0, state = {}) {
     px.use(g);
+    N = state.n || {}; T = t; L.spots = {};
     walls();
     const wl = L.wall;
     if (wl.window) window_(wl.window);
@@ -295,16 +342,36 @@ export function makeRoom(g) {
     L.lampX = x0 + 14; lamp(L.lampX);
     if (L.mcx - L.mon.w / 2 - (x0 + 26) >= 18) papers(x0 + 28);
     monitor(); keyboard();
-    sleeping(px, L.mx - 2, on(-2));
+    const pose = (state.duck && state.duck.pose) || 'sleep';
+    if (pose === 'sleep') {
+      sleeping(px, L.mx - 2, on(-2) - (L.buzz ? 1 : 0));                              // the phone buzzes: it twitches
+      L.head = { x: L.mx - 2, y: on(-20) };
+      spot('duck', L.mx - 16, on(-24), 52, 24);
+    } else if (pose === 'wake') {
+      upright(px, L.mx + 6, on(-1), { blink: (t % 3) > 2.85 });
+      L.head = { x: L.mx + 10, y: on(-28) };
+      spot('duck', L.mx - 8, on(-30), 30, 30);
+    }
     phone(L.mx + 26);
     let x = L.mx + 40;
     const right = L.deskR - 16;
-    for (let k = 0; k < 5 && x + 9 < right - (L.wide ? 22 : 0); k++, x += 11) mug(x, k);
+    const mugs = Math.max(1, Math.min(5, N.mugs || 0));                              // a mug for each day fished this week
+    for (let k = 0; k < mugs && x + 9 < right - (L.wide ? 22 : 0); k++, x += 11) mug(x, k);
     if (x + 10 < right - 14) { noodles(x + 2); x += 14; }
     if (x + 12 < right + 4) plant(right - 6);
     bin();
     escalator(t);
     rope(state.open);
+    // the duck on its way: down from the desk, across the floor, then up the steps
+    if (pose === 'walk' || pose === 'ride') {
+      const k = Math.min(1, state.duck.k || 0);
+      let x, y;
+      if (pose === 'walk') { x = L.mx + 6 + (L.bx - 18 - (L.mx + 6)) * k; y = L.fy + 9; }
+      else { y = L.by - 6 - k * (L.by - L.ceil + 40); x = L.escX(y) + 2; }
+      const hop = pose === 'walk' ? Math.abs(Math.sin(t * 10)) * 2 : 0;
+      upright(px, Math.round(x), Math.round(y - hop));
+      L.head = { x: Math.round(x) + 4, y: Math.round(y) - 28 };
+    }
     light(W, H);
   }
   return { layout, draw, L };

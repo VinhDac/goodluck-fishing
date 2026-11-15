@@ -9,26 +9,17 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--night); color: var(--paper); font-family: var(--ui); }
 body { display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
-  -webkit-tap-highlight-color: transparent; overscroll-behavior: none; padding-bottom: 28px; }   /* the footer's line, kept clear */
+  -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
 
 /* the scene fills the window, drawn small and scaled up so each pixel stays sharp */
-#stage { position: relative; }
-#scene { display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: default; touch-action: none;
+#stage { position: fixed; inset: 0; overflow: hidden; }                    /* the picture fills the window, edge to edge */
+#scene { position: absolute; left: 0; top: 0; display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: default; touch-action: none;
   -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }   /* a finger held to reel scrolls, zooms, selects nothing */
-#scene.over-duck { cursor: pointer; }
-footer { position: fixed; bottom: max(8px, env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; font-size: 12px; opacity: .45; letter-spacing: .04em; }
+footer { position: fixed; bottom: max(6px, env(safe-area-inset-bottom)); right: max(10px, env(safe-area-inset-right)); font-size: 11px; opacity: .6;
+  letter-spacing: .04em; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.7); pointer-events: auto; }
 footer a { color: inherit; }
 
-/* the words on the computer's screen, placed by lobby.js over the drawn screen */
-.screen { position: absolute; display: flex; flex-direction: column; justify-content: center; gap: .2em; padding: 0 .4em;
-  color: #9ff0b8; text-shadow: 0 0 6px rgba(120, 255, 170, .6); line-height: 1.1; pointer-events: none; white-space: nowrap; overflow: hidden; }
-.screen b { font-weight: 600; }
 
-.hint { position: absolute; transform: translateX(-50%); font-size: 16px; color: #fff; padding: 5px 10px; border-radius: 3px;
-  background: rgba(12, 15, 36, .7); border: 2px solid rgba(255, 216, 74, .7); pointer-events: none; white-space: nowrap;
-  animation: breathe 2.2s ease-in-out infinite; }
-.hint[hidden] { display: none; }
-@keyframes breathe { 50% { opacity: .45; } }
 
 .veil { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(15, 18, 38, .35); }
 .veil[hidden] { display: none; }
@@ -38,7 +29,6 @@ footer a { color: inherit; }
 .card p { font: 15px/1.5 system-ui, sans-serif; margin: 0 0 14px; }
 .card button { font: 600 16px var(--ui); padding: 9px 16px; background: var(--yellow); color: var(--ink); border: 2px solid var(--edge);
   border-radius: 3px; box-shadow: 0 3px 0 var(--edge); cursor: pointer; }
-@media (prefers-reduced-motion: reduce) { .hint { animation: none; } }
 
 /* the three things asked once: a paper, sticky notes, a map card, over the scene */
 .sheet { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(380px, 88%); max-height: 86%; overflow: auto;
@@ -84,9 +74,6 @@ footer a { color: inherit; }
 .skyhud[hidden] { display: none; }
 .chip { font: 600 14px var(--ui); background: var(--paper); color: var(--ink); border: 2px solid var(--edge); border-radius: 3px; padding: 5px 9px; box-shadow: 0 3px 0 var(--edge); }
 .skyhud .said { font: 14px system-ui, sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
-#signs { position: absolute; inset: 0; pointer-events: none; }
-.sign { position: absolute; transform: translate(-50%, -100%); overflow: hidden; text-overflow: ellipsis; font: 600 11px var(--ui); color: #fff; background: rgba(27,31,58,.75); padding: 1px 4px; border-radius: 2px; white-space: nowrap; }
-.sign.decor { opacity: .55; font-style: italic; }
 .kicker { font: 600 13px var(--ui); letter-spacing: .1em; text-transform: uppercase; color: #8a6a3a; }
 .card h1 { font-size: 22px; }
 .card .who { font: 600 16px system-ui, sans-serif; }
@@ -94,7 +81,6 @@ footer a { color: inherit; }
 .card .fit { font: 13px/1.45 system-ui, sans-serif; color: #4a3a20; margin: 10px 0 4px; }
 .card .go { text-decoration: none; }
 .card .go[hidden] { display: none; }
-.screen[hidden] { display: none; }
 button.chip, select.chip { cursor: pointer; }
 
 /* the report: the day's numbers, the list with its three buttons */
@@ -121,7 +107,8 @@ button.chip, select.chip { cursor: pointer; }
   .stats { gap: 5px; } .stats div { padding: 4px 2px; } .stats b { font-size: 17px; } .stats span { font-size: 11px; line-height: 1.15; display: block; } }
 
 /* in the sky the corner keeps only the Bucket: the CV and the sign-in are the office's */
-body.insky #mycv, body.insky #signin, body.insky #who { display: none; }
+body[data-scene="sea"] #mycv, body[data-scene="sea"] #signin, body[data-scene="sea"] #who,
+body[data-scene="pier"] #mycv, body[data-scene="pier"] #signin, body[data-scene="pier"] #who { display: none; }
 select.chip { max-width: 11em; text-overflow: ellipsis; }
 /* a phone: 16px in a field (smaller, and the phone zooms in on it), the chips a size down, no email in the corner */
 .sheet input, .sheet textarea, .sheet.postcard input { font-size: 16px; }
@@ -134,3 +121,19 @@ select.chip { max-width: 11em; text-overflow: ellipsis; }
   .card h1 { font-size: 21px; }
   .acts a, .acts button { padding: 7px 9px; }                 /* a finger's size */
 }
+
+/* what is said, in a bubble over the one who says it */
+.bubble { position: fixed; z-index: 5; max-width: min(320px, 80vw); background: var(--paper); color: var(--ink); border: 3px solid var(--edge);
+  border-radius: 4px; padding: 6px 10px; font: 16px/1.3 var(--ui); box-shadow: 0 3px 0 var(--edge); pointer-events: none; animation: pop .18s ease-out; }
+@keyframes pop { from { opacity: 0; } }
+.bubble::after { content: ""; position: absolute; left: 18px; bottom: -11px; border: 8px solid transparent; border-top-color: var(--edge); }
+.bubble.below::after { display: none; }
+.bubble[hidden] { display: none; }
+.row.center { justify-content: center; }
+.card .link { display: inline-block; margin-top: 10px; font: 600 14px var(--ui); color: #2a4a8a; }
+.chip.soft { background: rgba(255,248,231,.85); font-weight: 400; }
+button.chip:disabled { opacity: .55; cursor: default; }
+@media (max-width: 560px) { .bubble { font-size: 14px; } }
+.card button.ghost { background: #efe3c4; }
+.sheet { z-index: 10; }
+.veil { z-index: 10; }

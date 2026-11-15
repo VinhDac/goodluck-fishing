@@ -18,6 +18,8 @@ export function makePier(g) {
   const px = makePix(g), { R, P, ell, line, poly, text, textW } = px;
   const L = {};
   const scratch = document.createElement('canvas').getContext('2d');   // where the shadows are gathered, unseen
+  let D = {};                                                         // what the game tells it: the board, the bait, the hook, the duck
+  const spot = (name, x, y, w, h) => { L.spots[name] = { x, y, w, h }; };   // where each thing can be pressed
 
   // ---- the layout, in the pier's own measures: x along it, z back from its front edge, h up from its deck ------------------
   function layout(W, H) {
@@ -30,8 +32,8 @@ export function makePier(g) {
       L.stall = { x: 204, z: 20, w: 56, d: 14, h: 15 };
       L.crates = { x: 92, z: 8 };
       L.bollards = [[154, 3], [272, 3]];
-      L.lamp = { x: 182, z: 4 };
-      L.sign = { x: 278, z: 4 };
+      L.lamp = { x: 128, z: 4 };
+      L.sign = { x: 274, z: 50 };                                     // at the back right corner, pointing out to sea
       L.boat = { x: L.x1 + 18, y: L.yF + 20 };
       L.duck = { x: 50, z: 10 };
     } else {
@@ -45,6 +47,12 @@ export function makePier(g) {
       L.sign = null;
       L.boat = { x: 96, y: L.yF + 56 };
       L.duck = { x: 24, z: 12 };
+    }
+    const ox = Math.round((W - (wide ? 384 : 195)) / 2);             // a window wider or narrower than drawn for: the pier in its middle
+    if (ox) {
+      L.x0 += ox; if (wide) L.x1 += ox; else L.x1 = W + 30;
+      for (const o of [L.hut, L.board, L.stall, L.crates, L.lamp, L.sign, L.duck]) if (o) o.x += ox;
+      L.bollards = L.bollards.map(([x, z]) => [x + ox, z]); L.boat.x += ox;
     }
     L.yB = L.yF - L.Dz * KY;                                         // the back edge, on the screen
     L.duck.sx = L.duck.x + L.duck.z * KX; L.duck.sy = L.yF - L.duck.z * KY;
@@ -231,6 +239,7 @@ export function makePier(g) {
     poly([[fx - 6 + s, fy - h + 4], [fx + s, fy - h + 4], [fx - 1 + s, fy - h + 9], [fx - 5 + s, fy - h + 9]], '#e8c25a'); P(fx - 3 + s, fy - h + 10, '#8a6a20');
     // a barrel beside it
     barrel(x + w + 6, z + 2);
+    spot('hut', fx, fy - h - 18, w + 4, h + 18);
   }
   function barrel(x, z) {
     shade(x, z, 10, 8, 13);
@@ -250,12 +259,22 @@ export function makePier(g) {
     text('DEPARTURES', fx + 4, top + 3, '#fff8e7');
     const clock = `07:${String(12 + (Math.floor(t / 6) % 48)).padStart(2, '0')}`;
     text(clock, fx + w - 4 - textW(clock), top + 3, '#ffd84a');
-    nums.slice(0, 3).forEach(([name, n, state], i) => {
-      const yy = top + 11 + i * 8;
+    const flip = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    [0, 1, 2].forEach((i) => {
+      const yy = top + 11 + i * 8, row = nums[i];
       for (let cx = fx + 3; cx < fx + w - 4; cx += 4) { R(cx, yy - 1, 3, 7, '#232846'); R(cx, yy + 2, 3, 1, '#14182e'); }
+      if (D.loading) {                                                         // the flaps turning while the sky is read
+        let w0 = '';
+        for (let k = 0; k < 20; k++) w0 += flip[Math.floor((Math.sin(t * 13 + k * 7.1 + i * 3.3) * 0.5 + 0.5) * flip.length) % flip.length];
+        text(w0, fx + 4, yy, '#ffd84a');
+        return;
+      }
+      if (!row) return;
+      const [name, n, state] = row;
       text(name, fx + 4, yy, '#ffd84a'); text(String(n), fx + 48 - textW(String(n)), yy, '#ffd84a');
       text(state, fx + w - 4 - textW(state), yy, state === 'BOARDING' ? '#7fe0a0' : '#c9d0ff');
     });
+    spot('board', fx, top, w, bh);
   }
   const SHORT = { python: 'PY', pytorch: 'PT', tensorflow: 'TF', javascript: 'JS', typescript: 'TS', 'machine learning': 'ML',
     'deep learning': 'DL', llms: 'LLM', llm: 'LLM', nlp: 'NLP', 'computer vision': 'CV', kubernetes: 'K8S', docker: 'DKR', react: 'RCT', golang: 'GO', go: 'GO' };
@@ -276,10 +295,12 @@ export function makePier(g) {
     R(fx + w / 2 - 9, fy - h + 3, 18, 7, '#f4efe2'); text('FREE', fx + w / 2 - 7, fy - h + 4, '#d03a2a');   // the price
     const used = new Set(), cols = ['#e8a040', '#7fb0e0', '#a0d070', '#d080c0'];
     skills.slice(0, 4).forEach((k, i) => {                                   // the jars standing on the counter
-      const [jx, jb] = S(x + 2 + i * 13, z + 4, h);
+      const on = D.bait === k, [jx, jb0] = S(x + 2 + i * 13, z + 4, h), jb = jb0 - (on ? 3 : 0);
+      if (on) { const c = px.ctx; c.globalCompositeOperation = 'lighter'; ell(jx + 5, jb - 6, 9, 9, 'rgba(255,220,120,0.25)'); c.globalCompositeOperation = 'source-over'; }
       R(jx, jb - 11, 11, 11, 'rgba(214,240,255,0.7)'); R(jx + 1, jb - 7, 9, 7, cols[i]); R(jx + 9, jb - 11, 2, 11, 'rgba(255,255,255,0.5)');
-      ell(jx + 5, jb - 12, 5, 1, '#6a6a7a'); R(jx + 2, jb - 12, 7, 1, '#a0a0b0');
+      ell(jx + 5, jb - 12, 5, 1, on ? '#d9a63a' : '#6a6a7a'); R(jx + 2, jb - 12, 7, 1, on ? '#ffe58a' : '#a0a0b0');
       const lab = short(k, used); R(jx + 1, jb - 7, 9, 6, '#f4efe2'); text(lab, jx + 6 - textW(lab) / 2, jb - 7, '#3a2a1a');
+      spot(`jar:${k}`, jx - 1, jb - 14, 13, 16);
     });
     const [wx, wy] = S(x + 6, z + 4, h + 11), wob = Math.sin(t * 4);           // a worm out of the first jar, looking about
     line(wx, wy, wx + 1 + wob, wy - 5, '#e88a8a', 2); P(wx + 1 + wob, wy - 6, '#1b1f3a');
@@ -295,6 +316,21 @@ export function makePier(g) {
     for (let i = 0; i < 4; i++) { line(nx + 1, ny + i * 3, nx + 6, ny + 2 + i * 3, '#c8b890'); line(nx + 2 + i, ny - 1, nx + 2 + i, ny + 10, '#c8b890'); }
     const [rx, ry] = S(x - 3, z, 0); line(rx, ry, rx - 6, ry - ah - 4, '#5a3a1a');
   }
+  function hooks() {
+    const { x, z } = L.stall, hx = x - 20, hz = z + 2;                          // a little rack by the stall's left side
+    shade(hx, hz, 12, 3, 26);
+    box(hx, hz, 2, 2, 24, { top: '#9a7048', side: '#9a7048', front: '#6a4628' });
+    box(hx + 12, hz, 2, 2, 24, { top: '#9a7048', side: '#9a7048', front: '#6a4628' });
+    const [bx, by] = S(hx, hz, 24);
+    R(bx - 1, by - 8, 17, 8, '#e8d8b0'); R(bx - 1, by - 8, 17, 1, '#fff4d8'); text('HOOK', bx + 1, by - 6, '#5a3a22');
+    [['small', 0, 3], ['medium', 5, 4], ['big', 11, 5]].forEach(([k, dx, r]) => {
+      const cx = bx + dx, cy = by + 3, on = D.hook === k;
+      R(cx, cy, 1, 3, '#7a7a8a');
+      for (let a = 0; a <= Math.PI; a += 0.35) P(cx - r + 1 + Math.round(Math.cos(a) * (r - 1)) + r - 1, cy + 3 + Math.round(Math.sin(a) * r), on ? '#ffd84a' : '#c8c8d4');
+      if (on) R(cx - 1, cy + r + 5, 4, 2, '#ffd84a');
+      spot(`hook:${k}`, cx - 2, cy - 1, r + 4, r + 8);
+    });
+  }
   function crates() {                                                         // two crates: HOPE, and a CV's thirteenth draft
     const { x, z } = L.crates;
     shade(x, z, 18, 14, 24);
@@ -303,6 +339,7 @@ export function makePier(g) {
     text('HOPE', fx + 2, fy - 11, '#4a2010');
     const [gx, gy] = box(x + 2, z + 2, 14, 10, 10, { top: '#e0b47a', side: '#c09658', front: '#a87c40', lift: 13 });
     text('CV13', gx, gy - 8, '#4a2010');
+    spot('crates', fx, gy - 18, 20, fy - gy + 18);
   }
   function bollard(x, z) {
     shade(x - 3, z, 7, 5, 9);
@@ -335,6 +372,7 @@ export function makePier(g) {
       text(word, x0 + 4, y + 2, '#3a2a1a');
     };
     arrow(by - 35, 1, 'FISHING', '#e8c890');
+    spot('sign', bx - 4, by - 36, 40, 12);
   }
   function gull(x, z, t) {                                                    // a gull on the bollard, in a captain's hat
     const [gx, gy0] = S(x, z), y = gy0 - 10, b = Math.round(Math.sin(t * 1.3) * 0.5), look = Math.sin(t * 0.4) > 0.6 ? -1 : 1;
@@ -343,13 +381,18 @@ export function makePier(g) {
     if (look > 0) { R(gx + 6, y - 10 + b, 3, 1, '#f0b030'); P(gx + 4, y - 11 + b, '#1b1f3a'); } else { R(gx - 2, y - 10 + b, 3, 1, '#f0b030'); P(gx + 1, y - 11 + b, '#1b1f3a'); }
     R(gx, y - 15 + b, 7, 2, '#1b2a5a'); R(gx + 1, y - 17 + b, 5, 2, '#1b2a5a'); R(gx, y - 14 + b, 8, 1, '#f4f4f4'); P(gx + 3, y - 16 + b, '#ffd84a');
     R(gx, y - 1, 1, 2, '#f0b030'); R(gx + 3, y - 1, 1, 2, '#f0b030');
+    L.gullHead = { x: gx + 3, y: y - 18 };
+    spot('gull', gx - 5, y - 18, 14, 20);
   }
   // the boat GOOD LUCK, tied up in front of the pier's end, seen from above so its inside shows
   function boat(t) {
     const { x, y } = L.boat, yy = y + Math.round(Math.sin(t * 1.6) * 1.2);
     const [rx0, ry0] = S(...L.bollards[1]);                                    // the rope from the bollard to its bow
-    for (let i = 0; i <= 24; i++) { const k = i / 24; P(rx0 + (x + 6 - rx0) * k, ry0 - 6 + (yy - 8 - ry0 + 6) * k + Math.sin(Math.PI * k) * 5, '#e0c896'); }
-    drawBoat(px, x, y, t);
+    const go = D.duck && D.duck.pose === 'sail' ? D.duck.k : 0;                 // casting off: it sails away to the right
+    if (!go) for (let i = 0; i <= 24; i++) { const k = i / 24; P(rx0 + (x + 6 - rx0) * k, ry0 - 6 + (yy - 8 - ry0 + 6) * k + Math.sin(Math.PI * k) * 5, '#e0c896'); }
+    const aboard = D.duck && (D.duck.pose === 'aboard' || D.duck.pose === 'sail');
+    drawBoat(px, x + go * go * (L.W + 40), y - go * 6, t, { duck: aboard, sailing: go > 0 });
+    spot('boat', x - 2, yy - 52, 74, 60);
   }
 
   // ---- the light over it all: warm from the low sun, cooler toward us ----------------------------------------------------------
@@ -362,16 +405,24 @@ export function makePier(g) {
   }
 
   // ---- the whole pier -------------------------------------------------------------------------------------------------------
+  // data: board (rows of the departures), loading, skills (the bait jars), bait, hook, duck: { pose: stand | walk | aboard | sail, k }
   function draw(W, H, t = 0, data = {}) {
     px.use(g);
+    D = data; L.spots = {};
     const nums = data.board || [['LONDON', 69, 'ON TIME'], ['REMOTE', 12, 'ON TIME'], ['GOLDEN', 2, 'BOARDING']];
     const skills = data.skills || ['python', 'sql', 'pytorch', 'aws'];
+    const pose = (data.duck && data.duck.pose) || 'stand', walk = pose === 'walk' ? Math.min(1, data.duck.k) : 0;
+    const dz = L.duck.z, dxw = L.duck.x + walk * (L.bollards[1][0] - 8 - L.duck.x);        // along the front of the deck, to the boat
     const items = [                                                       // what stands on the deck, by how far back it is
       [L.board.z, L.board.x, () => board(nums, t)], [L.hut.z, L.hut.x, () => hut(t)], [L.stall.z, L.stall.x, () => stall(skills, t)],
       [L.crates.z, L.crates.x, crates], ...L.bollards.map(([x, z]) => [z, x, () => bollard(x, z)]),
       [2, L.bollards[0][0] + 12, () => coil(L.bollards[0][0] + 12, 2)],
       ...(L.lamp ? [[L.lamp.z, L.lamp.x, lamp]] : []), ...(L.sign ? [[L.sign.z, L.sign.x, signpost]] : []),
-      [L.duck.z, L.duck.x, () => { shade(L.duck.x - 8, L.duck.z - 3, 16, 6, 22); const [dx, dy] = S(L.duck.x, L.duck.z); upright(px, dx, dy, { blink: (t % 4) > 3.85 }); }],
+      [L.stall.z + 2, L.stall.x - 20, hooks],
+      ...(pose === 'stand' || pose === 'walk' ? [[dz, dxw, () => {
+        shade(dxw - 8, dz - 3, 16, 6, 22); const [dx, dy] = S(dxw, dz), hop = walk ? Math.abs(Math.sin(t * 10)) * 2 : 0;
+        upright(px, dx, dy - hop, { blink: (t % 4) > 3.85 }); L.duckHead = { x: dx + 4, y: dy - 30 };
+      }]] : []),
     ].sort((a, b) => b[0] - a[0] || a[1] - b[1]);
     shadows.length = 0; scratch.canvas.width = W; scratch.canvas.height = H;
     const keep = px.use(scratch); items.forEach(([, , f]) => f()); px.use(keep);   // a dry run, to gather every shadow

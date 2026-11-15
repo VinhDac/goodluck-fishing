@@ -14,9 +14,9 @@ export const all = () => Object.values(box);
 export const has = (id) => !!box[id];
 
 // a catch into the box; a job already there keeps its state
-export function add(job, how) {
+export function add(job, how, status = 'new') {
   if (box[job.id]) return;
-  box[job.id] = { job: slim(job), day: today(), how, status: 'new', at: new Date().toISOString() };
+  box[job.id] = { job: slim(job), day: today(), how, status, at: new Date().toISOString() };
   keep();
   push(box[job.id]);
 }
@@ -26,6 +26,12 @@ export function mark(id, status) {
   box[id].status = status; box[id].at = new Date().toISOString();
   keep();
   push(box[id]);
+}
+
+// a reply came for a job applied to: kept on this device (the office's screen counts them)
+export function replied(id, yes = true) {
+  if (!box[id]) return;
+  box[id].replied = yes; keep();
 }
 
 // signed in: each change written to catches; the table's own words for how it came (a snapped line was a catch)

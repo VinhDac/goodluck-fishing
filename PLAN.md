@@ -371,7 +371,14 @@ kim lực căng trong vùng xanh; mây càng hợp càng to, càng khoẻ, giậ
 **Cần Vin chọn:** A độ khó kéo co; B lúc nào hết buổi; C mây chưa câu; D quyết giữ hay bỏ lúc lên cá; E lưỡi câu là ngưỡng
 % hợp; F có tính «phản hồi» (người chơi tự bấm «Got a reply») để màn hình văn phòng có số thật.
 
-**Quyết định:** (chờ Vin)
+**Quyết định (Vin, 15/11: «được, làm theo bạn đề xuất đi, nhưng phải làm thật cẩn thận»):** cả sáu theo đề xuất: kéo co vừa
+phải (mây vàng khó hơn, thua chỉ chậm lại); hết buổi khi đủ 7 phút hoặc hết mây; mây vàng chưa câu trôi dạt vào thùng lúc
+hoàng hôn, mây thường để mai; Keep hay Throw back ngay lúc lên cá; lưỡi câu nhỏ, vừa, to = 0, 40, 55% hợp; có «Got a reply».
+
+**Đã dựng (15/11):** `js/game.js` (một ngày: văn phòng, thang cuốn, bến, ra khơi, hoàng hôn), `js/fishing.js` (quăng có lực
+và hướng, chờ cắn, móc, kéo co, lưới, chai thư, giờ vàng, trôi dạt, tự câu), `js/lake.js` (đọc kho, chấm, bảng giờ, mồi),
+`js/progress.js` (số thật của văn phòng), `js/sound.js` (âm thanh tự tổng hợp, mặc định tắt). Văn phòng và bến bấm được từng
+đồ vật; vịt và mòng biển nói. Mây vàng từ ngưỡng 70 (MARK). Bỏ `js/lobby.js`, `js/sky.js`, `js/duck.js`.
 
 ---
 

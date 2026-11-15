@@ -29,11 +29,10 @@
 </head>
 <body>
   <main id="stage">
-    <canvas id="scene" aria-label="A duck asleep at its desk, late at night. Click the duck."></canvas>
-    <!-- the computer's screen: the words in real text, laid over the drawing -->
-    <div class="screen" id="screen"><b>Applications sent: 80</b><span>Replies: 1</span></div>
-    <div class="hint" id="hint" hidden>Click the duck</div>
-    <div class="corner"><span id="who" hidden></span><button id="bucket" hidden>Bucket</button><button id="signin" hidden>Sign in</button><button id="mycv" hidden>My CV</button></div>
+    <canvas id="scene" aria-label="A duck asleep at its desk, late at night, a golden escalator beside it."></canvas>
+    <!-- what the duck, the gull or the sky says, in a bubble over the speaker -->
+    <div class="bubble" id="say" hidden></div>
+    <div class="corner"><span id="who" hidden></span><button id="bucket" hidden>Bucket</button><button id="signin" hidden>Sign in</button><button id="mycv" hidden>My CV</button><button id="sound" type="button" title="Sound on or off">Sound: off</button></div>
 
     <!-- 4. the postcard: where to keep the bucket (sign in by an email link, or later) -->
     <div class="sheet postcard" id="postcard" hidden>
@@ -76,15 +75,13 @@
       <div class="said"></div>
       <button class="go" id="mapGo" type="button">Done</button>
     </div>
-    <!-- the sky: the day's clock, what was caught, a word from the sky; the names on the city's roofs -->
+    <!-- out fishing: the time left before sunset, what is caught, the bait and the hook, the net, auto -->
     <div class="skyhud" id="skyHud" hidden>
-      <span class="chip">☀ <b id="skyClock">10:00</b></span><span class="chip">Caught <b id="skyCount">0</b></span>
-      <button class="chip" id="netBtn" type="button" title="Bring in every small cloud in sight">Net</button>
-      <select class="chip" id="baitSel" title="Your bait: a skill of your CV; the jobs that ask it come first"><option value="">Bait: any</option></select>
-      <button class="chip" id="autoSky" type="button" title="Let the duck fish by itself">Auto: off</button>
-      <span class="said" id="skySaid"></span>
+      <span class="chip" title="Time left before sunset">☀ <b id="skyClock">7:00</b></span><span class="chip">Caught <b id="skyCount">0</b></span>
+      <span class="chip soft" id="skyGear"></span>
+      <button class="chip" id="netBtn" type="button" title="Once a day: scoop every small cloud in sight">Net</button>
+      <button class="chip" id="autoSky" type="button" title="Let the duck fish by itself: the same jobs, no game">Auto: off</button>
     </div>
-    <div id="signs"></div>
     <div class="veil" id="catch" hidden>
       <div class="card">
         <div class="kicker" id="ctKicker">You caught</div>
@@ -92,8 +89,8 @@
         <div class="who" id="ctWho"></div>
         <div class="meta" id="ctMeta"></div>
         <p class="fit" id="ctFit"></p>
-        <a class="go" id="ctOpen" href="#" target="_blank" rel="noopener">Open the job ↗</a>
-        <button class="ghost" id="ctBack" type="button">Keep fishing</button>
+        <div class="row center"><button class="go" id="ctKeep" type="button">Keep</button><button class="ghost" id="ctThrow" type="button">Throw back</button></div>
+        <a class="link" id="ctOpen" href="#" target="_blank" rel="noopener">Open the job ↗</a>
       </div>
     </div>
     <!-- the report: the day's numbers and the list of jobs to act on (PLAN.md 4) -->
@@ -108,6 +105,6 @@
     </div>
   </main>
   <footer>GoodLuck Fishing · by <a href="https://vinhdac.github.io" target="_blank" rel="noopener">Vinh Dac</a></footer>
-  <script type="module" src="js/lobby.js"></script>
+  <script type="module" src="js/game.js"></script>
 </body>
 </html>
