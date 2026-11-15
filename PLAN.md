@@ -494,6 +494,45 @@ Greenhouse, Lever, Ashby), tàu hiện trên bến và trên biển đúng như 
   (đóng rồi thì mây tan, tự đánh dấu Expired); tàu về tay không: «Hiring freeze».
 - `tools/make_exe.py`: GoodLuckFishing.exe và bộ cài, như GoodLuck Office.
 
+## 17. Câu cá cho ra câu cá; phần chơi là phần nổi (Vin, 15/11, sau khi thử bước 1: «không cần các tàu nhỏ ... hiện tại
+không có thả câu mà đợi, nó bị vội quá ... phần cho chơi chỉ là 1 phần nổi ... không thì cứ bật auto cho chạy từ đầu đến
+cuối, có process ở góc, xong thì popup kết quả ... text của vịt chắn thanh power ... cho nhiều mây lên, để thả như thả hồ
+cá, rồi bắt ... đóng vai người dùng ... bàn với tôi»)
+
+**Claude hiểu:** (1) bỏ các tàu nhỏ; (2) việc tìm luôn tự chạy hết, chỉ cần tiến độ ở góc, xong thì bảng kết quả bật lên;
+(3) phần chơi là phần nổi để kích thích: muốn thì cầm cần, không thì vịt tự câu; (4) câu phải có nhịp thật: thả rồi chờ;
+(5) nhiều mây, như thả cá vào hồ, rồi bắt; (6) lời vịt không che gì; hiệu ứng và đồ vật làm kỹ.
+
+**Người dùng thấy chưa ổn ở bản bước 1:** nhắm vào mây đang trôi ngang như bắn bia; cá cắn gần như ngay, vài giây là xong;
+mây trôi qua rồi mất, lúc nào cũng 5 đến 6 đám; không biết máy tìm tới đâu, còn bao lâu; bong bóng lời che thanh lực, mây
+kéo về đè lên mặt vịt; để máy chạy rồi đi pha cà phê thì không có lúc «xong rồi đây»; ngày nào cũng bấm vịt, đi thang,
+chọn mồi, bấm thuyền.
+
+**Đề xuất:**
+1. Hai lớp chạy cùng nhau. Lớp việc luôn tự chạy: tìm (thả cá vào hồ) và kiểm (mỗi con câu lên là một việc được hỏi còn mở
+   không, bước 3 thêm đọc kỹ bằng Chrome). Lớp chơi tuỳ ý: chạm vào là cầm cần, buông một lúc thì vịt câu tiếp.
+2. Tiến độ ở góc là máy dò cá (sonar) gắn trên thuyền: vạch quét, chấm hiện khi tìm thấy việc, chấm vàng là việc vàng, chữ
+   «1,240/2,840 companies · 87 jobs · 12 golden». Tìm xong và kiểm xong các việc tốt nhất thì chuông reo, bảng «Catch of
+   the day» bật lên.
+3. Hồ: mỗi việc tìm thấy bốc lên thành mây từ chính toà nhà công ty đó dưới thành phố (biển tên sáng lên), bay vào hồ trước
+   thuyền và bơi lượn ở đó, không trôi mất. Hồ hiện cùng lúc khoảng 30 con tốt nhất (điện thoại 20). Thành phố chạy khi đang
+   tìm, chậm dần và dừng khi tìm xong (thả neo): chuyển động là việc thật.
+4. Câu có nhịp thật, 15 đến 30 giây một con: ngắm chỗ, giữ để ngả cần, thả ra, dây cong, phao lơ lửng ở chỗ rơi; chờ: phao
+   nhấp nhô, cá lượn lại gần mồi (đúng kỹ năng thì tới nhanh), có cú rỉa nhẹ (giật lúc này là cá sợ bỏ đi); cắn thật: phao
+   chìm hẳn, chuông, dấu «!» trên đầu vịt, giật cần; kéo co: cần cong, dây rung, cá vùng hai bên, thanh lực cố định cạnh
+   thuyền; lên cá: vịt vớt bằng vợt, thẻ việc lật lên như khoe cá. Việc đã đóng thì câu lên chiếc ủng cũ.
+5. Lời nói: bỏ bong bóng; một khung thoại cố định ở góc dưới (chân dung vịt hoặc mòng biển, 1 đến 2 dòng), ít câu hơn.
+6. Đồ vật (đều là thứ thật): máy dò cá = tiến độ; hộp đồ câu = mồi (kỹ năng) và lưỡi (ngưỡng); vợt = lưới mỗi ngày; xô cá
+   đầy dần = số việc đã bắt; cần có ống quay, phao đỏ trắng; sổ câu ở văn phòng (cá to nhất tuần, công ty đã câu, chuỗi ngày).
+7. Hiệu ứng: bụi mây khi phao rơi và khi cá vùng, cần cong theo lực, dây võng, rung nhẹ khi cá vàng cắn, tia sáng khi lên cá
+   vàng, mòng biển bay theo xin cá, vịt ngáp và nhấp cà phê lúc chờ.
+8. Từ ngày thứ hai: nhớ mồi và lưỡi; một nút «Go fishing» ở văn phòng, thang nhanh, thẳng ra hồ.
+
+**Cần Vin chọn:** A tự câu khi không chạm, hay giữ nút Auto; B hồ bao nhiêu con; C bảng kết quả gồm gì; D bỏ qua cảnh đi
+đường từ ngày thứ hai; E máy dò cá làm tiến độ ở góc; F thành phố chạy khi tìm, dừng khi xong; G chuyện cười giữ cái nào.
+
+**Quyết định:** (chờ Vin)
+
 ---
 
 ## Nhật ký bàn bạc
