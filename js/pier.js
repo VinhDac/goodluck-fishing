@@ -10,6 +10,7 @@
 import { makePix, hash } from './pix.js';
 import { upright } from './ducks.js';
 import { drawEscalator } from './escalator.js';
+import { drawBoat } from './boat.js';
 
 const KX = 0.5, KY = 0.6;                                           // a step back into the picture: this far right, this far up
 
@@ -112,15 +113,7 @@ export function makePier(g) {
   }
 
   // ---- the sea of clouds ------------------------------------------------------------------------------------------------------
-  function cloud(cx, cy, r, near) {                                  // a lump of cloud: a lit top right, a shaded belly
-    const top = near ? '#fffaf0' : '#fbe3e0', mid = near ? '#f1f3fb' : '#f0d4d8', low = near ? '#cdd3ec' : '#dcc0cc', deep = near ? '#aeb6dc' : '#c8aec0';
-    ell(cx, cy + r * 0.35, r * 1.05, r * 0.55, deep);
-    ell(cx, cy + r * 0.2, r, r * 0.6, low);
-    ell(cx - r * 0.25, cy - r * 0.1, r * 0.8, r * 0.55, mid);
-    ell(cx + r * 0.3, cy - r * 0.35, r * 0.6, r * 0.45, mid);
-    ell(cx + r * 0.35, cy - r * 0.45, r * 0.42, r * 0.28, top);
-    ell(cx - r * 0.2, cy - r * 0.25, r * 0.45, r * 0.25, top);
-  }
+  const cloud = (cx, cy, r, near) => px.lump(cx, cy, r, near ? 'near' : 'far');
   function farSea(t) {
     const { W, H, hz } = L;
     R(0, hz, W, H - hz, '#f3dfe4');
@@ -353,27 +346,10 @@ export function makePier(g) {
   }
   // the boat GOOD LUCK, tied up in front of the pier's end, seen from above so its inside shows
   function boat(t) {
-    const { x, y } = L.boat, bob = Math.round(Math.sin(t * 1.6) * 1.2), yy = y + bob, w = 66, inD = 12;
+    const { x, y } = L.boat, yy = y + Math.round(Math.sin(t * 1.6) * 1.2);
     const [rx0, ry0] = S(...L.bollards[1]);                                    // the rope from the bollard to its bow
     for (let i = 0; i <= 24; i++) { const k = i / 24; P(rx0 + (x + 6 - rx0) * k, ry0 - 6 + (yy - 8 - ry0 + 6) * k + Math.sin(Math.PI * k) * 5, '#e0c896'); }
-    ell(x + w / 2 - 6, y + 9, w / 2, 3, 'rgba(110,118,170,0.35)');
-    for (let i = 0; i < 4; i++) ell(x - 2 + i * 22, yy + 6, 6, 1, 'rgba(255,255,255,0.8)');
-    poly([[x + 3, yy - 10], [x + w - 3, yy - 10], [x + w - 8, yy - 10 - inD], [x + 10, yy - 10 - inD]], '#6a4224');
-    poly([[x + 6, yy - 10], [x + w - 6, yy - 10], [x + w - 10, yy - 6 - inD], [x + 12, yy - 6 - inD]], '#9a6a3e');
-    for (let k = 0; k < 3; k++) R(x + 12 - k, yy - 18 + k * 3, w - 22 + k * 2, 1, '#7a5030');
-    R(x + 34, yy - 21, 4, 11, '#b88552'); R(x + 34, yy - 21, 4, 1, '#d8aa78');
-    R(x + 14, yy - 22, 9, 8, '#9aa0b0'); ell(x + 18, yy - 22, 4, 1, '#c8ccd8'); R(x + 16, yy - 22, 5, 1, '#5a6070');
-    for (let i = 0; i < 4; i++) line(x + 25 + i * 2, yy - 13, x + 27 + i * 2, yy - 19, '#c8b888');
-    R(x + 40, yy - 52, 2, 40, '#6a4628'); R(x + 41, yy - 52, 1, 40, '#9a7048');
-    const fl = Math.sin(t * 5) * 1.5; poly([[x + 42, yy - 52], [x + 56, yy - 49 + fl], [x + 42, yy - 46]], '#ffd84a'); line(x + 42, yy - 46, x + 56, yy - 49 + fl, '#e0b020');
-    R(x + 43, yy - 38, 5, 6, '#e8643a'); R(x + 44, yy - 37, 3, 4, '#ffd27a'); R(x + 42, yy - 39, 6, 1, '#3a2a1a');
-    line(x + 54, yy - 12, x + 70, yy - 36, '#5a3a1a'); P(x + 70, yy - 37, '#e03a3a');
-    poly([[x, yy - 10], [x + w, yy - 10], [x + w - 8, yy + 5], [x + 8, yy + 5]], '#7e5230');
-    R(x - 2, yy - 12, w + 4, 3, '#c08a52'); R(x - 2, yy - 12, w + 4, 1, '#ecc08a');
-    for (let i = 0; i < 3; i++) R(x + 3 + i * 2, yy - 6 + i * 4, w - 6 - i * 4, 1, '#5e3c20');
-    R(x + w - 10, yy - 9, 6, 13, 'rgba(255,230,190,0.18)');
-    text('GOOD LUCK', x + w / 2 - textW('GOOD LUCK') / 2 - 4, yy - 7, '#fff8e7');
-    ell(x + w - 12, yy - 3, 4, 4, '#f4efe2'); ell(x + w - 12, yy - 3, 2, 2, '#7e5230'); R(x + w - 16, yy - 4, 2, 2, '#d03a2a'); R(x + w - 10, yy - 4, 2, 2, '#d03a2a');
+    drawBoat(px, x, y, t);
   }
 
   // ---- the light over it all: warm from the low sun, cooler toward us ----------------------------------------------------------

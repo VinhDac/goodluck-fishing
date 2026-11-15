@@ -21,6 +21,13 @@ export const FONT = {
   '+': ['...', '.#.', '###', '.#.', '...'], '#': ['#.#', '###', '#.#', '###', '#.#'], "'": ['#', '#', '.', '.', '.'],
 };
 
+const LUMP = {
+  near: ['#fffaf0', '#f1f3fb', '#cdd3ec', '#aeb6dc'],
+  far: ['#fbe3e0', '#f0d4d8', '#dcc0cc', '#c8aec0'],
+  gold: ['#fff2b0', '#ffd65a', '#e8b030', '#c88a20'],
+  dusk: ['#ffe0c8', '#f4c0b0', '#c890a8', '#9a7098'],
+};
+
 export function makePix(ctx) {
   let c = ctx;
   const t = {
@@ -49,6 +56,16 @@ export function makePix(ctx) {
         f.forEach((row, j) => [...row].forEach((b, i) => { if (b === '#') c.fillRect(Math.round(x + i), Math.round(y + j), 1, 1); }));
         x += f[0].length + 1;
       }
+    },
+    // a lump of cloud lit from the top right, its belly in shade: near (white), far (pink with the low sun), gold (a golden job)
+    lump(cx, cy, r, kind = 'near') {
+      const [top, mid, low, deep] = LUMP[kind] || LUMP.near;
+      t.ell(cx, cy + r * 0.35, r * 1.05, r * 0.55, deep);
+      t.ell(cx, cy + r * 0.2, r, r * 0.6, low);
+      t.ell(cx - r * 0.25, cy - r * 0.1, r * 0.8, r * 0.55, mid);
+      t.ell(cx + r * 0.3, cy - r * 0.35, r * 0.6, r * 0.45, mid);
+      t.ell(cx + r * 0.35, cy - r * 0.45, r * 0.42, r * 0.28, top);
+      t.ell(cx - r * 0.2, cy - r * 0.25, r * 0.45, r * 0.25, top);
     },
     // a cloud of the sky's kind: round lumps, a lit top, a shaded underside
     puff(cx, cy, r, top = '#ffffff', under = '#dfe8f4') {

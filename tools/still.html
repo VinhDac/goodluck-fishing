@@ -23,7 +23,7 @@
 <body>
 <h2>1. The office</h2><div class="row" id="office"></div>
 <h2>2. The cloud pier</h2><div class="row" id="pier"></div>
-<!-- 3. Fishing (js/voyage.js): to be done again, after the pier is approved -->
+<h2>3. Fishing: the city goes by (the computer's runs a whole day in a minute and a half; the phone's is at sunset)</h2><div class="row" id="voyage"></div>
 <script type="module">
   import { makeRoom } from '../js/room.js';
   import { makePier } from '../js/pier.js';
@@ -56,6 +56,8 @@
   const clouds = (t, W, H) => [0, 1, 2, 3, 4].map((i) => ({ x: ((W * (0.4 + i * 0.17) - t * (6 + i)) % (W * 0.75) + W * 0.75) % (W * 0.75) + W * 0.3,
     y: H * (0.14 + ((i * 37) % 30) / 100), r: i === 2 ? 9 : 6 + (i % 3) * 2, gold: i === 2 }));
   const names = ['Toast', 'AssemblyAI', 'Samsara', 'Harvey', 'PhysicsX', 'Magentic', 'Monzo', 'Wise'];
+  show('voyage', makeVoyage, 384, 216, wideK, 'A computer', null, (t, W, H) => ({ day: ((t / 90) + 0.2) % 1, names, clouds: clouds(t, W, H) }));
+  show('voyage', makeVoyage, 195, 422, 2, 'A phone', null, (t, W, H) => ({ day: 0.88, names, clouds: clouds(t, W, H) }));
   const t0 = performance.now();
   (function frame(now) { const t = (now - t0) / 1000; for (const { s, W, H, data } of scenes) s.draw(W, H, t, data ? data(t, W, H) : undefined); requestAnimationFrame(frame); })(t0);
 </script>
