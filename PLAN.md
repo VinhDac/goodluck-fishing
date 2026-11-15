@@ -541,6 +541,63 @@ cầm cần; B hồ 30 con (điện thoại 20); C bảng kết quả: việc đ
 «xem tất cả»; D từ ngày thứ hai một nút «Go fishing»; E máy dò cá là tiến độ ở góc; F thành phố chạy khi tìm, dừng khi xong;
 G giữ cả ba chuyện cười (ủng cũ, cá ma, mòng biển cướp mồi); H cá vàng ở sâu. Vẽ ảnh tĩnh trước, duyệt rồi mới làm.
 
+## 18. Thư bay thay cá; câu dễ, thư thái; chuyển động làm lại cho kỹ (Vin, 15/11, sau khi thử hồ trong game: «trải nghiệm
+câu cá khó quá, mãi chả câu được cá ... chuyển động trong game kém quá, không được làm cẩn thận ... concept cá cũng không
+hay, để làm những lá thư bay ... nên cho câu dễ hơn, chill hơn ... những phần phụ, nút phụ, hiển thị phụ cũng phải bàn bạc
+lại cho sạch ... quan trọng nhất là chuyển động hiện tại kém quá»; trước đó, về thanh đồ câu: «khó dùng ... nút chuẩn ...
+có nút về lại bến cảng và về lại lobby»)
+
+**Claude hiểu:** (1) bỏ cá, thay bằng thư bay; (2) câu phải dễ và thư thái, không có cách nào hỏng; (3) chuyển động là việc
+quan trọng nhất, làm lại cẩn thận; (4) mọi thứ phụ (nút, hiển thị) bàn lại cho gọn, chữ rõ, có đường về bến và về sảnh.
+
+**Vì sao bản hồ cá kém (đã xem lại mã):**
+- Khó: một con cá có năm chỗ hỏng: phải thả gần, chờ nó để ý (may rủi), giật lúc nó rỉa là nó sợ, giật chậm quá 0,9 giây
+  là mất, lúc kéo giữ lâu thì đứt dây, thả lâu thì sổng. Người mới không biết luật nào.
+- Giật: hình vẽ ở một phần ba kích thước rồi phóng to, mọi vị trí làm tròn theo ô to đó, nên vật đi chậm nhảy ba điểm ảnh
+  một lần: thành phố trôi giật cục, cá đi khựng.
+- Máy móc: cá đi đường thẳng tới một điểm ngẫu nhiên, tốc độ đều, tới nơi khựng lại rồi quay ngoắt; dây câu là nét thẳng,
+  lưỡi không đung đưa; nhiều thứ hiện ra và biến mất cái rụp.
+
+**Đề xuất:**
+1. Thư bay. Mỗi việc tìm thấy là một lá thư bay lên từ mái toà nhà của chính công ty đó (biển tên sáng lên một lúc). Nắp
+   phong bì đập như đôi cánh: lên cao thì đập nhanh, bay ngang thì lượn, đập chậm. Nhìn là biết: thư càng hợp càng to; thư
+   vàng có viền và dấu sáp vàng, vệt lấp lánh; tin đăng quá ba tuần thì giấy ngả vàng, quăn góc. Thư càng hợp bay càng cao,
+   gần thuyền vịt (tin tốt thì bay lên); thư yếu bay là là trên mái nhà. Trên trời khoảng 20 lá (điện thoại 12); lá tốt
+   hơn tới thì lá yếu nhất bay đi.
+2. Câu dễ, thư thái. Chạm vào lá nào: vịt quay đầu nhìn, vung cần, lưỡi bay theo đường cong móc vào góc thư, vịt quay dây
+   kéo lên êm (khoảng hai giây), ngậm thư, thư mở ra thành thẻ việc: Keep, Not for me, Open. Không có cách nào hỏng; cái
+   chơi là chọn lá nào. AUTO bật sẵn: vịt tự câu lá tốt nhất, thong thả năm tới tám giây một lá, cất vào túi, nói một câu ở
+   khung thoại; chạm vào một lá thì lá đó là của mình, xong vịt câu tiếp.
+3. Chuyện cười, giữ tinh thần ba chuyện cũ: việc đã đóng thì thư mở ra có dấu đỏ «CLOSED, return to sender», vịt nhún vai,
+   ghi hết hạn (thay ủng cũ); tin cũ còn mở là thư ngả vàng có mạng nhện (thay cá ma); mòng biển làm bưu tá, thỉnh thoảng
+   ngậm tới một lá ngoài các chức danh mà CV hợp, thả xuống boong (thay máy bay và chai).
+4. Chuyển động, việc quan trọng nhất:
+   - Mượt theo điểm ảnh của màn hình: hình vẫn là pixel sắc nét, nhưng vị trí tính theo điểm ảnh thật của màn hình (bước
+     một điểm thay vì ba). Thành phố, mây, thư trôi mượt. Làm cho mọi cảnh: văn phòng, thang cuốn, bến, trời.
+   - Không có đường thẳng kiểu máy: đi theo đường cong; bắt đầu và dừng đều nhanh dần, chậm dần; quay đầu là một vòng lượn;
+     không gì hiện ra hay biến mất cái rụp (mờ dần, bụi mây).
+   - Chuyển động phụ: mỗi nhịp cánh nhấc lá thư lên một chút; dây câu võng và đung đưa, lưỡi lắc như con lắc; cần cong rồi
+     bật lại; vịt thở, chớp mắt, quay đầu theo lá sắp câu; thuyền dập dềnh cùng đám mây.
+   - Kiểm từng khung hình trước khi đưa Vin xem: không giật, không khựng, máy nhanh hay chậm cũng như nhau.
+5. Phần phụ cho sạch:
+   - Bỏ: thanh LINE, dấu «!», nhãn mồi ở lưỡi, mồi và lưỡi, lưới, máy bay và chai, cả máy dò cá (màn hình, chấm, đồng hồ số).
+   - Góc trên phải: một dòng chữ rõ có vạch mảnh: «Searching · 1,240 of 2,840 boards · 312 letters», xong thì «Search done ·
+     849 letters»; cạnh đó cái loa bật tắt tiếng.
+   - Dưới cùng: bốn nút bằng chữ: AUTO ON/OFF · BAG 24 · PIER · LOBBY. Về bến hay về sảnh không mất gì: trời và thư giữ
+     nguyên, việc tìm vẫn chạy, ra lại là đúng buổi đó.
+   - Góc dưới trái: khung thoại của vịt, chỉ khi có chuyện: thư vàng, thư «CLOSED», thư của mòng biển, tìm xong.
+   - Giờ: không có số; mặt trời đi ngang trời, ánh sáng ấm dần về cuối buổi (tám phút). «Catch of the day» bật khi tìm xong
+     và túi có một chục lá, hoặc khi mặt trời lặn.
+   - Một chữ một nghĩa: cá thành thư, xô thành túi thư (BAG, «Your mailbag») ở cả văn phòng và bảng kết quả. Bến còn đội
+     thuyền đi tìm và nút Sail; quầy mồi và lưỡi bỏ.
+6. Thứ tự, mỗi bước Vin duyệt: (1) một trang chuyển động riêng (tools/letters.html): thành phố, thuyền vịt, thư bay lên,
+   đập cánh, lượn, chạm là câu, AUTO; chỉ để chấm chuyển động; (2) duyệt rồi thì đưa vào game thay cá, cùng phần phụ mới;
+   (3) bến, chữ (túi thư), bảng kết quả, rồi build lại exe.
+
+**Cần Vin chọn:** A thư càng hợp bay càng cao gần vịt, hay bay khắp trời; B bỏ hẳn mồi, lưỡi, lưới; C xô thành túi thư
+(BAG); D máy dò cá thành một dòng tiến độ; E ba chuyện cười mới (dấu CLOSED, thư ngả vàng, mòng biển bưu tá); F giờ chỉ bằng
+mặt trời, không số; G AUTO bật sẵn.
+
 ---
 
 ## Nhật ký bàn bạc
@@ -554,3 +611,5 @@ G giữ cả ba chuyện cười (ủng cũ, cá ma, mòng biển cướp mồi)
 - 14/11: chốt mục 2 (Lobby ba bước) và mục 3 (tên công ty kiểu C; cách câu: lực căng, lưới, tự câu, mồi là kỹ năng).
 - 14/11: Vin đổi hướng lớn: vịt vàng, lobby và thang cuốn lên trời, câu mây, thành phố công ty, tờ báo cáo với
   I applied và Expired, đăng nhập, chạy hằng ngày, search mạnh. Ghi vào sổ này để bàn từng mục.
+- 15/11 (tối): hồ cá vào game thật (7a184f1), bảng kết quả có ô tìm và Open ra ngoài (21228cf); Vin thử: khó câu, chuyển
+  động kém, đổi cá thành thư bay, câu dễ và thư thái, phần phụ bàn lại; đề xuất mục 18.
