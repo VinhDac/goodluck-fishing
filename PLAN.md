@@ -219,6 +219,17 @@ Khoá API là bí mật: để trong `data/keys.json` (thư mục `data/` không
 
 ---
 
+## 8. Bước 2: Supabase (đang làm)
+
+- 15/11: Vin tạo project `goodluck-fishing` (London, RLS tự động bật, bảng không tự mở). Ba bảng (`supabase/schema.sql`):
+  `jobs` (ai cũng đọc, chỉ bộ thu ghi), `profiles` (không có CV), `catches` (thùng cá, trạng thái new / applied / expired /
+  not_for_me). Đăng nhập bằng email (link trong thư), Google để sau.
+- Kiểm 15/11: khoá công khai đọc được kho việc, bị từ chối khi ghi kho hay đọc hồ sơ; ghi, đọc, xoá thử đều đúng.
+- Kho việc lên Supabase (`tools/upload.py`): 128.694 việc trong 53 giây; trên Supabase đếm đúng 128.694, London 5.354.
+- Còn lại: cho thu và tải tự chạy mỗi 6 giờ trên GitHub Actions (cần đưa dự án lên GitHub, khoá vào secrets).
+
+---
+
 ## Nhật ký bàn bạc
 
 - 13/11: tách folder riêng; thiết kế bản câu cá dưới ao; làm bước 1 đến 3 (ao, chấm điểm theo CV, giỏ nhớ qua ngày).
