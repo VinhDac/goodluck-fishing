@@ -5,6 +5,8 @@
 // the sun crosses the sky, and at sunset the boat goes home (the bucket and the report: step 5).
 import { AWAKE } from './art.js';
 import { titleFits, placeFits } from './score.js';
+import { add, has } from './box.js';
+import { openReport } from './report.js';
 
 const DAY = 600, SHOWN = 8, FRESH_DAYS = 14;
 // THE STORE AS FILES (Vin, 15/11/2026: «đổi sang cách file tĩnh»): tools/publish.py writes them every six hours to the
@@ -33,7 +35,7 @@ export function fitOf(jobSkills, mine) {
 const sizeOf = (s) => (s == null ? 'unread' : s >= 85 ? 'gold' : s >= 70 ? 'big' : s >= 50 ? 'medium' : 'small');
 const RADIUS = { gold: 13, big: 12, medium: 10, small: 8, unread: 9 };
 
-export function makeSky(g, dims, toCss) {
+export function makeSky(g, dims, toCss, goHome) {
   const S = { on: false, t: 0, day: 0, over: false, lake: [], clouds: [], caught: [], cast: null, said: '', loaded: false,
     holding: false, bait: '', auto: false, netReady: 0 };
   let W = 320, H = 180;
@@ -53,7 +55,7 @@ export function makeSky(g, dims, toCss) {
       for (const p of parts) for (const r of p.jobs || []) if (!seen.has(r[0])) { seen.add(r[0]); rows.push(r); }
       const since = Date.now() - FRESH_DAYS * 864e5;
       const jobs = rows.map(([id, company, title, place, url, posted, skills]) => ({ id, company, title, place, url, posted: posted * 1000, skills }))
-        .filter((j) => j.posted >= since && titleFits(j.title, me.titles || []) && placeFits(j.place, me.city || '', me.remote));
+        .filter((j) => j.posted >= since && !has(j.id) && titleFits(j.title, me.titles || []) && placeFits(j.place, me.city || '', me.remote));
       S.lake = jobs.map((j) => { const fit = fitOf(j.skills, mine); return { ...j, fit, size: sizeOf(fit) }; })
         .sort((a, b) => (b.fit ?? -1) - (a.fit ?? -1) || b.posted - a.posted);
       S.loaded = true;
@@ -126,7 +128,7 @@ export function makeSky(g, dims, toCss) {
     keep(k.hit.job, 'snapped');
     say('The line snapped! But the job is in your bucket.');
   }
-  function keep(job, how) { S.caught.push({ ...job, how }); $('skyCount').textContent = S.caught.length; }
+  function keep(job, how) { S.caught.push({ ...job, how }); $('skyCount').textContent = S.caught.length; add(job, how); }
   // THE NET (PLAN.md 3, C): every small cloud in sight brought in at once; then it dries for a while
   function net() {
     if (!S.on || S.over || S.t < S.netReady) return;
@@ -145,7 +147,7 @@ export function makeSky(g, dims, toCss) {
   function step(dt) {
     if (!S.on) return;
     S.t += dt;
-    if (!S.over && $('catch').hidden) { S.day = Math.min(1, S.day + dt / DAY); if (S.day >= 1) sunset(); }
+    if (!S.over && $('catch').hidden && $('report').hidden) { S.day = Math.min(1, S.day + dt / DAY); if (S.day >= 1) sunset(); }
     if (S.loaded && Math.random() < dt * 0.8) spawn();
     for (const c of S.clouds) {
       c.a = Math.min(1, c.a + dt / 1.2);
@@ -197,12 +199,10 @@ export function makeSky(g, dims, toCss) {
     $('ctOpen').href = job.url;
     $('catch').hidden = false;
   }
+  // SUNSET: the boat goes home and the day's report opens (PLAN.md 4); closing it, back to the office
   function sunset() {
     S.over = true; S.cast = null;
-    $('ctKicker').textContent = 'The sun has set';
-    $('ctTitle').textContent = `${S.caught.length} cloud${S.caught.length === 1 ? '' : 's'} caught today`;
-    $('ctWho').textContent = ''; $('ctMeta').textContent = 'The boat goes home; the bucket and the day\'s report come next.';
-    $('ctFit').textContent = ''; $('ctOpen').hidden = true; $('catch').hidden = false;
+    openReport('The sun has set', goHome);                 // the day's numbers are the report's own, from the box
   }
   function clock() {
     const left = Math.max(0, Math.ceil(DAY * (1 - S.day)));

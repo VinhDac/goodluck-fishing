@@ -17,7 +17,7 @@
     <!-- the computer's screen: the words in real text, laid over the drawing -->
     <div class="screen" id="screen"><b>Applications sent: 80</b><span>Replies: 1</span></div>
     <div class="hint" id="hint" hidden>Click the duck</div>
-    <div class="corner"><span id="who" hidden></span><button id="signin" hidden>Sign in</button><button id="mycv" hidden>My CV</button></div>
+    <div class="corner"><span id="who" hidden></span><button id="bucket" hidden>Bucket</button><button id="signin" hidden>Sign in</button><button id="mycv" hidden>My CV</button></div>
 
     <!-- 4. the postcard: where to keep the bucket (sign in by an email link, or later) -->
     <div class="sheet postcard" id="postcard" hidden>
@@ -78,6 +78,16 @@
         <p class="fit" id="ctFit"></p>
         <a class="go" id="ctOpen" href="#" target="_blank" rel="noopener">Open the job ↗</a>
         <button class="ghost" id="ctBack" type="button">Keep fishing</button>
+      </div>
+    </div>
+    <!-- the report: the day's numbers and the list of jobs to act on (PLAN.md 4) -->
+    <div class="veil" id="report" hidden>
+      <div class="panel report">
+        <h1 id="rpHead">Your bucket</h1>
+        <div class="stats" id="rpStats"></div>
+        <ol class="rplist" id="rpList"></ol>
+        <div class="away" id="rpAway"></div>
+        <button class="go" id="rpBack" type="button">Close</button>
       </div>
     </div>
   </main>

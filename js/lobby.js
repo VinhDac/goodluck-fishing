@@ -7,6 +7,8 @@ import { me, begin } from './setup.js';
 import { AWAKE, ASLEEP } from './art.js';
 import { user, saveProfile, postcard } from './account.js';
 import { makeSky } from './sky.js';
+import { sync } from './box.js';
+import { openReport } from './report.js';
 
 const cv = document.getElementById('scene');
 const g = cv.getContext('2d');
@@ -169,7 +171,8 @@ cv.addEventListener('pointerdown', (e) => {
 });
 // the sky (step 4): it takes the canvas once the duck is up; its card's button goes on fishing, or, at sunset, home
 const toCss = (x, y) => { const r = cv.getBoundingClientRect(), st = $('stage').getBoundingClientRect(); return { x: r.left - st.left + x * K, y: r.top - st.top + y * K }; };
-sky = makeSky(g, () => ({ W, H }), toCss);
+function goHome() { sky.S.on = false; sky.S.over = false; $('skyHud').hidden = true; $('signs').replaceChildren(); S.mode = 'sleep'; S.sparks = []; $('hint').hidden = false; $('screen').hidden = false; }
+sky = makeSky(g, () => ({ W, H }), toCss, goHome);
 addEventListener('pointerup', () => { if (sky && sky.S.on) sky.up(); });
 addEventListener('pointercancel', () => { if (sky && sky.S.on) sky.up(); });
 $('netBtn').addEventListener('click', () => sky.net());
@@ -177,12 +180,12 @@ $('autoSky').addEventListener('click', () => { sky.S.auto = !sky.S.auto; $('auto
 $('baitSel').addEventListener('change', () => sky.bait($('baitSel').value));
 $('ctBack').addEventListener('click', () => {
   sky.closeCard();
-  if (sky.S.over) { sky.S.on = false; $('skyHud').hidden = true; $('signs').replaceChildren(); S.mode = 'sleep'; S.sparks = []; $('hint').hidden = false; $('screen').hidden = false; }
+  if (sky.S.over) goHome();
 });
 
 // the CV first (PLAN.md 9, part 2): asked once; a return goes straight to the duck, «My CV» asks again. Then, for one
 // not signed in, the postcard (part 3); signed in, what they look for is kept with their account.
-function ready() { S.ready = true; $('hint').hidden = false; $('mycv').hidden = false; corner(); }
+function ready() { S.ready = true; $('hint').hidden = false; $('mycv').hidden = false; $('bucket').hidden = false; corner().then((u) => { if (u) sync(); }); }
 async function corner() {
   const u = await user();
   $('who').hidden = !u; $('who').textContent = u ? `Signed in: ${u.email}` : '';
@@ -194,6 +197,7 @@ function asked(v) {
 }
 function ask() { S.ready = false; $('hint').hidden = true; $('mycv').hidden = true; $('signin').hidden = true; begin(asked); }
 $('mycv').addEventListener('click', ask);
+$('bucket').addEventListener('click', () => openReport('Your bucket'));
 $('signin').addEventListener('click', () => { $('signin').hidden = true; postcard(ready); });
 if (me) { ready(); user().then((u) => { if (u) saveProfile(me); }); } else ask();
 
