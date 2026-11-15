@@ -23,7 +23,7 @@
 <body>
 <h2>1. The office</h2><div class="row" id="office"></div>
 <h2>2. The cloud pier</h2><div class="row" id="pier"></div>
-<h2>3. Fishing: the world goes by (the computer's runs a whole day in a minute; the phone's is at sunset)</h2><div class="row" id="voyage"></div>
+<!-- 3. Fishing (js/voyage.js): to be done again, after the pier is approved -->
 <script type="module">
   import { makeRoom } from '../js/room.js';
   import { makePier } from '../js/pier.js';
@@ -49,15 +49,13 @@
   const officeSays = (say) => ({ say, at: (L) => { const right = L.mcx + L.mon.w / 2 + 6; return (L.W - right) > 70 ? [right, L.deskT - 16] : [4, L.monTop - 4]; } });
   show('office', makeRoom, 384, 216, wideK, 'A computer', officeSays('<i>zzz…</i> entry level… eight years of experience required… <i>zzz</i>'));
   show('office', makeRoom, 195, 422, 2, 'A phone', officeSays('<i>zzz…</i> yes… I am a team player… <i>zzz</i>'));
-  const pierSays = (say) => ({ say, at: (L) => [L.duck.x - 6, L.duck.y - 30] });
+  const pierSays = (say) => ({ say, at: (L) => [L.duck.sx - 8, L.duck.sy - 30] });
   show('pier', makePier, 384, 216, wideK, 'A computer', pierSays('Huh. So this is where jobs come from.'));
   show('pier', makePier, 195, 422, 2, 'A phone', pierSays('Huh. So this is where jobs come from.'));
   // a few job clouds drifting by, one golden, for the picture (the game's own clouds take their place)
   const clouds = (t, W, H) => [0, 1, 2, 3, 4].map((i) => ({ x: ((W * (0.4 + i * 0.17) - t * (6 + i)) % (W * 0.75) + W * 0.75) % (W * 0.75) + W * 0.3,
     y: H * (0.14 + ((i * 37) % 30) / 100), r: i === 2 ? 9 : 6 + (i % 3) * 2, gold: i === 2 }));
   const names = ['Toast', 'AssemblyAI', 'Samsara', 'Harvey', 'PhysicsX', 'Magentic', 'Monzo', 'Wise'];
-  show('voyage', makeVoyage, 384, 216, wideK, 'A computer', null, (t, W, H) => ({ day: (t / 60) % 1, names, clouds: clouds(t, W, H) }));
-  show('voyage', makeVoyage, 195, 422, 2, 'A phone', null, (t, W, H) => ({ day: 0.86, names, clouds: clouds(t, W, H) }));
   const t0 = performance.now();
   (function frame(now) { const t = (now - t0) / 1000; for (const { s, W, H, data } of scenes) s.draw(W, H, t, data ? data(t, W, H) : undefined); requestAnimationFrame(frame); })(t0);
 </script>

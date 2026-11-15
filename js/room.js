@@ -6,6 +6,7 @@
 
 import { makePix } from './pix.js';
 import { sleeping } from './ducks.js';
+import { drawEscalator } from './escalator.js';
 
 export function makeRoom(g) {
   const px = makePix(g), { R, P, ell, line, poly, text, textW } = px;
@@ -226,38 +227,13 @@ export function makeRoom(g) {
   // ---- the escalator, the light it goes up into, the rope ------------------------------------------------------------------
   // seen from the front left: the far balustrade behind, the steps (tread and riser, climbing), the golden side under them,
   // the near glass and its black handrail; it leaves the room into a glow, through the ceiling or the right wall
-  const D = [13, -9];                                                // from the near side to the far side
   function escalator(t) {
-    const { bx, by, tx, ty, slope } = L, rise = 5, run = rise * slope;
-    const at = (y) => [L.escX(y), y];
+    const { bx, by, tx, ty, slope } = L;
     // the opening it goes out by: the sky, bright
     const o = L.out;
     if (o.up) { R(o.x - 30, 0, L.W - o.x + 30, L.ceil + 1, '#9fd4f8'); ell(o.x - 6, 3, 7, 2, '#ffffff'); }
     else { R(L.W - 10, o.y - 60, 10, 70, '#9fd4f8'); ell(L.W - 3, o.y - 40, 6, 3, '#ffffff'); }
-    // the far balustrade and handrail, behind the steps
-    poly([[bx + D[0], by - 22 + D[1]], [tx + D[0], ty - 22 + D[1]], [tx + D[0], ty + D[1]], [bx + D[0], by + D[1]]], 'rgba(190,230,255,0.10)');
-    line(bx + D[0] - 2, by - 23 + D[1], tx + D[0], ty - 23 + D[1], '#2a1c0c', 2);
-    // the steps, climbing: each a tread (lit) and a riser (in shade), from the near side to the far side
-    const n = Math.ceil((by - ty) / rise) + 1, ph = (t * 0.9) % 1;
-    for (let i = n; i >= -1; i--) {
-      const y = by - (i + ph) * rise, x = L.escX(y);
-      if (y > by + 1 || y < ty - 4) continue;
-      poly([[x, y], [x + run, y], [x + run + D[0], y + D[1]], [x + D[0], y + D[1]]], '#f6d264');        // the tread
-      poly([[x, y], [x + D[0], y + D[1]], [x + D[0], y + D[1] + rise], [x, y + rise]], '#b8862a');      // the riser
-      line(x, y, x + run, y, '#fff0a8');                                                                 // its lit nose
-    }
-    // the near side under the steps: a golden truss, its rivets, its shadow edge
-    const u = rise + 1;                                             // the truss starts under the steps' lowest corners
-    poly([[bx + run, by + u], [tx + run, ty + u], [tx + run, ty + u + 16], [bx + run, by + u + 16]], '#c9952a');
-    poly([[bx + run, by + u + 11], [tx + run, ty + u + 11], [tx + run, ty + u + 16], [bx + run, by + u + 16]], '#8a5f18');
-    line(bx + run, by + u, tx + run, ty + u, '#ffe58a');
-    for (let y = by - 8; y > ty; y -= 14) P(L.escX(y) + run + 4, y + u + 7, '#ffe9a0');
-    // the near glass, the handrail, its round end at the bottom
-    poly([[bx - 2, by - 3], [tx - 2, ty - 3], [tx - 2, ty - 22], [bx - 2, by - 22]], 'rgba(200,236,255,0.16)');
-    line(bx - 2, by - 22, tx - 2, ty - 22, '#17100a', 3); line(bx - 2, by - 24, tx - 2, ty - 24, '#e8c25a');
-    ell(bx - 4, by - 15, 5, 7, '#17100a'); ell(bx - 4, by - 16, 3, 5, '#3a2a14');
-    // the landing plate on the floor
-    R(bx - 30, by + 1, 34, 5, '#b8b8c4'); for (let x = bx - 28; x < bx + 2; x += 3) R(x, by + 2, 1, 3, '#8a8a96');
+    drawEscalator(px, { bx, by, tx, ty, slope, t, bottom: true });
     // a sign on the wall by it: where it goes
     const sy = L.wide ? Math.min(L.deskT - 44, L.monTop - 22) : L.monTop - 66, sw = textW('JOBS THIS WAY') + 8, sx = Math.min(L.escX(sy + 16) - sw - 10, L.W - sw - 4);
     R(sx + 2, sy + 2, sw, 17, 'rgba(0,0,0,0.35)'); R(sx, sy, sw, 17, '#1b1f3a');

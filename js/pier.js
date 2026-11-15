@@ -1,188 +1,272 @@
-// THE CLOUD PIER (Vin, 15/11: «khi lên rồi thì phải có 1 cái bến, trước khi bắt đầu đi câu»): the escalator comes up out
-// of the sea of clouds onto a wooden pier, in the morning. On it: the harbour hut with its life ring and bell, a board of
-// the day's departures (the sky's own numbers: how many clouds, how many golden), a bait stall whose jars are the CV's own
-// skills, bunting, a gull in a captain's hat on the last post, a signpost, and the boat GOOD LUCK tied up, bobbing,
-// waiting. Laid out from the canvas's size, wide or tall.
+// THE CLOUD PIER (Vin, 15/11: «khi lên rồi thì phải có 1 cái bến, trước khi bắt đầu đi câu»; and of the first try,
+// «ẩu rồi, đã chốt làm 2.5D ... chất lượng kém xa lobby»): drawn as the office's escalator is, in an oblique view from the
+// front left and a little above, so each thing shows its front, its top and its right side. A wooden pier over a sea of
+// clouds in the early morning; the sun low at the back right lights the tops and the right sides and throws every shadow
+// forward and to the left. The golden escalator arrives at the front left corner. On the deck, at the back: the harbour
+// hut (its chimney smoking, a life ring, a bell, a box of flowers) and the departures board (the day's own numbers, on
+// split flaps); nearer: the bait stall, whose jars are the CV's skills; at the front: crates, bollards, a coil of rope, a
+// lantern, a signpost; tied up at the right end, the boat GOOD LUCK, its inside showing. A gull in a captain's hat.
 
 import { makePix, hash } from './pix.js';
 import { upright } from './ducks.js';
-import { drawBoat } from './boat.js';
+import { drawEscalator } from './escalator.js';
+
+const KX = 0.5, KY = 0.6;                                           // a step back into the picture: this far right, this far up
 
 export function makePier(g) {
-  const px = makePix(g), { R, P, ell, line, poly, text, textW, puff } = px;
+  const px = makePix(g), { R, P, ell, line, poly, text, textW } = px;
   const L = {};
+  const scratch = document.createElement('canvas').getContext('2d');   // where the shadows are gathered, unseen
 
+  // ---- the layout, in the pier's own measures: x along it, z back from its front edge, h up from its deck ------------------
   function layout(W, H) {
     const wide = W >= H;
     Object.assign(L, { W, H, wide });
-    L.hz = Math.round(H * (wide ? 0.58 : 0.40));                    // the top of the sea of clouds
-    L.deck = Math.round(H * (wide ? 0.61 : 0.43));                  // the deck's top, its back edge
-    L.depth = 8;
-    L.x0 = wide ? 44 : 30;                                          // where the escalator comes up
-    L.x1 = Math.round(W * (wide ? 0.78 : 0.86));                    // the end of the pier
-    L.hut = { x: L.x0 + (wide ? 28 : 22), w: 52, h: 44 };
-    if (wide) { L.board = { x: L.hut.x + 62, y: L.deck - 50, w: 84, h: 40 }; L.stall = { x: L.hut.x + 156, w: 54 }; }
-    else { L.board = { x: 8, y: L.deck - 104, w: 84, h: 40 }; L.stall = { x: L.hut.x + 62, w: 54 }; }
-    L.sign = wide ? L.x1 - 12 : null;
-    L.boat = wide ? { x: L.x1 + 6, y: L.deck + 20 } : { x: Math.round(W * 0.42), y: L.deck + 92 };
-    L.x1 = wide ? L.x1 : W + 6;                                     // on a phone the pier runs off the right edge
-    L.duck = { x: L.x0 + 10, y: L.deck + 5 };
+    if (wide) {
+      Object.assign(L, { hz: 92, yF: 172, Dz: 62, x0: 40, x1: 282 });
+      L.hut = { x: 54, z: 40, w: 58, d: 18, h: 30 };
+      L.board = { x: 108, z: 50, w: 90, lift: 36, bh: 38 };
+      L.stall = { x: 204, z: 20, w: 56, d: 14, h: 15 };
+      L.crates = { x: 92, z: 8 };
+      L.bollards = [[154, 3], [272, 3]];
+      L.lamp = { x: 182, z: 4 };
+      L.sign = { x: 278, z: 4 };
+      L.boat = { x: L.x1 + 18, y: L.yF + 20 };
+      L.duck = { x: 50, z: 10 };
+    } else {
+      Object.assign(L, { hz: 176, yF: 292, Dz: 84, x0: 14, x1: W + 30 });
+      L.hut = { x: 14, z: 60, w: 58, d: 18, h: 30 };
+      L.board = { x: 58, z: 74, w: 88, lift: 48, bh: 38 };
+      L.stall = { x: 100, z: 22, w: 56, d: 14, h: 15 };
+      L.crates = { x: 46, z: 8 };
+      L.bollards = [[96, 3], [168, 3]];
+      L.lamp = null;
+      L.sign = null;
+      L.boat = { x: 96, y: L.yF + 56 };
+      L.duck = { x: 24, z: 12 };
+    }
+    L.yB = L.yF - L.Dz * KY;                                         // the back edge, on the screen
+    L.duck.sx = L.duck.x + L.duck.z * KX; L.duck.sy = L.yF - L.duck.z * KY;
+    L.esc = { tx: L.x0 - 4, ty: L.yF - 1, slope: 0.84 };
+    L.esc.by = H + 30; L.esc.bx = L.esc.tx - (L.esc.by - L.esc.ty) * L.esc.slope;
     return L;
   }
+  const S = (x, z, h = 0) => [x + z * KX, L.yF - z * KY - h];          // a point of the pier, on the screen
+  const quad = (pts, col) => poly(pts.map(([x, z, h]) => S(x, z, h)), col);
 
-  // ---- the sky, the sun, the sea of clouds --------------------------------------------------------------------------
+  // a box standing on the deck: its right side and top lit by the sun at the back right, its front in shade
+  function box(x, z, w, d, h, { top, side, front, edge = 'rgba(40,20,10,0.6)', lift = 0 }) {
+    const a = lift, b = lift + h;
+    quad([[x + w, z, a], [x + w, z + d, a], [x + w, z + d, b], [x + w, z, b]], side);
+    const [fx, fy] = S(x, z, a);
+    R(fx, fy - h, w, h, front);
+    quad([[x, z, b], [x + w, z, b], [x + w, z + d, b], [x, z + d, b]], top);
+    line(fx, fy - h, fx + w - 1, fy - h, 'rgba(255,240,215,0.6)');       // the front top edge, catching the light
+    R(fx, fy - 1, w, 1, edge);
+    return [fx, fy];
+  }
+  // the shadow a thing throws on the deck: its footprint, and the footprint carried forward and left by its height
+  const shadows = [];
+  function shade(x, z, w, d, h) {
+    const ox = -h * 0.55, oz = -h * 0.42;
+    shadows.push([[x + w, z + d], [x, z + d], [x + ox, z + d + oz], [x + ox, z + oz], [x + w + ox, z + oz], [x + w, z]]);
+  }
+  function castShadows() {
+    g.save(); g.beginPath();
+    [[L.x0, 0], [L.x1, 0], [L.x1, L.Dz], [L.x0, L.Dz]].forEach(([x, z], i) => { const [sx, sy] = S(x, z); i ? g.lineTo(sx, sy) : g.moveTo(sx, sy); });
+    g.closePath(); g.clip();
+    for (const s of shadows) poly(s.map(([x, z]) => S(x, z)), 'rgba(80,44,44,0.28)');
+    g.restore();
+  }
+
+  // ---- the sky: morning, the sun low at the back right, its rays, high clouds, birds -----------------------------------------
   function sky(t) {
-    const { W, H, hz } = L;
-    const top = [79, 155, 224], low = [255, 217, 176];
-    for (let i = 0; i < 16; i++) {
-      const k = i / 15, col = top.map((v, j) => Math.round(v + (low[j] - v) * k * k));
-      R(0, (i * hz) / 16, W, hz / 16 + 1, `rgb(${col})`);
+    const { W, hz } = L, top = [86, 150, 220], low = [255, 214, 178];
+    for (let i = 0; i < 20; i++) {
+      const k = i / 19, c = top.map((v, j) => Math.round(v + (low[j] - v) * k ** 1.6));
+      R(0, (i * (hz + 8)) / 20, W, (hz + 8) / 20 + 1, `rgb(${c})`);
     }
-    // the sun, low and warm, rising behind the clouds
-    const sx = Math.round(W * 0.84), sy = hz - 6;
+    const sx = Math.round(W * (L.wide ? 0.86 : 0.8)), sy = Math.round(hz * 0.42);
+    L.sun = { x: sx, y: sy };
     g.globalCompositeOperation = 'lighter';
-    for (const [r, a] of [[46, 0.06], [30, 0.08], [18, 0.12]]) ell(sx, sy, r, r, `rgba(255,200,120,${a})`);
+    for (const [r, a] of [[60, 0.05], [38, 0.07], [22, 0.12]]) ell(sx, sy, r, r, `rgba(255,190,110,${a})`);
     g.globalCompositeOperation = 'source-over';
-    ell(sx, sy, 11, 11, '#fff3c4'); ell(sx, sy, 9, 9, '#fffbe6');
-    // high thin clouds, drifting
+    ell(sx, sy, 9, 9, '#fff1c0'); ell(sx - 1, sy - 1, 7, 7, '#fffbea');
     for (let i = 0; i < 5; i++) {
-      const x = ((hash(i) * W + t * (2 + i)) % (W + 60)) - 30, y = 12 + hash(i + 9) * hz * 0.4;
-      R(x, y, 24 + hash(i + 3) * 20, 1, 'rgba(255,255,255,0.55)'); R(x + 6, y + 2, 16 + hash(i + 4) * 14, 1, 'rgba(255,255,255,0.35)');
+      const x = ((hash(i) * (W + 80) + t * (1.5 + i * 0.4)) % (W + 80)) - 40, y = 10 + hash(i + 9) * hz * 0.45, w = 26 + hash(i + 3) * 28;
+      R(x, y, w, 2, 'rgba(255,255,255,0.65)'); R(x + 4, y + 2, w - 8, 1, 'rgba(255,214,170,0.7)'); R(x + 10, y - 1, w * 0.4, 1, 'rgba(255,255,255,0.4)');
     }
-    // birds, far off
-    for (let i = 0; i < 4; i++) {
-      const x = ((W * 0.3 + i * 9 + t * 6) % (W + 40)) - 20, y = hz * 0.32 + (i % 2) * 4 + Math.sin(t * 3 + i) * 1.5, f = Math.sin(t * 8 + i) > 0;
-      P(x - 2, y - (f ? 1 : 0), '#3a3a5a'); P(x - 1, y, '#3a3a5a'); P(x, y + 1, '#3a3a5a'); P(x + 1, y, '#3a3a5a'); P(x + 2, y - (f ? 1 : 0), '#3a3a5a');
+    for (let i = 0; i < 5; i++) {
+      const x = ((W * 0.28 + i * 8 + t * 5) % (W + 40)) - 20, y = hz * 0.3 + (i % 2) * 4 + Math.sin(t * 2 + i) * 1.5, f = Math.sin(t * 7 + i * 1.3) > 0;
+      P(x - 2, y - (f ? 1 : 0), '#4a4a6a'); P(x - 1, y, '#4a4a6a'); P(x, y + 1, '#4a4a6a'); P(x + 1, y, '#4a4a6a'); P(x + 2, y - (f ? 1 : 0), '#4a4a6a');
     }
   }
-  function sea(layer, t) {                                         // three rows of cloud tops, the far ones pink with the sun
+  function rays() {
+    const { x, y } = L.sun;
+    g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 5; i++) {
+      const a = 2.2 + i * 0.16, len = L.H * 1.4, w = 0.03 + (i % 2) * 0.02;
+      poly([[x, y], [x + Math.cos(a - w) * len, y + Math.sin(a - w) * len], [x + Math.cos(a + w) * len, y + Math.sin(a + w) * len]], 'rgba(255,214,150,0.045)');
+    }
+    g.globalCompositeOperation = 'source-over';
+  }
+
+  // ---- the sea of clouds ------------------------------------------------------------------------------------------------------
+  function cloud(cx, cy, r, near) {                                  // a lump of cloud: a lit top right, a shaded belly
+    const top = near ? '#fffaf0' : '#fbe3e0', mid = near ? '#f1f3fb' : '#f0d4d8', low = near ? '#cdd3ec' : '#dcc0cc', deep = near ? '#aeb6dc' : '#c8aec0';
+    ell(cx, cy + r * 0.35, r * 1.05, r * 0.55, deep);
+    ell(cx, cy + r * 0.2, r, r * 0.6, low);
+    ell(cx - r * 0.25, cy - r * 0.1, r * 0.8, r * 0.55, mid);
+    ell(cx + r * 0.3, cy - r * 0.35, r * 0.6, r * 0.45, mid);
+    ell(cx + r * 0.35, cy - r * 0.45, r * 0.42, r * 0.28, top);
+    ell(cx - r * 0.2, cy - r * 0.25, r * 0.45, r * 0.25, top);
+  }
+  function farSea(t) {
     const { W, H, hz } = L;
-    const rows = [[hz - 2, 16, '#f9dcd2', '#ecbfb8', 2], [hz + 10, 20, '#ffffff', '#e2e8f4', 4], [H - 4, 22, '#ffffff', '#d8e2f0', 7], [Math.round((hz + H) / 2 + 12), 13, '#f6f9ff', '#d4def0', 5]];
-    const [y, r, top, under, speed] = rows[layer];
-    if (layer === 0) R(0, hz + 4, W, H - hz, '#f2d6d6');
-    if (layer === 1) R(0, hz + 14, W, H - hz, '#eef2fa');
-    const step = layer === 3 ? r * 4.2 : r * 1.3;
-    for (let i = -1; i < W / step + 2; i++) {
-      const x = i * step - ((t * speed) % step) + (layer === 3 ? hash(i) * r * 2 : 0), wob = hash(i + layer * 50) * 6;
-      puff(x, y + wob, r + hash(i + layer * 70) * 6, top, under);
-      if (layer === 3) puff(x + r * 1.6, y + wob + 4, Math.round(r * 0.7), top, under);
+    R(0, hz, W, H - hz, '#f3dfe4');
+    for (let row = 0; row < 4; row++) {
+      const y = hz + 2 + row * 8, r = 5 + row * 3, step = r * 2.2;
+      for (let i = -1; i < W / step + 2; i++) cloud(i * step - ((t * (0.6 + row * 0.5)) % step) + hash(i + row * 30) * 4, y + hash(i + row * 60) * 3, r + hash(i + row * 90) * 2, row > 1);
     }
-    if (layer === 2) R(0, H - 3, W, 3, '#ffffff');
+    R(0, hz - 1, W, 2, 'rgba(255,236,220,0.8)');
   }
-  function gaps(t) {                                                 // holes in the clouds: the city, far below, in the haze
-    const { W, H, deck } = L, ys = L.wide ? [H - 20] : [deck + 150, deck + 196];
-    ys.forEach((gy, n) => {
-      const base = (L.wide ? W * 0.56 : W * (0.3 + n * 0.4)) + 60, gx = ((((base - t * 3) % (W + 120)) + W + 120) % (W + 120)) - 60, rx = L.wide ? 46 : 34, ry = L.wide ? 8 : 9;
-      g.save(); g.beginPath(); g.ellipse(Math.round(gx), gy, rx, ry, 0, 0, Math.PI * 2); g.clip();
-      R(gx - rx, gy - ry, rx * 2, ry * 2, '#9dbbd8');
-      for (let i = 0; i < 16; i++) {
-        const bx = gx - rx + i * 6 + hash(i + n * 20) * 3, bh = 3 + hash(i + 40 + n) * 8;
-        R(bx, gy + ry - bh, 4, bh, '#6f8cae'); if (hash(i + 7) > 0.5) P(bx + 1, gy + ry - bh + 2, '#ffe6a0');
+  function nearBase(t) {                                             // under the pier: the cloud floor, its shadow, a gap to the city
+    const { W, H, yF } = L, y0 = yF + 6;
+    R(0, y0, W, H - y0, '#e8ecf8');
+    poly([[L.x0 - 10, yF + 6], [L.x1, yF + 6], [L.x1 - 34, yF + 32], [L.x0 - 44, yF + 32]], 'rgba(120,128,180,0.30)');
+    const gx = ((W * 0.5 - t * 2.5) % (W + 140) + W + 140) % (W + 140) - 70, gy = L.wide ? H - 18 : yF + 120, rx = L.wide ? 40 : 34, ry = 8;
+    g.save(); g.beginPath(); g.ellipse(Math.round(gx), gy, rx, ry, 0, 0, Math.PI * 2); g.clip();
+    R(gx - rx, gy - ry, rx * 2, ry * 2, '#a3bcd8');
+    for (let i = 0; i < 16; i++) { const bx = gx - rx + i * 5.5, bh = 3 + hash(i + 40) * 9; R(bx, gy + ry - bh, 4, bh, '#7891b2'); R(bx + 3, gy + ry - bh, 1, bh, '#6a83a6'); if (hash(i + 7) > 0.5) P(bx + 1, gy + ry - bh + 2, '#fff0c0'); }
+    R(gx - rx, gy - ry, rx * 2, 4, 'rgba(240,244,252,0.55)');
+    g.restore();
+    for (let k = -rx; k <= rx; k += 8) cloud(gx + k, gy - ry - 2 + (Math.abs(k) / rx) * 4, 5, true);
+  }
+  function nearLumps(t) {
+    const { W, H, yF } = L;
+    const rows = L.wide ? [[yF + 16, 9], [yF + 34, 12], [H + 2, 15]] : [[yF + 22, 9], [yF + 70, 12], [yF + 150, 14], [H - 4, 17]];
+    rows.forEach(([y, r], row) => {
+      const step = r * 2.6;
+      for (let i = -1; i < W / step + 2; i++) {
+        const x = i * step - ((t * (1.2 + row)) % step) + hash(i + row * 40) * 6;
+        if (row === 0 && x > L.x0 - 20 && x < L.x1 + 10) continue;          // right under the pier: only its shadow
+        cloud(x, y + hash(i + row * 70) * 4, r + hash(i + row * 50) * 4, true);
       }
-      R(gx - rx, gy - ry, rx * 2, 3, 'rgba(255,255,255,0.45)');
-      g.restore();
-      for (let k = -rx; k <= rx; k += 9) puff(gx + k, gy - ry - 1 + Math.abs(k) / rx * 3, 6, '#ffffff', '#dfe6f2');
     });
   }
 
-  // ---- the escalator's top, coming up out of the clouds ---------------------------------------------------------------
-  function escalatorTop(t) {
-    const { x0, deck } = L, slope = 0.84, by = L.H + 20, bx = x0 - (by - deck) * slope;
-    const D = [13, -9], rise = 5, run = rise * slope, escX = (y) => bx + (by - y) * slope;
-    for (let i = Math.ceil((by - deck) / rise); i >= 0; i--) {
-      const y = by - (i + (t * 0.9) % 1) * rise, x = escX(y);
-      if (y < deck) continue;
-      poly([[x, y], [x + run, y], [x + run + D[0], y + D[1]], [x + D[0], y + D[1]]], '#f6d264');
-      poly([[x, y], [x + D[0], y + D[1]], [x + D[0], y + D[1] + rise], [x, y + rise]], '#b8862a');
+  // ---- the pier itself ---------------------------------------------------------------------------------------------------------
+  function deck() {
+    const { x0, x1, Dz } = L;
+    // its right end: the thickness of the deck, lit
+    quad([[x1, 0, 0], [x1, Dz, 0], [x1, Dz, -6], [x1, 0, -6]], '#a8784a');
+    // the boards, across the pier, running back into the picture
+    for (let x = x0, i = 0; x < x1; x += 5, i++) {
+      const w = Math.min(4, x1 - x);
+      quad([[x, 0], [x + w, 0], [x + w, Dz], [x, Dz]], ['#c99a68', '#c29260', '#cd9f6e', '#be8f5c'][i % 4]);
+      if (x + 5 < x1) { const [a, b] = S(x + 4, 0), [c, d] = S(x + 4, Dz); line(a, b, c, d, '#8a6038'); }   // the gap between two boards
+      const jz = 6 + ((i * 17) % (Dz - 12)), [jx, jy] = S(x, jz); R(jx, jy, 4, 1, '#9a6c40');                  // where a board ends
+      for (const nz of [3, Dz / 2, Dz - 3]) { const [nx, ny] = S(x + 1, nz); P(nx, ny, '#6a4628'); }            // nails, over the joists
+      if (hash(i + 21) > 0.6) { const [gx, gy] = S(x + 4, hash(i + 8) * Dz); P(gx, gy, '#eef2fa'); P(gx + 1, gy - 1, '#eef2fa'); }   // the clouds below, through a gap
+      if (hash(i) > 0.78) { const [kx, ky] = S(x + 2, hash(i + 3) * Dz); ell(kx, ky, 1, 1, '#a87848'); }        // a knot
     }
-    poly([[bx + run, by + 6], [x0 + run, deck + 6], [x0 + run, deck + 22], [bx + run, by + 22]], '#c9952a');
-    line(bx + run, by + 6, x0 + run, deck + 6, '#ffe58a');
-    line(bx - 2, by - 22, x0 - 2, deck - 22, '#17100a', 3); line(bx - 2, by - 24, x0 - 2, deck - 24, '#e8c25a');
-    ell(x0, deck - 18, 5, 6, '#17100a'); ell(x0, deck - 19, 3, 4, '#3a2a14');                       // the rail's round end at the top
-    R(x0 - 4, deck, 24, 3, '#c8c8d4'); for (let x = x0 - 2; x < x0 + 20; x += 3) P(x, deck + 1, '#8a8a96');
+    const [bx0, by0] = S(x0, Dz), [bx1] = S(x1, Dz);
+    R(bx0, by0, bx1 - bx0, 1, '#e8bc8a');                                     // the far edge, catching the sun
+  }
+  function railing() {                                                         // along the back edge: posts, a sagging rope
+    const { x0, x1, Dz } = L;
+    for (let x = x0 + 4; x < x1; x += 26) {
+      const [sx, sy] = S(x, Dz);
+      R(sx, sy - 12, 3, 12, '#6a4628'); R(sx + 2, sy - 12, 1, 12, '#a07048'); R(sx, sy - 13, 3, 1, '#b88a5a');
+      if (x + 26 < x1) for (let k = 0; k <= 26; k++) P(sx + 2 + k, sy - 10 + Math.round(Math.sin((Math.PI * k) / 26) * 3), '#d8c094');
+    }
+  }
+  function frontBeam() {
+    const { x0, x1, yF } = L, w = x1 - x0;
+    R(x0, yF, w, 6, '#7a5232'); R(x0, yF, w, 1, '#b88a5a'); R(x0, yF + 5, w, 1, '#4a3020');
+    for (let x = x0 + 10; x < x1; x += 40) { P(x, yF + 2, '#e0c080'); P(x + 2, yF + 2, '#e0c080'); }
+  }
+  function piles() {
+    const { x0, x1, yF } = L, len = L.wide ? 34 : 50;
+    for (let x = x0 + 14; x < x1 - 4; x += 40) {
+      R(x, yF + 6, 7, len, '#5a3a22'); R(x + 5, yF + 6, 2, len, '#8a6040'); R(x + 1, yF + 6, 1, len, '#4a2e18');
+      if (x + 40 < x1 - 4) { line(x + 7, yF + 8, x + 40, yF + len * 0.7, '#4a3020', 2); line(x + 7, yF + len * 0.7, x + 40, yF + 8, '#4a3020', 2); }
+    }
   }
 
-  // ---- the pier ----------------------------------------------------------------------------------------------------------
-  function pier() {
-    const { x0, x1, deck, depth } = L;
-    // the posts down into the clouds
-    for (let x = x0 + 18; x <= x1; x += 30) { R(x, deck + depth, 5, 40, '#5a3a22'); R(x, deck + depth, 1, 40, '#7a5232'); }
-    // the deck: planks seen from above, then its front edge
-    R(x0, deck, x1 - x0 + 6, depth, '#b07c4a');
-    for (let x = x0, i = 0; x < x1 + 6; x += 6, i++) { R(x, deck, 1, depth, '#8a5e36'); if (hash(i) > 0.6) R(x + 1, deck + 1, 5, depth - 2, '#bb8856'); }
-    for (let x = x0 + 4; x < x1; x += 13) P(x, deck + 2, '#6a4628');                                // the nails
-    R(x0, deck, x1 - x0 + 6, 1, '#d0a06a');
-    R(x0, deck + depth, x1 - x0 + 6, 4, '#7a5232'); R(x0, deck + depth + 4, x1 - x0 + 6, 1, '#4a3020');
-  }
-  function railing(t) {                                              // posts and rope along the back edge, lanterns on some
-    const { x0, x1, deck } = L, y = deck + 1;
-    const posts = [];
-    for (let x = x0 + 22; x <= x1; x += 30) posts.push(x);
-    posts.forEach((x, i) => {
-      R(x, y - 13, 3, 13, '#6a4628'); R(x, y - 13, 3, 1, '#8a6040');
-      if (i < posts.length - 1) for (let k = 0; k <= 30; k++) P(x + 1 + k, y - 11 + Math.round(Math.sin(Math.PI * k / 30) * 3), '#c9b48a');
-      if (i % 2 === 1) { const sw = Math.sin(t * 2 + i) * 1; R(x - 1 + sw, y - 20, 5, 6, '#e8643a'); R(x + sw, y - 19, 3, 4, '#ffb070'); R(x + 1, y - 22, 1, 2, '#3a2a1a'); }
-    });
-  }
+  // ---- the things on the deck ---------------------------------------------------------------------------------------------------
   function hut(t) {
-    const { x, w, h } = L.hut, y = L.deck + 4;
-    R(x + 3, y - 1, w + 4, 3, 'rgba(60,30,10,0.35)');                                                 // its shadow
-    R(x, y - h, w, h, '#c8955a');
-    for (let yy = y - h + 4; yy < y; yy += 4) R(x, yy, w, 1, '#a87840');                              // its boards
-    R(x, y - h, 2, h, '#e0b07a');                                                                      // the sun on its edge
-    poly([[x - 6, y - h], [x + w + 6, y - h], [x + w - 4, y - h - 14], [x + 4, y - h - 14]], '#8a3a2a');   // the roof
-    for (let yy = y - h - 12; yy < y - h; yy += 3) R(x - 4, yy, w + 8, 1, '#702c20');
-    R(x - 6, y - h, w + 12, 2, '#5a2018');
-    const bw = textW('CLOUD PIER') + 8;                                                               // its name board
-    R(x + w / 2 - bw / 2, y - h - 24, bw, 10, '#f1ead6'); R(x + w / 2 - bw / 2, y - h - 24, bw, 1, '#8a6040');
-    text('CLOUD PIER', x + w / 2 - bw / 2 + 4, y - h - 22, '#2a4a8a');
-    R(x + 8, y - 22, 12, 22, '#7a4a2a'); R(x + 17, y - 12, 2, 2, '#ffd84a');                          // the door, its handle
-    R(x + 26, y - h + 10, 18, 14, '#4a3020'); R(x + 27, y - h + 11, 16, 12, '#8fd0f0');               // the window
-    R(x + 34, y - h + 11, 1, 12, '#4a3020'); R(x + 27, y - h + 16, 16, 1, '#4a3020');
-    R(x + 25, y - h + 24, 20, 2, '#a87840');                                                          // its sill, a flower pot
-    R(x + 30, y - h + 20, 5, 4, '#b5562f'); P(x + 31, y - h + 18, '#e8643a'); P(x + 33, y - h + 19, '#ffd84a'); P(x + 32, y - h + 17, '#5ab07a');
-    const rx = x + w - 6, ry = y - 16;                                                                // the life ring
-    ell(rx, ry, 6, 6, '#f1ead6'); ell(rx, ry, 3, 3, '#c8955a');
-    for (const [dx, dy] of [[-5, 0], [5, 0], [0, -5], [0, 5]]) R(rx + dx - 1, ry + dy - 1, 3, 3, '#d03a2a');
-    const bs = Math.sin(t * 1.5) * 0.8;                                                               // the bell, under the eaves
-    R(x - 2, y - h - 1, 1, 4, '#5a3a22'); poly([[x - 5 + bs, y - h + 3], [x + 2 + bs, y - h + 3], [x + 1 + bs, y - h + 8], [x - 4 + bs, y - h + 8]], '#e8c25a');
+    const { x, z, w, d, h } = L.hut, rh = 14;
+    shade(x, z, w + 14, d, h + rh);
+    const [fx, fy] = box(x, z, w, d, h, { top: '#d8e8f2', side: '#d0e2ee', front: '#a8c6da' });
+    // the side wall's boards, the front wall's boards
+    for (let k = 3; k < h; k += 4) { quad([[x + w, z, k], [x + w, z + d, k], [x + w, z + d, k + 1], [x + w, z, k + 1]], '#b4ccdc'); R(fx, fy - k, w, 1, '#94b4ca'); }
+    R(fx, fy - h, 2, h, '#e8f2f8'); R(fx + w - 2, fy - h, 2, h, '#e8f2f8'); R(fx, fy - 2, w, 2, '#6a8aa2');
+    // on the front: the door and its step, the window with shutters and a box of flowers, a plaque, a life ring
+    R(fx + 6, fy - 22, 13, 22, '#5a3220'); R(fx + 7, fy - 21, 11, 21, '#7a4a2a'); R(fx + 8, fy - 19, 9, 8, '#8a5a32'); R(fx + 8, fy - 9, 9, 8, '#8a5a32');
+    R(fx + 15, fy - 12, 2, 2, '#ffd84a');
+    box(x + 5, z - 4, 15, 4, 2, { top: '#d0a070', side: '#a87848', front: '#9a6a3e' });
+    R(fx + 26, fy - 26, 18, 13, '#4a3020'); R(fx + 27, fy - 25, 16, 11, '#8ec8e6'); R(fx + 27, fy - 25, 6, 3, '#d8f0fc');
+    R(fx + 34, fy - 25, 1, 11, '#4a3020'); R(fx + 27, fy - 20, 16, 1, '#4a3020');
+    R(fx + 23, fy - 26, 3, 13, '#2f5a7a'); R(fx + 44, fy - 26, 3, 13, '#2f5a7a');
+    R(fx + 25, fy - 12, 20, 4, '#8a5a32'); R(fx + 25, fy - 12, 20, 1, '#a87040');
+    for (let i = 0; i < 6; i++) { P(fx + 26 + i * 3, fy - 14, ['#e8643a', '#ffd84a', '#e88aa0'][i % 3]); P(fx + 27 + i * 3, fy - 13, '#5ab07a'); }
+    R(fx + 6, fy - h + 3, textW('HARBOUR') + 4, 7, '#fff8ea'); text('HARBOUR', fx + 8, fy - h + 4, '#2a4a6a');
+    const rx = fx + w - 7, ry = fy - h + 9;
+    ell(rx, ry, 5, 5, '#f4efe2'); ell(rx, ry, 2, 2, '#a8c6da');
+    for (const [dx, dy] of [[-4, 0], [4, 0], [0, -4], [0, 4]]) R(rx + dx - 1, ry + dy - 1, 3, 3, '#d03a2a');
+    // the roof: a gable along the hut, the slope toward us in shade, the gable end lit; eaves overhanging
+    const o = 3;
+    quad([[x - o, z - o, h], [x + w + o, z - o, h], [x + w + o, z + d / 2, h + rh], [x - o, z + d / 2, h + rh]], '#8a3a2a');
+    for (let k = 1; k < 5; k++) { const f = k / 5; quad([[x - o, z - o + (d / 2 + o) * f, h + rh * f], [x + w + o, z - o + (d / 2 + o) * f, h + rh * f], [x + w + o, z - o + (d / 2 + o) * f + 0.6, h + rh * f + 0.6], [x - o, z - o + (d / 2 + o) * f + 0.6, h + rh * f + 0.6]], '#6e2c20'); }
+    quad([[x + w + o, z - o, h], [x + w + o, z + d + o, h], [x + w + o, z + d / 2, h + rh]], '#e8f2f8');      // the gable end
+    quad([[x + w + o, z - o, h], [x + w + o, z + d / 2, h + rh], [x + w + o + 1, z + d / 2, h + rh], [x + w + o + 1, z - o, h]], '#5a2018');
+    { const [a, b] = S(x - o, z + d / 2, h + rh), [c] = S(x + w + o, z + d / 2, h + rh); R(a, b, c - a, 1, '#d2785a'); }   // the ridge, lit
+    { const [a, b] = S(x - o, z - o, h), [c] = S(x + w + o, z - o, h); R(a, b, c - a, 2, '#5a2018'); }            // the eaves' shadow line
+    // the chimney at the back, smoking
+    box(x + w - 16, z + d / 2 + 2, 7, 5, rh / 2 + 8, { top: '#4a2a20', side: '#b06a54', front: '#8a4a3a', lift: h + rh / 2 });
+    const [cx, cy] = S(x + w - 12, z + d / 2 + 4, h + rh + 6);
+    for (let i = 0; i < 5; i++) { const k = (t * 0.35 + i / 5) % 1; ell(cx - k * 22, cy - 3 - k * 20, 1 + k * 3, 1 + k * 2, `rgba(244,244,250,${(0.75 * (1 - k)).toFixed(2)})`); }
+    // the name board on the ridge
+    const [nx, ny] = S(x + w / 2 - 22, z + d / 2, h + rh), bw = textW('CLOUD PIER') + 8;
+    R(nx + 3, ny - 2, 1, 3, '#5a3a22'); R(nx + bw - 4, ny - 2, 1, 3, '#5a3a22');
+    R(nx, ny - 12, bw, 10, '#fff8ea'); R(nx, ny - 3, bw, 1, '#c8b890'); R(nx + bw, ny - 12, 1, 10, '#d8ccb0');
+    text('CLOUD PIER', nx + 4, ny - 9, '#2a4a8a');
+    // the bell at the front corner, swinging a little
+    const s = Math.sin(t * 1.4) * 0.8;
+    R(fx - 4, fy - h + 1, 5, 1, '#5a3a22'); R(fx - 3, fy - h + 2, 1, 2, '#5a3a22');
+    poly([[fx - 6 + s, fy - h + 4], [fx + s, fy - h + 4], [fx - 1 + s, fy - h + 9], [fx - 5 + s, fy - h + 9]], '#e8c25a'); P(fx - 3 + s, fy - h + 10, '#8a6a20');
+    // a barrel beside it
+    barrel(x + w + 6, z + 2);
   }
-  function board(nums) {                                             // the day's departures: the sky's own numbers
-    const { x, y, w, h } = L.board;
-    R(x + 8, y + h, 3, L.deck + 4 - y - h, '#5a3a22'); R(x + w - 11, y + h, 3, L.deck + 4 - y - h, '#5a3a22');
-    R(x + 2, y + 2, w, h, 'rgba(40,20,10,0.3)');
-    R(x, y, w, h, '#1b1f3a'); R(x, y, w, 1, '#d9a63a'); R(x, y + h - 1, w, 1, '#d9a63a'); R(x, y, 1, h, '#d9a63a'); R(x + w - 1, y, 1, h, '#d9a63a');
-    text('DEPARTURES', x + 4, y + 3, '#fff8e7'); R(x + 3, y + 9, w - 6, 1, '#3a3f6a');
-    nums.forEach(([name, n, state], i) => {
-      const yy = y + 12 + i * 8;
-      R(x + 3, yy - 1, w - 6, 7, i % 2 ? '#20254a' : '#1b1f3a');
-      text(name, x + 4, yy, '#ffd84a'); text(String(n), x + 46 - textW(String(n)), yy, '#ffd84a');
-      text(state, x + w - 4 - textW(state), yy, state === 'BOARDING' ? '#7fe0a0' : '#c9d0ff');
+  function barrel(x, z) {
+    shade(x, z, 10, 8, 13);
+    const [bx, by] = S(x, z);
+    R(bx, by - 13, 10, 13, '#9a6a3e'); R(bx + 7, by - 13, 3, 13, '#c08a56'); R(bx, by - 10, 10, 1, '#5a5a6a'); R(bx, by - 3, 10, 1, '#5a5a6a');
+    ell(bx + 5, by - 14, 5, 2, '#c49464'); ell(bx + 5, by - 14, 3, 1, '#8a5a32');
+  }
+  function board(nums, t) {                                                   // the departures, on split flaps, on two posts
+    const { x, z, w, lift, bh } = L.board;
+    shade(x + 6, z, w - 12, 3, lift + bh);
+    for (const p0 of [x + 8, x + w - 12]) box(p0, z, 4, 3, lift + 2, { top: '#8a6040', side: '#8a6040', front: '#5a3a22' });
+    const [fx, fy] = S(x, z, lift);
+    quad([[x + w, z, lift], [x + w, z + 4, lift], [x + w, z + 4, lift + bh], [x + w, z, lift + bh]], '#6a4a2a');   // its edge, lit
+    quad([[x - 1, z, lift + bh], [x + w, z, lift + bh], [x + w, z + 4, lift + bh], [x - 1, z + 4, lift + bh]], '#a07448');   // its top
+    const top = fy - bh;
+    R(fx, top, w, bh, '#14182e'); R(fx, top, w, 1, '#d9a63a'); R(fx, top + bh - 1, w, 1, '#8a6a20'); R(fx, top, 1, bh, '#d9a63a'); R(fx + w - 1, top, 1, bh, '#b8862a');
+    text('DEPARTURES', fx + 4, top + 3, '#fff8e7');
+    const clock = `07:${String(12 + (Math.floor(t / 6) % 48)).padStart(2, '0')}`;
+    text(clock, fx + w - 4 - textW(clock), top + 3, '#ffd84a');
+    nums.slice(0, 3).forEach(([name, n, state], i) => {
+      const yy = top + 11 + i * 8;
+      for (let cx = fx + 3; cx < fx + w - 4; cx += 4) { R(cx, yy - 1, 3, 7, '#232846'); R(cx, yy + 2, 3, 1, '#14182e'); }
+      text(name, fx + 4, yy, '#ffd84a'); text(String(n), fx + 48 - textW(String(n)), yy, '#ffd84a');
+      text(state, fx + w - 4 - textW(state), yy, state === 'BOARDING' ? '#7fe0a0' : '#c9d0ff');
     });
   }
-  function stall(skills, t) {                                        // bait and tackle: the CV's own skills, in jars
-    const x = L.stall.x, w = L.stall.w, y = L.deck + 4;
-    R(x + 3, y - 1, w + 2, 3, 'rgba(60,30,10,0.35)');
-    R(x, y - 16, w, 16, '#8a5a32'); R(x, y - 16, w, 2, '#a87040'); R(x + 2, y - 12, w - 4, 1, '#6a4224');   // the counter
-    R(x + 1, y - 40, 2, 24, '#6a4628'); R(x + w - 3, y - 40, 2, 24, '#6a4628');                            // its poles
-    for (let i = 0; i < 6; i++) R(x - 3 + i * (w + 6) / 6, y - 44, (w + 6) / 6, 6, i % 2 ? '#f1ead6' : '#d03a2a');   // the awning
-    for (let i = 0; i < 6; i++) ell(x - 3 + (i + 0.5) * (w + 6) / 6, y - 38, 3, 1, i % 2 ? '#f1ead6' : '#d03a2a');
-    const sw = textW('BAIT') + 6; R(x + w / 2 - sw / 2, y - 53, sw, 9, '#f1ead6'); text('BAIT', x + w / 2 - sw / 2 + 3, y - 51, '#d03a2a');
-    const cols = ['#e8a040', '#7fb0e0', '#a0d070', '#d080c0', '#e0d060'];
-    const used = new Set();
-    skills.slice(0, 4).forEach((k, i) => {                          // a jar for each skill, its label, its lid
-      const jx = x + 2 + i * 13, jy = y - 27;
-      R(jx, jy, 12, 11, 'rgba(200,236,255,0.55)'); R(jx + 1, jy + 4, 10, 7, cols[i]); R(jx, jy - 2, 12, 2, '#5a5a6a');
-      R(jx + 1, jy + 1, 1, 3, 'rgba(255,255,255,0.7)');
-      const lab = short(k, used); R(jx, jy + 4, 12, 7, '#f1ead6'); text(lab, jx + 6 - textW(lab) / 2, jy + 5, '#3a2a1a');
-    });
-    const wx = x + 8, wob = Math.sin(t * 4) * 1;                    // a worm, out of the first jar, looking about
-    line(wx, y - 28, wx + 1 + wob, y - 33, '#e88a8a', 2); P(wx + 1 + wob, y - 34, '#1b1f3a');
-  }
-  // a skill in three letters, as people write it (ML, SQL, AWS); two the same, the second by its own letters
   const SHORT = { python: 'PY', pytorch: 'PT', tensorflow: 'TF', javascript: 'JS', typescript: 'TS', 'machine learning': 'ML',
     'deep learning': 'DL', llms: 'LLM', llm: 'LLM', nlp: 'NLP', 'computer vision': 'CV', kubernetes: 'K8S', docker: 'DKR', react: 'RCT', golang: 'GO', go: 'GO' };
-  function short(k, used) {
+  function short(k, used) {                                                   // a skill in three letters, as people write it
     const w = k.toLowerCase(), words = w.split(/\s+/);
     for (const c of [SHORT[w], words.length > 1 ? words.map((x) => x[0]).join('').slice(0, 3) : w.slice(0, 3), w[0] + w.slice(-2)]) {
       const u = (c || '').toUpperCase().replace(/[^A-Z0-9+#]/g, '');
@@ -190,36 +274,115 @@ export function makePier(g) {
     }
     return '?';
   }
-  function bunting(t) {                                              // little flags from the hut's roof to the awning
-    const ax = L.hut.x + L.hut.w + 4, ay = L.deck + 4 - L.hut.h - 6, bx = L.stall.x, by = L.deck + 4 - 42;
-    if (bx - ax < 20) return;
-    const cols = ['#d03a2a', '#ffd84a', '#3a7be0', '#5ab07a', '#f1ead6'];
-    for (let i = 0; i <= 40; i++) { const k = i / 40; P(ax + (bx - ax) * k, ay + (by - ay) * k + Math.sin(Math.PI * k) * 8, '#5a4a3a'); }
-    for (let i = 1; i < 9; i++) {
-      const k = i / 9, fx = ax + (bx - ax) * k, fy = ay + (by - ay) * k + Math.sin(Math.PI * k) * 8, s = Math.sin(t * 3 + i) * 0.6;
-      poly([[fx - 2, fy], [fx + 2, fy], [fx + s, fy + 5]], cols[i % 5]);
-    }
+  function stall(skills, t) {                                                 // bait and tackle: jars of the CV's own skills
+    const { x, z, w, d, h } = L.stall, ah = h + 22;
+    shade(x, z, w, d, ah + 6);
+    for (const p0 of [x + 1, x + w - 3]) box(p0, z + d - 2, 2, 2, ah + 6, { top: '#9a7048', side: '#9a7048', front: '#6a4628' });   // the back poles
+    const [fx, fy] = box(x, z, w, d, h, { top: '#c08a52', side: '#a87444', front: '#7a4e2c' });
+    for (let i = 0; i < 3; i++) R(fx + 3, fy - h + 4 + i * 4, w - 6, 1, '#5a3820');
+    R(fx + w / 2 - 9, fy - h + 3, 18, 7, '#f4efe2'); text('FREE', fx + w / 2 - 7, fy - h + 4, '#d03a2a');   // the price
+    const used = new Set(), cols = ['#e8a040', '#7fb0e0', '#a0d070', '#d080c0'];
+    skills.slice(0, 4).forEach((k, i) => {                                   // the jars standing on the counter
+      const [jx, jb] = S(x + 2 + i * 13, z + 4, h);
+      R(jx, jb - 11, 11, 11, 'rgba(214,240,255,0.7)'); R(jx + 1, jb - 7, 9, 7, cols[i]); R(jx + 9, jb - 11, 2, 11, 'rgba(255,255,255,0.5)');
+      ell(jx + 5, jb - 12, 5, 1, '#6a6a7a'); R(jx + 2, jb - 12, 7, 1, '#a0a0b0');
+      const lab = short(k, used); R(jx + 1, jb - 7, 9, 6, '#f4efe2'); text(lab, jx + 6 - textW(lab) / 2, jb - 7, '#3a2a1a');
+    });
+    const [wx, wy] = S(x + 6, z + 4, h + 11), wob = Math.sin(t * 4);           // a worm out of the first jar, looking about
+    line(wx, wy, wx + 1 + wob, wy - 5, '#e88a8a', 2); P(wx + 1 + wob, wy - 6, '#1b1f3a');
+    // the awning, sloping down toward us, red and white
+    const n = 7, a = (w + 6) / n;
+    for (let i = 0; i < n; i++) quad([[x - 3 + i * a, z - 4, ah], [x - 3 + (i + 1) * a, z - 4, ah], [x - 3 + (i + 1) * a, z + d, ah + 8], [x - 3 + i * a, z + d, ah + 8]], i % 2 ? '#f4efe2' : '#d03a2a');
+    quad([[x + w + 3, z - 4, ah], [x + w + 3, z + d, ah + 8], [x + w + 3, z + d, ah + 6], [x + w + 3, z - 4, ah - 2]], '#a82a20');
+    for (let i = 0; i < n; i++) { const [vx, vy] = S(x - 3 + (i + 0.5) * a, z - 4, ah); ell(vx, vy + 1, Math.floor(a / 2), 1, i % 2 ? '#e0dccf' : '#a82a20'); }
+    const [sx0, sy0] = S(x + w / 2, z + d, ah + 9), sw = textW('BAIT & TACKLE') + 6;
+    R(sx0 - sw / 2, sy0 - 9, sw, 8, '#f4efe2'); R(sx0 - sw / 2, sy0 - 2, sw, 1, '#c8b890'); text('BAIT & TACKLE', sx0 - sw / 2 + 3, sy0 - 7, '#d03a2a');
+    // a net hung on its side, a rod leaning on its front
+    const [nx, ny] = S(x + w, z + 2, ah - 2);
+    for (let i = 0; i < 4; i++) { line(nx + 1, ny + i * 3, nx + 6, ny + 2 + i * 3, '#c8b890'); line(nx + 2 + i, ny - 1, nx + 2 + i, ny + 10, '#c8b890'); }
+    const [rx, ry] = S(x - 3, z, 0); line(rx, ry, rx - 6, ry - ah - 4, '#5a3a1a');
+  }
+  function crates() {                                                         // two crates: HOPE, and a CV's thirteenth draft
+    const { x, z } = L.crates;
+    shade(x, z, 18, 14, 24);
+    const [fx, fy] = box(x, z, 18, 14, 13, { top: '#d8aa70', side: '#b88a50', front: '#a07038' });
+    R(fx + 1, fy - 9, 16, 1, '#7a5030'); R(fx + 1, fy - 5, 16, 1, '#7a5030');
+    text('HOPE', fx + 2, fy - 11, '#4a2010');
+    const [gx, gy] = box(x + 2, z + 2, 14, 10, 10, { top: '#e0b47a', side: '#c09658', front: '#a87c40', lift: 13 });
+    text('CV13', gx, gy - 8, '#4a2010');
+  }
+  function bollard(x, z) {
+    shade(x - 3, z, 7, 5, 9);
+    const [bx, by] = S(x, z);
+    R(bx - 3, by - 8, 7, 8, '#3a3a48'); R(bx + 2, by - 8, 2, 8, '#7a7a8a'); ell(bx, by - 9, 4, 2, '#4a4a5a'); ell(bx + 1, by - 10, 2, 1, '#9a9aaa');
+  }
+  function coil(x, z) {
+    const [cx, cy] = S(x, z);
+    for (const [r, c] of [[6, '#a88a58'], [5, '#d8bc88'], [4, '#b89a68'], [3, '#e0c898'], [2, '#a08a60']]) ell(cx, cy, r, Math.max(1, Math.round(r / 2.4)), c);
+  }
+  function lamp() {
+    if (!L.lamp) return;
+    const { x, z } = L.lamp, c = px.ctx;
+    shade(x - 1, z, 3, 3, 34);
+    const [bx, by] = S(x, z);
+    R(bx - 2, by - 2, 6, 2, '#3a3a48'); R(bx, by - 30, 2, 30, '#3a3a48'); R(bx + 1, by - 30, 1, 30, '#8a8a9a');
+    R(bx - 3, by - 38, 8, 8, '#3a3a48'); R(bx - 2, by - 37, 6, 6, '#ffe2a0'); R(bx + 2, by - 37, 2, 6, '#fff4d0'); R(bx - 4, by - 39, 10, 1, '#3a3a48'); P(bx + 1, by - 41, '#3a3a48');
+    c.globalCompositeOperation = 'lighter'; ell(bx + 1, by - 34, 6, 5, 'rgba(255,200,100,0.10)'); c.globalCompositeOperation = 'source-over';
   }
   function signpost() {
     if (!L.sign) return;
-    const x = L.sign, y = L.deck + 4;
-    R(x, y - 34, 3, 34, '#6a4628');
-    poly([[x - 4, y - 32], [x + 32, y - 32], [x + 36, y - 28], [x + 32, y - 24], [x - 4, y - 24]], '#e0c08a'); text('FISHING', x - 1, y - 30, '#3a2a1a');
+    const { x, z } = L.sign;
+    shade(x, z, 3, 3, 36);
+    const [bx, by] = S(x, z);
+    R(bx, by - 36, 3, 36, '#6a4628'); R(bx + 2, by - 36, 1, 36, '#a07048');
+    const arrow = (y, dir, word, c) => {
+      const w = textW(word) + 8, x0 = dir > 0 ? bx - 3 : bx + 6 - w;
+      poly(dir > 0 ? [[x0, y], [x0 + w, y], [x0 + w + 4, y + 4], [x0 + w, y + 8], [x0, y + 8]] : [[x0 + w, y], [x0, y], [x0 - 4, y + 4], [x0, y + 8], [x0 + w, y + 8]], c);
+      R(x0, y, w, 1, '#f8e8c0'); R(x0, y + 8, w, 1, '#7a5a30');
+      text(word, x0 + 4, y + 2, '#3a2a1a');
+    };
+    arrow(by - 35, 1, 'FISHING', '#e8c890');
   }
-  function gull(x, y, t) {                                           // a gull on the last post, in a captain's hat
-    R(x - 2, y, 7, 3, '#5a3a22');
-    const b = Math.round(Math.sin(t * 1.3) * 0.5);
-    ell(x + 1, y - 5 + b, 5, 4, '#f4f4f4'); ell(x + 2, y - 4 + b, 4, 2, '#b8c0cc');
-    ell(x + 4, y - 10 + b, 3, 3, '#f4f4f4'); R(x + 7, y - 10 + b, 3, 1, '#f0b030'); P(x + 5, y - 11 + b, '#1b1f3a');
-    R(x + 1, y - 15 + b, 7, 2, '#1b2a5a'); R(x + 2, y - 17 + b, 5, 2, '#1b2a5a'); R(x + 1, y - 14 + b, 8, 1, '#f4f4f4'); P(x + 4, y - 16 + b, '#ffd84a');
-    R(x, y - 1, 1, 2, '#f0b030'); R(x + 3, y - 1, 1, 2, '#f0b030');
+  function gull(x, z, t) {                                                    // a gull on the bollard, in a captain's hat
+    const [gx, gy0] = S(x, z), y = gy0 - 10, b = Math.round(Math.sin(t * 1.3) * 0.5), look = Math.sin(t * 0.4) > 0.6 ? -1 : 1;
+    ell(gx + 1, y - 5 + b, 5, 4, '#f6f6f8'); ell(gx + 2, y - 4 + b, 4, 2, '#b8c0cc'); R(gx - 4, y - 5 + b, 3, 2, '#3a3a48');
+    ell(gx + 3, y - 10 + b, 3, 3, '#f6f6f8');
+    if (look > 0) { R(gx + 6, y - 10 + b, 3, 1, '#f0b030'); P(gx + 4, y - 11 + b, '#1b1f3a'); } else { R(gx - 2, y - 10 + b, 3, 1, '#f0b030'); P(gx + 1, y - 11 + b, '#1b1f3a'); }
+    R(gx, y - 15 + b, 7, 2, '#1b2a5a'); R(gx + 1, y - 17 + b, 5, 2, '#1b2a5a'); R(gx, y - 14 + b, 8, 1, '#f4f4f4'); P(gx + 3, y - 16 + b, '#ffd84a');
+    R(gx, y - 1, 1, 2, '#f0b030'); R(gx + 3, y - 1, 1, 2, '#f0b030');
   }
-  function boat(t) {                                                 // the GOOD LUCK, tied up, bobbing
-    const { x, y } = L.boat, b = Math.round(Math.sin(t * 1.6) * 1.2), yy = y + b, w = 62;
-    // the mooring rope to the last post
-    const px0 = L.wide ? L.x1 + 2 : L.x1 - 20, py0 = L.deck + 2;
-    for (let i = 0; i <= 20; i++) { const k = i / 20; P(px0 + (x + 6 - px0) * k, py0 + (yy - 6 - py0) * k + Math.sin(Math.PI * k) * 4, '#c9b48a'); }
-    drawBoat(px, x, y, t);
+  // the boat GOOD LUCK, tied up in front of the pier's end, seen from above so its inside shows
+  function boat(t) {
+    const { x, y } = L.boat, bob = Math.round(Math.sin(t * 1.6) * 1.2), yy = y + bob, w = 66, inD = 12;
+    const [rx0, ry0] = S(...L.bollards[1]);                                    // the rope from the bollard to its bow
+    for (let i = 0; i <= 24; i++) { const k = i / 24; P(rx0 + (x + 6 - rx0) * k, ry0 - 6 + (yy - 8 - ry0 + 6) * k + Math.sin(Math.PI * k) * 5, '#e0c896'); }
+    ell(x + w / 2 - 6, y + 9, w / 2, 3, 'rgba(110,118,170,0.35)');
+    for (let i = 0; i < 4; i++) ell(x - 2 + i * 22, yy + 6, 6, 1, 'rgba(255,255,255,0.8)');
+    poly([[x + 3, yy - 10], [x + w - 3, yy - 10], [x + w - 8, yy - 10 - inD], [x + 10, yy - 10 - inD]], '#6a4224');
+    poly([[x + 6, yy - 10], [x + w - 6, yy - 10], [x + w - 10, yy - 6 - inD], [x + 12, yy - 6 - inD]], '#9a6a3e');
+    for (let k = 0; k < 3; k++) R(x + 12 - k, yy - 18 + k * 3, w - 22 + k * 2, 1, '#7a5030');
+    R(x + 34, yy - 21, 4, 11, '#b88552'); R(x + 34, yy - 21, 4, 1, '#d8aa78');
+    R(x + 14, yy - 22, 9, 8, '#9aa0b0'); ell(x + 18, yy - 22, 4, 1, '#c8ccd8'); R(x + 16, yy - 22, 5, 1, '#5a6070');
+    for (let i = 0; i < 4; i++) line(x + 25 + i * 2, yy - 13, x + 27 + i * 2, yy - 19, '#c8b888');
+    R(x + 40, yy - 52, 2, 40, '#6a4628'); R(x + 41, yy - 52, 1, 40, '#9a7048');
+    const fl = Math.sin(t * 5) * 1.5; poly([[x + 42, yy - 52], [x + 56, yy - 49 + fl], [x + 42, yy - 46]], '#ffd84a'); line(x + 42, yy - 46, x + 56, yy - 49 + fl, '#e0b020');
+    R(x + 43, yy - 38, 5, 6, '#e8643a'); R(x + 44, yy - 37, 3, 4, '#ffd27a'); R(x + 42, yy - 39, 6, 1, '#3a2a1a');
+    line(x + 54, yy - 12, x + 70, yy - 36, '#5a3a1a'); P(x + 70, yy - 37, '#e03a3a');
+    poly([[x, yy - 10], [x + w, yy - 10], [x + w - 8, yy + 5], [x + 8, yy + 5]], '#7e5230');
+    R(x - 2, yy - 12, w + 4, 3, '#c08a52'); R(x - 2, yy - 12, w + 4, 1, '#ecc08a');
+    for (let i = 0; i < 3; i++) R(x + 3 + i * 2, yy - 6 + i * 4, w - 6 - i * 4, 1, '#5e3c20');
+    R(x + w - 10, yy - 9, 6, 13, 'rgba(255,230,190,0.18)');
+    text('GOOD LUCK', x + w / 2 - textW('GOOD LUCK') / 2 - 4, yy - 7, '#fff8e7');
+    ell(x + w - 12, yy - 3, 4, 4, '#f4efe2'); ell(x + w - 12, yy - 3, 2, 2, '#7e5230'); R(x + w - 16, yy - 4, 2, 2, '#d03a2a'); R(x + w - 10, yy - 4, 2, 2, '#d03a2a');
+  }
+
+  // ---- the light over it all: warm from the low sun, cooler toward us ----------------------------------------------------------
+  function grade() {
+    const { W, H } = L;
+    g.globalCompositeOperation = 'lighter';
+    ell(L.sun.x, L.sun.y + H * 0.25, W * 0.5, H * 0.45, 'rgba(40,24,8,0.10)');
+    g.globalCompositeOperation = 'source-over';
+    for (let i = 0; i < 6; i++) R(0, H - (i + 1) * 6, W, 6, `rgba(70,80,150,${(0.02 * (6 - i)).toFixed(3)})`);
   }
 
   // ---- the whole pier -------------------------------------------------------------------------------------------------------
@@ -227,14 +390,23 @@ export function makePier(g) {
     px.use(g);
     const nums = data.board || [['LONDON', 69, 'ON TIME'], ['REMOTE', 12, 'ON TIME'], ['GOLDEN', 2, 'BOARDING']];
     const skills = data.skills || ['python', 'sql', 'pytorch', 'aws'];
-    sky(t); sea(0, t); sea(1, t); gaps(t); sea(3, t);
-    escalatorTop(t);
-    pier(); railing(t);
+    const items = [                                                       // what stands on the deck, by how far back it is
+      [L.board.z, L.board.x, () => board(nums, t)], [L.hut.z, L.hut.x, () => hut(t)], [L.stall.z, L.stall.x, () => stall(skills, t)],
+      [L.crates.z, L.crates.x, crates], ...L.bollards.map(([x, z]) => [z, x, () => bollard(x, z)]),
+      [2, L.bollards[0][0] + 12, () => coil(L.bollards[0][0] + 12, 2)],
+      ...(L.lamp ? [[L.lamp.z, L.lamp.x, lamp]] : []), ...(L.sign ? [[L.sign.z, L.sign.x, signpost]] : []),
+      [L.duck.z, L.duck.x, () => { shade(L.duck.x - 8, L.duck.z - 3, 16, 6, 22); const [dx, dy] = S(L.duck.x, L.duck.z); upright(px, dx, dy, { blink: (t % 4) > 3.85 }); }],
+    ].sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+    shadows.length = 0; scratch.canvas.width = W; scratch.canvas.height = H;
+    const keep = px.use(scratch); items.forEach(([, , f]) => f()); px.use(keep);   // a dry run, to gather every shadow
+    sky(t); farSea(t); rays();
+    railing(); deck(); castShadows(); shadows.length = 0;
+    items.forEach(([, , f]) => f());
+    gull(...L.bollards[1], t);
+    nearBase(t); piles(); frontBeam(); nearLumps(t);
     boat(t);
-    hut(t); bunting(t); board(nums); stall(skills, t); signpost();
-    gull(L.wide ? L.x1 + 2 : L.x1 - 4, L.deck - 2, t);
-    upright(px, L.duck.x, L.duck.y, { blink: (t % 4) > 3.85 });
-    sea(2, t);
+    drawEscalator(px, { bx: L.esc.bx, by: L.esc.by, tx: L.esc.tx, ty: L.esc.ty, slope: L.esc.slope, t, bottom: false, top: true });
+    grade();
   }
   return { layout, draw, L };
 }
