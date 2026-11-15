@@ -313,7 +313,9 @@ vật nào vịt nói về vật đó (ly, điện thoại, bảng thư, cây, l
 **Cần Vin chọn:** A phong cách (pixel 2.5D / 3D thật / vẽ mịn); B tiếng của thoại; C âm thanh; D mức đùa và tên công ty
 trên thư từ chối; E thang cuốn trước khi có CV; F trước khi dựng, một ảnh tĩnh để duyệt.
 
-**Quyết định:** (chờ Vin)
+**Quyết định (Vin, 15/11: «làm theo bạn đề xuất đi»):** A pixel 2.5D; B thoại tiếng Anh; C có âm thanh, mặc định tắt,
+có nút bật; D thư từ chối chỉ tên công ty bịa; E thang cuốn có sẵn, dây nhung «CV required» hạ khi nạp CV; F vẽ ảnh
+tĩnh trước để duyệt, rồi mới làm chuyển động và thoại.
 
 ---
 
