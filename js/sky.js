@@ -35,6 +35,7 @@ export function fitOf(jobSkills, mine) {
 const sizeOf = (s) => (s == null ? 'unread' : s >= 85 ? 'gold' : s >= 70 ? 'big' : s >= 50 ? 'medium' : 'small');
 const RADIUS = { gold: 13, big: 12, medium: 10, small: 8, unread: 9 };
 
+const PRESS = matchMedia('(pointer: coarse)').matches ? 'Tap' : 'Click';      // a phone's finger, a computer's mouse
 export function makeSky(g, dims, toCss, goHome) {
   const S = { on: false, t: 0, day: 0, over: false, lake: [], clouds: [], caught: [], cast: null, said: '', loaded: false,
     holding: false, bait: '', auto: false, netReady: 0 };
@@ -59,7 +60,7 @@ export function makeSky(g, dims, toCss, goHome) {
       S.lake = jobs.map((j) => { const fit = fitOf(j.skills, mine); return { ...j, fit, size: sizeOf(fit) }; })
         .sort((a, b) => (b.fit ?? -1) - (a.fit ?? -1) || b.posted - a.posted);
       S.loaded = true;
-      say(S.lake.length ? `${S.lake.length} clouds for you today. Click one to cast.` : 'No new jobs for you in the sky today. Come back tomorrow.');
+      say(S.lake.length ? `${S.lake.length} clouds for you today. ${PRESS} one to cast.` : 'No new jobs for you in the sky today. Come back tomorrow.');
       city_(jobs);
     } catch (e) { say(`The sky could not be read (${e.message}).`); }
   }
@@ -80,8 +81,11 @@ export function makeSky(g, dims, toCss, goHome) {
   }
   function lay() {
     const box = $('signs'); box.replaceChildren();
-    const n = Math.max(1, CITY.length), w = (W - 8) / n;
-    CITY.forEach((b, i) => {
+    // as many roofs as their names have room for: a phone's narrow city has fewer, wider buildings
+    const room = toCss(W, 0).x - toCss(0, 0).x, shown = CITY.slice(0, Math.max(3, Math.floor(room / 78)));
+    const n = Math.max(1, shown.length), w = (W - 8) / n;
+    for (const b of CITY) b.w = 0;
+    shown.forEach((b, i) => {
       b.x = 4 + i * w; b.w = Math.max(10, w - 3); b.h = 18 + ((i * 37) % 22); b.y = H - b.h;
       const s = document.createElement('span'); s.className = 'sign' + (b.real ? '' : ' decor'); s.textContent = b.n;
       const p = toCss(b.x + b.w / 2, b.y - 1); s.style.left = `${p.x}px`; s.style.top = `${p.y}px`;
@@ -160,7 +164,7 @@ export function makeSky(g, dims, toCss, goHome) {
       k.age += dt;
       if (k.phase === 'fly' && k.age >= k.fly) {
         if (k.hit && S.clouds.includes(k.hit)) { k.phase = 'bite'; k.age = 0; }
-        else { say('Missed: no cloud there. Click right on one.'); S.cast = null; }
+        else { say(`Missed: no cloud there. ${PRESS} right on one.`); S.cast = null; }
       } else if (k.phase === 'bite' && k.age >= 0.7) {
         k.from = { x: k.hit.x, y: k.hit.y }; k.age = 0;
         if (PULL[k.hit.job.size]) { k.phase = 'fight'; k.prog = 0; k.ten = 0.25; k.pull = 0; k.next = 0.5; say('It fights! Hold to reel in, let go when the line goes red.'); }
@@ -230,7 +234,7 @@ export function makeSky(g, dims, toCss, goHome) {
     // far clouds
     for (let i = 0; i < 6; i++) blob(((i * 71 + S.t * 3) % (W + 40)) - 20, 20 + (i * 23) % (H * 0.4), 5, 'rgba(255,255,255,0.35)');
     // the city below
-    for (const b of CITY) { R(b.x, b.y, b.w, b.h, b.real ? '#5b6b8c' : '#7b86a0'); for (let y = b.y + 3; y < H - 2; y += 4) for (let x = b.x + 2; x < b.x + b.w - 2; x += 4) R(x, y, 2, 2, (x * y) % 7 ? '#ffe6a0' : '#4a5878'); }
+    for (const b of CITY) if (b.w) { R(b.x, b.y, b.w, b.h, b.real ? '#5b6b8c' : '#7b86a0'); for (let y = b.y + 3; y < H - 2; y += 4) for (let x = b.x + 2; x < b.x + b.w - 2; x += 4) R(x, y, 2, 2, (x * y) % 7 ? '#ffe6a0' : '#4a5878'); }
     // the boat's own cloud, the boat, the duck, the rod
     const bt = boat(); blob(bt.x + 16, bt.y + 6, 15, '#ffffff');
     R(bt.x + 2, bt.y - 4 + Math.sin(S.t * 1.5), 30, 5, '#8a5a32'); R(bt.x + 4, bt.y + 1 + Math.sin(S.t * 1.5), 26, 2, '#6a4224');

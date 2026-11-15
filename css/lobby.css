@@ -8,13 +8,15 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--night); color: var(--paper); font-family: var(--ui); }
-body { display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+body { display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+  -webkit-tap-highlight-color: transparent; overscroll-behavior: none; padding-bottom: 28px; }   /* the footer's line, kept clear */
 
 /* the scene fills the window, drawn small and scaled up so each pixel stays sharp */
 #stage { position: relative; }
-#scene { display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: default; touch-action: manipulation; }
+#scene { display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: default; touch-action: none;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }   /* a finger held to reel scrolls, zooms, selects nothing */
 #scene.over-duck { cursor: pointer; }
-footer { position: fixed; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 12px; opacity: .45; letter-spacing: .04em; }
+footer { position: fixed; bottom: max(8px, env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; font-size: 12px; opacity: .45; letter-spacing: .04em; }
 footer a { color: inherit; }
 
 /* the words on the computer's screen, placed by lobby.js over the drawn screen */
@@ -66,7 +68,7 @@ footer a { color: inherit; }
 .own button { margin-top: 0; padding: 8px 12px; }
 .tick { display: flex; align-items: center; gap: 6px; margin: 10px 0 0; font: 15px system-ui, sans-serif; }
 /* the corner: who is signed in, and the ways back to the questions */
-.corner { position: fixed; top: 10px; right: 12px; display: flex; gap: 8px; align-items: center; }
+.corner { position: fixed; top: max(10px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); display: flex; gap: 8px; align-items: center; }
 .corner button { font: 600 14px var(--ui); background: var(--paper); color: var(--ink); border: 2px solid var(--edge);
   border-radius: 3px; padding: 6px 10px; cursor: pointer; box-shadow: 0 3px 0 var(--edge); }
 .corner button[hidden], .corner span[hidden] { display: none; }
@@ -78,7 +80,7 @@ footer a { color: inherit; }
   border-radius: 3px; box-shadow: 0 3px 0 var(--edge); cursor: pointer; margin-top: 8px; }
 
 /* the sky's head-up display, the names on the roofs, the card of a cloud caught */
-.skyhud { position: fixed; top: 10px; left: 12px; right: 140px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.skyhud { position: fixed; top: max(10px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: 104px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .skyhud[hidden] { display: none; }
 .chip { font: 600 14px var(--ui); background: var(--paper); color: var(--ink); border: 2px solid var(--edge); border-radius: 3px; padding: 5px 9px; box-shadow: 0 3px 0 var(--edge); }
 .skyhud .said { font: 14px system-ui, sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
@@ -115,4 +117,20 @@ button.chip, select.chip { cursor: pointer; }
 .acts a { background: var(--yellow); }
 .away { font: 13px system-ui, sans-serif; color: #6a5a40; margin-top: 8px; }
 .report .go { align-self: flex-start; }
-@media (max-width: 560px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) {                                   /* the four numbers stay one row on a phone */
+  .stats { gap: 5px; } .stats div { padding: 4px 2px; } .stats b { font-size: 17px; } .stats span { font-size: 11px; line-height: 1.15; display: block; } }
+
+/* in the sky the corner keeps only the Bucket: the CV and the sign-in are the office's */
+body.insky #mycv, body.insky #signin, body.insky #who { display: none; }
+select.chip { max-width: 11em; text-overflow: ellipsis; }
+/* a phone: 16px in a field (smaller, and the phone zooms in on it), the chips a size down, no email in the corner */
+.sheet input, .sheet textarea, .sheet.postcard input { font-size: 16px; }
+@media (max-width: 560px) {
+  .chip, .corner button { font-size: 13px; padding: 4px 7px; }
+  .skyhud { gap: 6px; right: 88px; }
+  .corner { gap: 6px; }
+  .corner span { display: none; }
+  .card, .panel.report { padding: 14px; }
+  .card h1 { font-size: 21px; }
+  .acts a, .acts button { padding: 7px 9px; }                 /* a finger's size */
+}

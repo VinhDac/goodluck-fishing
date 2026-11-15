@@ -278,6 +278,16 @@ Thử 15/11: 69 mây cho AI/ML ở London hoặc remote, quăng, kéo, thẻ vi�
   («email rate limit exceeded»). Cần: Vin lưu Site URL https://vinhdac.github.io/goodluck-fishing/ và Redirect URLs;
   thử lại; đổi câu báo lỗi cho dễ hiểu; khi có người chơi thật, nối dịch vụ gửi thư riêng (vd. Resend).
 
+## 11. Bước 6: điện thoại và đưa lên mạng (15/11)
+
+- Trên điện thoại: chạm thay cho bấm (chữ đổi theo: «Tap the duck», «Tap one to cast», «Your CV, please»); giữ ngón tay
+  để kéo không cuộn, không phóng to, không chọn chữ; trên trời góc phải chỉ còn Bucket; tên công ty trên mái nhà không
+  chồng nhau (màn hẹp ít nhà hơn, nhà rộng hơn); ô nhập 16px để điện thoại không tự phóng to; tránh tai thỏ (safe area);
+  bốn con số của tờ báo cáo một hàng. Thử ở 375x812 dọc, 812x375 ngang và máy tính.
+- Đưa lên mạng: biểu tượng vịt vàng (tab, màn hình chính), «Add to Home Screen» mở toàn màn hình
+  (`manifest.webmanifest`), thẻ chia sẻ 1200x630 khi dán link lên LinkedIn hay X (`img/card.png`), README cho repo.
+  Tất cả vẽ từ chính con vịt của game bằng `tools/icons.py`.
+
 ---
 
 ## Nhật ký bàn bạc

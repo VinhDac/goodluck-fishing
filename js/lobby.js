@@ -13,6 +13,7 @@ import { openReport } from './report.js';
 const cv = document.getElementById('scene');
 const g = cv.getContext('2d');
 const $ = (id) => document.getElementById(id);
+if (matchMedia('(pointer: coarse)').matches) $('hint').textContent = 'Tap the duck';
 
 // ---- the stage: a small canvas shaped like the window ------------------------------------------------------------------
 let W = 320, H = 180, K = 1;
@@ -65,7 +66,7 @@ function step(dt) {
     S.a += dt;
     if (S.a > ASCEND.rise && Math.random() < dt * 18) S.sparks.push({ x: duckAt().x + 10 + (Math.random() - 0.5) * 16, y: duckAt().y + 8, age: 0 });
     if (S.a >= ASCEND.white) {
-      S.mode = 'gone'; $('hint').hidden = true; $('screen').hidden = true; sky.start();
+      S.mode = 'gone'; $('hint').hidden = true; $('screen').hidden = true; document.body.classList.add('insky'); sky.start();
       // the bait: the CV's own skills
       $('baitSel').replaceChildren(new Option('Bait: any', ''), ...sky.baits().map((k) => new Option(`Bait: ${k}`, k)));
     }
@@ -171,7 +172,7 @@ cv.addEventListener('pointerdown', (e) => {
 });
 // the sky (step 4): it takes the canvas once the duck is up; its card's button goes on fishing, or, at sunset, home
 const toCss = (x, y) => { const r = cv.getBoundingClientRect(), st = $('stage').getBoundingClientRect(); return { x: r.left - st.left + x * K, y: r.top - st.top + y * K }; };
-function goHome() { sky.S.on = false; sky.S.over = false; $('skyHud').hidden = true; $('signs').replaceChildren(); S.mode = 'sleep'; S.sparks = []; $('hint').hidden = false; $('screen').hidden = false; }
+function goHome() { document.body.classList.remove('insky'); sky.S.on = false; sky.S.over = false; $('skyHud').hidden = true; $('signs').replaceChildren(); S.mode = 'sleep'; S.sparks = []; $('hint').hidden = false; $('screen').hidden = false; }
 sky = makeSky(g, () => ({ W, H }), toCss, goHome);
 addEventListener('pointerup', () => { if (sky && sky.S.on) sky.up(); });
 addEventListener('pointercancel', () => { if (sky && sky.S.on) sky.up(); });

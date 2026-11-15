@@ -76,6 +76,7 @@ export function begin(done) {
   };
   // a PDF dropped anywhere on the scene, or chosen, or the words pasted
   const stage = $('stage');
+  if (matchMedia('(pointer: coarse)').matches) { $('paper').querySelector('h2').textContent = 'Your CV, please'; $('paper').querySelector('p').textContent = 'A PDF. It is read on this phone and never sent anywhere.'; }
   stage.ondragover = (e) => e.preventDefault();
   stage.ondrop = (e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) take(() => fileText(f)); };
   $('cvFile').onchange = () => { const f = $('cvFile').files[0]; if (f) take(() => fileText(f)); };
