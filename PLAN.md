@@ -332,6 +332,47 @@ liên tục để tạo cảm giác nó đang đi»)
 
 **Quyết định:** (chờ Vin xem trang thử)
 
+## 14. Cách chơi, bàn lại cho thật (Vin, 15/11: «như 1 game câu cá thật sự có căn lực và bắt cá ... mỗi ngày vào 1 lần
+để lấy danh sách công việc ... 10 phút ... có được thứ họ muốn ... mọi thứ matching với nhau ... bàn với tôi trước»)
+
+**Người chơi muốn gì (đọc từ nỗi khổ của người tìm việc):**
+1. Mỗi ngày một danh sách ngắn việc MỚI, ĐÚNG mình, không trùng hôm qua; biết vì sao hợp (CV nói gì, việc đòi gì).
+2. Xong trong 10 phút, không phải lục 5 trang web.
+3. Vui thật, nhưng chơi dở không bị mất việc tốt: trò chơi quyết thứ tự và niềm vui, không quyết quyền có danh sách.
+4. Thấy mình đang tiến lên (đã nộp bao nhiêu, chuỗi ngày), được động viên chứ không bị nhắc khổ.
+5. Từ danh sách đi thẳng tới nộp, và đánh dấu được.
+
+**Luật vàng:** mỗi đồ vật trong game là một thứ thật của cuộc tìm việc; mỗi con số trong cảnh là số thật.
+
+**Một ngày (10 phút):** văn phòng (30 giây: số hôm qua, cây, lịch) → bến mây (1 phút: bảng giờ khởi hành = số việc mới hôm
+nay, chọn mồi, chọn lưỡi câu, lên thuyền) → đi câu (khoảng 7 phút = một ngày từ sáng tới hoàng hôn, hoặc tới khi hết mây)
+→ về bến lúc hoàng hôn (1 đến 2 phút: thùng cá = danh sách, mỗi việc Open, I applied, Expired, Not for me) → vịt về văn phòng.
+
+**Câu (theo mục 3 đã chốt, làm cho thật):** ngắm và giữ chuột để lấy lực (thanh lực, thả ra là quăng, xa gần theo lực,
+hướng theo chuột) → phao chạm mây, chờ cắn (mây rung, dấu «!») → bấm kịp để móc → kéo co: giữ để cuốn, thả để nhả, giữ
+kim lực căng trong vùng xanh; mây càng hợp càng to, càng khoẻ, giật từng cơn → lên cá: thẻ việc (chức danh, công ty, nơi,
+đăng bao lâu, % hợp, CV có gì, việc còn đòi gì) với hai nút: «Keep» (vào thùng) và «Throw back» (= Not for me).
+
+**Không bao giờ phạt:** đứt dây hay sổng thì mây bay đi rồi quay lại sau trong ngày; lúc hoàng hôn, mây vàng nào chưa câu
+được thì «trôi dạt vào bến», vào thùng với dấu «chưa xem»; mây thường chưa câu thì để mai (còn trong 30 ngày).
+
+**Đồ vật = thứ thật:**
+- Văn phòng: màn hình = số đơn đã nộp và số phản hồi; lịch = số ngày tìm việc; bảng thư từ chối = việc Expired và Not
+  for me; chồng hồ sơ trên bàn = việc trong thùng chưa xử lý; ly cà phê = số ngày chơi tuần này; cây tươi khi chơi đều,
+  héo khi bỏ ngày.
+- Bến: bảng DEPARTURES = số mây hôm nay theo nơi làm, số mây vàng; lọ mồi = kỹ năng trong CV (chọn một: mây đòi kỹ năng đó
+  bay tới trước, cắn dễ hơn); lưỡi câu nhỏ, vừa, to = ngưỡng % hợp (lưỡi to chỉ móc được mây to); mòng biển thuyền trưởng
+  = người hướng dẫn, nói mẹo; thùng trên thuyền = danh sách hôm nay.
+- Đi câu: cỡ mây = % hợp; mây vàng = từ ngưỡng của mình trở lên; viền sáng = đăng trong 24 giờ; mây xám nhạt = đăng đã lâu;
+  lưới = một lần mỗi ngày, vớt cả đám mây nhỏ; máy bay NOW HIRING thả một chai thư = một việc ngoài chức danh của mình
+  mà CV vẫn hợp (khám phá); giờ vàng (phút cuối) mây vàng nổi lên; nút «tự câu» cho hôm bận, cho cùng danh sách.
+- Phần thưởng chỉ để ngắm: chuỗi ngày cho cờ thuyền, mũ cho vịt, mũ cho mòng biển; không bao giờ đổi kết quả.
+
+**Cần Vin chọn:** A độ khó kéo co; B lúc nào hết buổi; C mây chưa câu; D quyết giữ hay bỏ lúc lên cá; E lưỡi câu là ngưỡng
+% hợp; F có tính «phản hồi» (người chơi tự bấm «Got a reply») để màn hình văn phòng có số thật.
+
+**Quyết định:** (chờ Vin)
+
 ---
 
 ## Nhật ký bàn bạc
