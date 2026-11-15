@@ -598,6 +598,10 @@ quan trọng nhất, làm lại cẩn thận; (4) mọi thứ phụ (nút, hiể
 (BAG); D máy dò cá thành một dòng tiến độ; E ba chuyện cười mới (dấu CLOSED, thư ngả vàng, mòng biển bưu tá); F giờ chỉ bằng
 mặt trời, không số; G AUTO bật sẵn.
 
+**Quyết định (Vin, 15/11: «đồng ý theo đề xuất của bạn, làm bước 1 đi»):** cả bảy mục như đề xuất: A thư hợp hơn bay cao
+hơn, gần vịt; B bỏ mồi, lưỡi, lưới; C túi thư (BAG); D một dòng tiến độ; E dấu CLOSED, thư ngả vàng, mòng biển bưu tá; F giờ
+bằng mặt trời; G AUTO bật sẵn. Bước 1: trang chuyển động riêng.
+
 ---
 
 ## Nhật ký bàn bạc

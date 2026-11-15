@@ -8,7 +8,8 @@ const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
 let box = load();
 const keep = () => { try { localStorage.setItem(KEY, JSON.stringify(box)); } catch (e) { /* a private window: this visit alone */ } };
 const today = () => new Date().toLocaleDateString('en-CA');
-const slim = (j) => ({ id: j.id, company: j.company, title: j.title, place: j.place, url: j.url, posted: j.posted, fit: j.fit, size: j.size });
+const slim = (j) => ({ id: j.id, company: j.company, title: j.title, place: j.place, url: j.url, posted: j.posted, fit: j.fit, size: j.size,
+  skills: j.skills ? (Array.isArray(j.skills) ? j.skills : Object.keys(j.skills)) : undefined });   // the skill names alone, for the report's search
 
 export const all = () => Object.values(box);
 export const has = (id) => !!box[id];

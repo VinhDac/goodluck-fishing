@@ -146,7 +146,10 @@ export function makeFishing({ onCard, onSay, onSunset, onDone, onCheck }) {
     if (k && k.phase === 'fight') { F.holding = true; return; }
     if (!k) { if (inLake(p)) cast(p); return; }
     if (k.phase === 'wait' || k.phase === 'sink' || k.phase === 'come') {
-      if (Math.hypot(p.x - k.bait.x, p.y - k.bait.y) > 40 && inLake(p)) { k.phase = 'back'; k.age = 0; k.next = p; return; }   // fish elsewhere
+      if (Math.hypot(p.x - k.bait.x, p.y - k.bait.y) > 40 && inLake(p)) {                 // fish elsewhere: a fish coming is let go
+        if (k.suitor) { k.suitor.state = 'swim'; retarget(k.suitor); k.suitor = null; }
+        k.phase = 'back'; k.age = 0; k.next = p; return;
+      }
       F.holding = true;                                              // held: reel the bait back up; a tap: a twitch of the bait
     }
   }
@@ -178,7 +181,7 @@ export function makeFishing({ onCard, onSay, onSunset, onDone, onCheck }) {
       f.state = 'swim'; f.ignore = 12; retarget(f); k.suitor = null; k.phase = 'wait'; k.waited = 0;
       return onSay(`Too small for the ${F.hook} hook: it slipped off.`, 'duck', 2.5);
     }
-    k.phase = 'fight'; k.age = 0; k.ten = 0.35; k.prog = 0.04; k.burst = 0; k.next = rand(0.6, 1.2);
+    k.phase = 'fight'; k.age = 0; k.ten = 0.35; k.prog = 0.04; k.burst = 0; k.burstIn = rand(0.6, 1.2);
     k.from = { x: f.x, y: f.y }; f.state = 'hooked';
     if (f.job.size === 'gold') F.shake = 1;
     puff(f.x, f.y, 4);
@@ -193,9 +196,10 @@ export function makeFishing({ onCard, onSay, onSunset, onDone, onCheck }) {
     if (paused) return;
     if (!F.over) {
       F.day = Math.min(1, F.day + dt / DAY);
-      if (!F.golden && F.day >= 1 - GOLDEN / DAY) { F.golden = true; onSay('The golden hour: the golden ones are coming up.', 'gull'); for (const f of F.pond) if (f.kind === 'gold') retarget(f); }
-      if (F.day >= 1 && !F.pending && !(F.line && F.line.phase === 'fight')) return sunset();
-      if (!F.doneShown && !F.waiting && !F.rising.length && F.caught >= Math.min(TARGET, F.sonar.found) && F.sonar.found > 0 && !F.line && !F.pending) {
+      if (!F.golden && F.day >= 1 - GOLDEN / DAY) { F.golden = true; onSay('The golden hour: the golden ones are coming up.', 'gull'); for (const f of F.pond) if (f.kind === 'gold' && f.state === 'swim') retarget(f); }
+      if (F.day >= 1 && !F.pending && !(F.line && (F.line.phase === 'fight' || F.line.phase === 'land'))) return sunset();
+      const emptied = !F.pond.length && !F.queue.length;            // nothing left to catch: the results, however many
+      if (!F.doneShown && !F.waiting && !F.rising.length && (F.caught >= Math.min(TARGET, F.sonar.found) || emptied) && !F.line && !F.pending) {
         F.doneShown = true; onDone({ caught: F.caught, found: F.sonar.found, gold: F.sonar.gold });
       }
     }
@@ -328,7 +332,7 @@ export function makeFishing({ onCard, onSay, onSunset, onDone, onCheck }) {
   // hard and dives: hold through it and the line snaps.
   function fight(k, dt) {
     const f = k.suitor, pull = PULL[f.job.bottle ? 'bottle' : f.job.size] ?? 0.4;
-    if ((k.next -= dt) <= 0) { k.burst = k.burst ? 0 : 1; k.next = k.burst ? rand(0.5, 1.0) * (0.6 + pull) : rand(0.8, 1.8) * (1.4 - pull); if (k.burst) puff(f.x, f.y, 3); }
+    if ((k.burstIn -= dt) <= 0) { k.burst = k.burst ? 0 : 1; k.burstIn = k.burst ? rand(0.5, 1.0) * (0.6 + pull) : rand(0.8, 1.8) * (1.4 - pull); if (k.burst) puff(f.x, f.y, 3); }
     const reel = F.who === 'duck' ? k.ten < (k.burst ? 0.42 : 0.66) : F.holding;
     if (reel) { k.prog += dt * 0.2 * (1 - k.burst * 0.7) * (f.job.bottle ? 3 : 1); k.ten += dt * (0.22 + pull * (k.burst ? 1.25 : 0.4)); if (Math.random() < dt * 14) sfx('reel'); }
     else { k.ten = Math.max(0, k.ten - dt * 0.7); k.prog -= dt * (0.02 + pull * (k.burst ? 0.1 : 0.03)); }
@@ -345,7 +349,7 @@ export function makeFishing({ onCard, onSay, onSunset, onDone, onCheck }) {
   }
   function lost(k, said) {
     const f = k.suitor; f.state = 'swim'; f.ignore = 8; retarget(f);
-    F.line = { ...k, phase: 'back', age: 0, suitor: null, nobait: true };
+    F.line = { ...k, phase: 'back', age: 0, suitor: null, nobait: true, next: null };
     onSay(said, 'duck', 3);
   }
   function landed(k) {
@@ -399,13 +403,23 @@ export function makeFishing({ onCard, onSay, onSunset, onDone, onCheck }) {
   function sunset(quiet) {                                          // quiet: home early from the results, nothing more to say
     if (F.over) return;
     F.over = true; F.line = null;
-    const left = [...F.pond.map((f) => f.job), ...F.rising.map((r) => r.job), ...F.queue].filter((j) => j.size === 'gold' && !j.bottle && !has(j.id));
+    const left = rest().filter((j) => j.size === 'gold');
     left.forEach((j) => add(j, 'ashore'));
     if (!quiet) onSunset({ caught: F.caught, ashore: left.length });
   }
-  // what is still in the lake and waiting to rise: not caught, the best first (the results' «see all»)
+  // what is still in the lake and waiting to rise: not caught, the best first, each once (one swimming off is also queued again)
   function rest() {
-    return [...F.pond.map((f) => f.job), ...F.rising.map((r) => r.job), ...F.queue].filter((j) => !has(j.id) && !j.bottle).sort(order);
+    const seen = new Set();
+    return [...(F.pond || []).map((f) => f.job), ...(F.rising || []).map((r) => r.job), ...(F.queue || [])]
+      .filter((j) => !seen.has(j.id) && seen.add(j.id) && !has(j.id) && !j.bottle).sort(order);
+  }
+  // kept from the results' list, not caught: out of the lake and the queue, and counted as caught
+  function kept(job) {
+    if (!F.on) return;
+    F.queue = F.queue.filter((j) => j.id !== job.id);
+    F.rising = F.rising.filter((r) => r.job.id !== job.id);
+    for (const f of F.pond) if (f.job.id === job.id && f.state !== 'hooked') { f.state = 'leave'; f.tx = f.x < W / 2 ? -30 : W + 30; }
+    F.caught++;
   }
 
   // ---- what js/deep.js draws ----------------------------------------------------------------------------------------------------
@@ -441,7 +455,7 @@ export function makeFishing({ onCard, onSay, onSunset, onDone, onCheck }) {
   }
 
   return {
-    F, start, feed, fleetHome, step, view, down, up, move, answer, net, toggleWho, setGear, rest, sunset,
+    F, start, feed, fleetHome, step, view, down, up, move, answer, net, toggleWho, setGear, rest, kept, sunset,
     setTip(tip) { F.tip = tip; }, resize(w, h) { W = w; H = h; }, stop() { F.on = false; F.line = null; },
   };
 }

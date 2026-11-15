@@ -59,6 +59,8 @@ def make(data: Path, port: int = 0) -> ThreadingHTTPServer:
 
         def do_POST(self):  # noqa: N802
             u = urllib.parse.urlparse(self.path)
+            if not self._own():                                             # the game's own page alone sends, stops, opens
+                return self._json({"ok": False}, 403)
             b = self._body()
             if u.path == "/api/fleet/start":
                 fleet.start(b.get("titles") or [], b.get("city") or "", bool(b.get("remote")), b.get("first") or [], b.get("boats"))
@@ -69,15 +71,15 @@ def make(data: Path, port: int = 0) -> ThreadingHTTPServer:
             if u.path == "/api/open":                                       # a job's page, in the person's own browser
                 url = str(b.get("url") or "")
                 p = urllib.parse.urlparse(url)
-                if p.scheme not in ("http", "https") or not p.netloc or not self._own():
+                if p.scheme not in ("http", "https") or not p.netloc:
                     return self._json({"ok": False}, 400)
                 webbrowser.open(url, new=2)
                 return self._json({"ok": True})
             self.send_error(404)
 
         def _own(self) -> bool:
-            """Asked by the game's own page: no other site's page can have this computer open things. A page elsewhere
-            sends its own Origin, and its JSON is held back by the browser (no CORS here)."""
+            """Asked by the game's own page: no other site's page can start the search, stop it, or have this computer open
+            things. A page elsewhere sends its own Origin, and its JSON is held back by the browser (no CORS here)."""
             origin = self.headers.get("Origin")
             mine = f"http://127.0.0.1:{self.server.server_address[1]}"
             return (origin is None or origin == mine) and (self.headers.get("Content-Type") or "").startswith("application/json")

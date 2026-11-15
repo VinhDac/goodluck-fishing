@@ -285,7 +285,7 @@ function homeFromLake() {                                             // home: t
 function done({ caught, found: n }) {                                // the search done and a dozen in the bucket: the results
   sfx('fanfare');
   openReport(`Catch of the day: ${caught} caught this morning, from ${n} jobs found`, null, {   // «golden» is the bucket's own number, below
-    pond: fishing.rest(),
+    pond: fishing.rest(), keep: (j) => fishing.kept(j),
     actions: [{ label: 'Keep fishing', fn: () => talk('Back to it. The sun sets on its own.', 'duck', 2.5) }, { label: 'Home', quiet: true, fn: homeFromLake }],
   });
 }
@@ -314,7 +314,10 @@ function tool(name) {
   }
   if (name === 'bar:net') { if (fishing.net()) sfx('net'); return; }
   if (name === 'bar:who') return fishing.toggleWho();
-  if (name === 'bar:bucket') return openReport('Your bucket', () => { office.n = numbers(); }, { pond: fishing.rest() });   // the lake under it, for the search
+  if (name === 'bar:bucket') return openReport('Your bucket', null, {               // the lake under it, for the search; and a way home
+    pond: fishing.rest(), keep: (j) => fishing.kept(j),
+    actions: [{ label: 'Close', fn: null }, { label: 'Home', quiet: true, fn: homeFromLake }],
+  });
   if (name === 'sound') { setSound(!soundOn()); $('sound').textContent = `Sound: ${soundOn() ? 'on' : 'off'}`; sfx('quack'); }
 }
 

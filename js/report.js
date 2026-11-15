@@ -9,13 +9,14 @@ import { openOut } from './fleet.js';
 const $ = (id) => document.getElementById(id);
 const ago = (ms) => { const h = Math.max(0, (Date.now() - ms) / 36e5), n = h < 48 ? Math.round(h) : Math.round(h / 24), u = h < 48 ? 'hour' : 'day'; return h < 1 ? 'within the hour' : `${n} ${u}${n === 1 ? '' : 's'} ago`; };
 const LAKE_SHOWN = 80;                                               // of what is still in the lake, shown at once: the search finds the rest
-let onClose = null, pond = [], showPond = false, words = [];
+let onClose = null, onKeep = null, pond = [], showPond = false, words = [];
 
-$('rpFind').addEventListener('input', () => { words = $('rpFind').value.toLowerCase().split(/\s+/).filter(Boolean); draw(); });
+$('rpFind').addEventListener('input', () => { words = $('rpFind').value.toLowerCase().replace(/[^a-z0-9+#.]+/g, ' ').split(' ').filter(Boolean); draw(); });
 
-// opts: { pond: jobs still in the lake (not in the bucket), actions: [{ label, fn }] in place of Close }
+// opts: { pond: jobs still in the lake (not in the bucket), keep: what the lake does when one of them is kept from here,
+// actions: [{ label, fn }] in place of Close }
 export function openReport(head, closed, opts = {}) {
-  onClose = closed || null;
+  onClose = closed || null; onKeep = opts.keep || null;
   pond = opts.pond || []; showPond = false;
   $('rpFind').value = ''; words = [];
   $('rpHead').textContent = head || 'Your bucket';
@@ -29,8 +30,9 @@ export function openReport(head, closed, opts = {}) {
   $('report').hidden = false;
 }
 
-const said = (j) => [j.title, j.company, j.place, ...Object.keys(j.skills || {})].join(' ').toLowerCase();
-const found = (j) => words.every((w) => said(j).includes(w));
+// every word typed begins a word of the job's («ai» finds AI, not retail or Dubai; «pyth» finds Python)
+const said = (j) => ` ${[j.title, j.company, j.place, ...(Array.isArray(j.skills) ? j.skills : Object.keys(j.skills || {}))].join(' ').toLowerCase().replace(/[^a-z0-9+#.]+/g, ' ')}`;
+const found = (j) => { const s = said(j); return words.every((w) => s.includes(` ${w}`)); };
 
 function draw() {
   const items = all(), day = new Date().toLocaleDateString('en-CA'), week = Date.now() - 7 * 864e5;
@@ -84,7 +86,7 @@ function row(e, buttons, note) {
   acts.append(a, ...buttons.map(([label, status]) => {
     const x = document.createElement('button'); x.type = 'button'; x.textContent = label;
     x.onclick = () => {
-      if (status === 'keep') add(j, 'caught');
+      if (status === 'keep') { if (add(j, 'caught') && onKeep) onKeep(j); }
       else if (status === 'reply') replied(j.id, !e.replied);
       else mark(j.id, status);
       draw();
