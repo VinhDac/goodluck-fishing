@@ -80,12 +80,12 @@ footer a { color: inherit; }
   border-radius: 3px; box-shadow: 0 3px 0 var(--edge); cursor: pointer; margin-top: 8px; }
 
 /* the sky's head-up display, the names on the roofs, the card of a cloud caught */
-.skyhud { position: fixed; top: max(10px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: 104px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.skyhud { position: fixed; top: max(10px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: calc(104px + env(safe-area-inset-right)); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .skyhud[hidden] { display: none; }
 .chip { font: 600 14px var(--ui); background: var(--paper); color: var(--ink); border: 2px solid var(--edge); border-radius: 3px; padding: 5px 9px; box-shadow: 0 3px 0 var(--edge); }
 .skyhud .said { font: 14px system-ui, sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
 #signs { position: absolute; inset: 0; pointer-events: none; }
-.sign { position: absolute; transform: translate(-50%, -100%); font: 600 11px var(--ui); color: #fff; background: rgba(27,31,58,.75); padding: 1px 4px; border-radius: 2px; white-space: nowrap; }
+.sign { position: absolute; transform: translate(-50%, -100%); overflow: hidden; text-overflow: ellipsis; font: 600 11px var(--ui); color: #fff; background: rgba(27,31,58,.75); padding: 1px 4px; border-radius: 2px; white-space: nowrap; }
 .sign.decor { opacity: .55; font-style: italic; }
 .kicker { font: 600 13px var(--ui); letter-spacing: .1em; text-transform: uppercase; color: #8a6a3a; }
 .card h1 { font-size: 22px; }
@@ -127,7 +127,7 @@ select.chip { max-width: 11em; text-overflow: ellipsis; }
 .sheet input, .sheet textarea, .sheet.postcard input { font-size: 16px; }
 @media (max-width: 560px) {
   .chip, .corner button { font-size: 13px; padding: 4px 7px; }
-  .skyhud { gap: 6px; right: 88px; }
+  .skyhud { gap: 6px; right: calc(88px + env(safe-area-inset-right)); }
   .corner { gap: 6px; }
   .corner span { display: none; }
   .card, .panel.report { padding: 14px; }

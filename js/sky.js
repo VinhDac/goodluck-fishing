@@ -89,6 +89,7 @@ export function makeSky(g, dims, toCss, goHome) {
       b.x = 4 + i * w; b.w = Math.max(10, w - 3); b.h = 18 + ((i * 37) % 22); b.y = H - b.h;
       const s = document.createElement('span'); s.className = 'sign' + (b.real ? '' : ' decor'); s.textContent = b.n;
       const p = toCss(b.x + b.w / 2, b.y - 1); s.style.left = `${p.x}px`; s.style.top = `${p.y}px`;
+      s.style.maxWidth = `${Math.floor(toCss(w, 0).x - toCss(0, 0).x) - 6}px`; s.title = b.n;   // a long name cut to its roof
       box.appendChild(s);
     });
   }

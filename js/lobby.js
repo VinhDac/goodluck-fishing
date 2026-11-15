@@ -13,7 +13,7 @@ import { openReport } from './report.js';
 const cv = document.getElementById('scene');
 const g = cv.getContext('2d');
 const $ = (id) => document.getElementById(id);
-if (matchMedia('(pointer: coarse)').matches) $('hint').textContent = 'Tap the duck';
+if (matchMedia('(pointer: coarse)').matches) { $('hint').textContent = 'Tap the duck'; cv.setAttribute('aria-label', 'A duck asleep at its desk, late at night. Tap the duck.'); }
 
 // ---- the stage: a small canvas shaped like the window ------------------------------------------------------------------
 let W = 320, H = 180, K = 1;
