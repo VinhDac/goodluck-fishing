@@ -27,7 +27,11 @@ export function openApp(closed) {
   $('appClose').onclick = () => { $('app').hidden = true; if (closed) closed(); };
   latest().then((f) => {
     if ($('app').hidden) return;
-    if (f) { get.href = f.url; get.textContent = `Download for Windows · ${f.mb} MB`; get.hidden = false; said.textContent = `Version ${String(f.version || '').replace(/^v/i, '')}. Windows 10 or 11; Mac later.`; }
+    if (f) {
+      get.href = f.url; get.textContent = `Download for Windows · ${f.mb} MB`; get.hidden = false;
+      // a new app no one has signed: Windows says so the first time, and the way past it is plain to say
+      said.textContent = `Version ${String(f.version || '').replace(/^v/i, '')}, for Windows 10 or 11 (Mac later). Windows may say it protected your PC from an app it does not know yet: press More info, then Run anyway.`;
+    }
     else said.textContent = 'The Windows app comes out this week. Fish here meanwhile.';
   });
 }

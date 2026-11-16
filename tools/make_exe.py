@@ -39,6 +39,7 @@ DIST = ROOT / "dist"
 APP_ID = "F25C83BE-F1BA-4876-8932-1F241FCEAF84"
 GAME_DIRS = ("css", "js", "img")
 GAME_FILES = ("index.html", "manifest.webmanifest", "skills.json", "store/boards.json")
+NOT_IN_APP = ("img/play.gif", "img/card.png", "img/*-still.png")   # the README's and the web's pictures: the app never shows them
 
 # THE COMPILED PROGRAM'S FIRST LINES: a windowless program has nowhere to write, so its words go to a log in its data
 # folder; a valid standard input for any program it starts later (Chrome: GoodLuck learned «The handle is invalid»).
@@ -150,6 +151,7 @@ def compile_(entry: Path, ver: str) -> int:
         shutil.rmtree(OUT)
     data = [f"--include-data-dir={ROOT / d}={d}" for d in GAME_DIRS]
     data += [f"--include-data-files={ROOT / f}={f}" for f in GAME_FILES]
+    data += [f"--noinclude-data-files={f}" for f in NOT_IN_APP]
     return run([
         PY, "-m", "nuitka", "--standalone", "--assume-yes-for-downloads",
         "--msvc=latest", "--deployment", "--windows-console-mode=disable", "--python-flag=no_docstrings",

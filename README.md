@@ -12,9 +12,10 @@ to.
 
 **Play in your browser:** https://vinhdac.github.io/goodluck-fishing/ (a computer or a phone; no account).
 
-**The app for Windows:** [GoodLuck Fishing on GitHub Releases](https://github.com/VinhDac/goodluck-fishing/releases/latest)
-(coming out this week). The same game with a fleet of your own: each time you sail, it reads about 2,800 company job
-boards live for your titles and your city, and checks each posting is still open before it bites.
+**The app for Windows:** [download it from GitHub Releases](https://github.com/VinhDac/goodluck-fishing/releases/latest)
+(Windows 10 or 11; Mac later). The same game with a fleet of your own: each time you sail, it reads about 2,800 company
+job boards live for your titles and your city, and checks each posting is still open before it bites. Windows may say it
+protected your PC from an app it does not know yet: press More info, then Run anyway.
 
 ## How it works
 
