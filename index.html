@@ -32,7 +32,7 @@
     <canvas id="scene" aria-label="A duck asleep at its desk, late at night, a golden escalator beside it."></canvas>
     <!-- what the duck, the gull or the sky says, in a bubble over the speaker -->
     <div class="bubble" id="say" hidden></div>
-    <div class="corner"><span id="who" hidden></span><button id="bucket" hidden>Bucket</button><button id="signin" hidden>Sign in</button><button id="mycv" hidden>My CV</button><button id="gofish" class="gofish" hidden>Go fishing</button><button id="sound" type="button" title="Sound on or off">Sound: off</button></div>
+    <div class="corner"><span id="who" hidden></span><button id="bucket" hidden>My list</button><button id="signin" hidden>Sign in</button><button id="mycv" hidden>My CV</button><button id="gofish" class="gofish" hidden>Go fishing</button><button id="sound" type="button" title="Sound on or off">Sound: off</button></div>
 
     <!-- 4. the postcard: where to keep the bucket (sign in by an email link, or later) -->
     <div class="sheet postcard" id="postcard" hidden>
@@ -75,10 +75,10 @@
       <div class="said"></div>
       <button class="go" id="mapGo" type="button">Done</button>
     </div>
-    <!-- in the sky (PLAN.md 18): how the search goes, top right, the sound beside it; four plain buttons along the bottom;
-         what the duck (or the gull) says, in a box at the bottom left, over nothing that matters -->
+    <!-- in the sky (PLAN.md 19.3): how the search goes, top right, the sound beside it; one way home, the way it came; what
+         the duck (or the gull) says, quietly, under the boat; the mailbag hangs on the mast (drawn in the sky) -->
     <div class="seahud prog"><div class="line"><span id="progText">Getting ready…</span><div class="bar"><i id="progBar"></i></div></div><button id="seaSound" type="button" title="Sound on or off">♪ off</button></div>
-    <div class="seahud tools"><button id="auto" class="on" type="button">AUTO ON</button><button id="bag" type="button">BAG 0</button><button id="toPier" type="button" title="To the pier: the sky waits, the search goes on">PIER</button><button id="toLobby" type="button" title="To the office: the sky waits, the search goes on">LOBBY</button></div>
+    <div class="seahud tools"><button id="toPier" type="button" title="The boat sails back to the pier: the sky waits, the search goes on">Back to the pier</button></div>
     <div class="talk" id="talk" hidden><canvas id="talkFace" width="16" height="16"></canvas><span id="talkText"></span></div>
     <div class="veil" id="catch" hidden>
       <div class="card">
@@ -88,7 +88,7 @@
         <div class="meta" id="ctMeta"></div>
         <p class="fit" id="ctFit"></p>
         <div class="row center"><button class="go" id="ctKeep" type="button">Keep</button><button class="ghost" id="ctThrow" type="button">Not for me</button></div>
-        <a class="link" id="ctOpen" href="#" target="_blank" rel="noopener">Open the job ↗</a>
+        <a class="link" id="ctOpen" href="#" target="_blank" rel="noopener">Open the job ↗</a> <button class="later" id="ctLater" type="button">Later</button>
       </div>
     </div>
     <!-- the report: the day's numbers and the list of jobs to act on (PLAN.md 4) -->

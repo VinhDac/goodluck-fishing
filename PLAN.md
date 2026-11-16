@@ -789,6 +789,12 @@ Về, ngược lại từng bước:
 - H. Công ty mơ ước (người chơi tự ghi, thư của họ là «huyền thoại»): có?
 - I. Thứ tự: một lần câu trước, trên trang thử riêng.
 
+**Quyết định (Vin, 16/11: «đồng ý theo đề xuất của bạn, làm bước 1 đi»):** cả chín như đề xuất: A kéo bằng trò một nút giữ
+và thả, tuột thì thư quay lại sau; B giữ hay bỏ để lúc tỉnh dậy ở bàn; C bấm vào vịt để giao cần, người chơi cầm cần từ
+đầu; D thang cuốn chậm khoảng 25 giây, từ ngày thứ hai bấm để đi bộ lên thang; E có đồ linh tinh để cười; F nhạc mặc định
+tắt, mòng biển hỏi một lần; G thời tiết, mùa, ngày trong tuần theo số thật; H có công ty mơ ước; I một lần câu trước, trên
+trang thử riêng (tools/catch.html); game trên site giữ nguyên tới khi Vin duyệt.
+
 ---
 
 ## Nhật ký bàn bạc

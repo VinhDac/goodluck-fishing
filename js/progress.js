@@ -1,6 +1,6 @@
 // THE OFFICE'S OWN NUMBERS (PLAN.md 14: «mỗi đồ vật là một thứ thật»): what the room shows is the person's real search.
-// The screen: applications sent and replies; the calendar: the days since they started; the papers on the desk: jobs in
-// the bucket not yet looked at; the board of letters: those expired or not for them; the mugs: the days they fished this
+// The screen: applications sent and replies; the calendar: the days since they started; the tray on the desk: letters
+// brought back, not opened yet; the cork board: letters kept to apply to; the board of letters: those expired or not for them; the mugs: the days they fished this
 // week; the plant: green while they come, wilting the longer they stay away. Kept on this device.
 
 import { all } from './box.js';
@@ -28,7 +28,8 @@ export function numbers() {
     applied: applied.length,
     replies: applied.filter((e) => e.replied).length,
     day: first ? now - dayN(first) + 1 : 1,
-    papers: items.filter((e) => e.status === 'new').length,
+    tray: items.filter((e) => e.status === 'new').length,             // letters brought back, not opened yet
+    keep: items.filter((e) => e.status === 'keep').length,            // kept, to apply to
     letters: items.filter((e) => e.status === 'expired' || e.status === 'not_for_me').length,
     mugs: days.filter((s) => now - dayN(s) < 7).length,
     away: last == null ? 0 : now - last,                              // days since they last fished

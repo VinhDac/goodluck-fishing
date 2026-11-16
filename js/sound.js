@@ -31,5 +31,21 @@ const SOUNDS = {
   flaps: () => { for (let i = 0; i < 10; i++) tone(1800 + i * 40, 0.015, { delay: i * 0.03, vol: 0.02 }); },
   clink: () => tone(1500, 0.06, { type: 'triangle', vol: 0.04 }),
   dusk: () => [784, 659, 523].forEach((f, i) => tone(f, 0.25, { type: 'triangle', delay: i * 0.18, vol: 0.035 })),
+  // the catch (PLAN.md 19): the float landing, a sniff, the hook set, up it comes or it slips; how it shows, by how it fits
+  plop: () => tone(330, 0.12, { type: 'triangle', slide: -150, vol: 0.035 }),
+  nibble: () => tone(1500, 0.03, { type: 'triangle', vol: 0.02 }),
+  strike: () => tone(520, 0.12, { type: 'triangle', slide: 700, vol: 0.035 }),
+  pop: () => tone(700, 0.06, { type: 'sine', slide: 300, vol: 0.03 }),
+  slip: () => [523, 466, 392].forEach((f, i) => tone(f, 0.16, { type: 'triangle', delay: i * 0.12, vol: 0.028 })),
+  pip: () => tone(988, 0.08, { type: 'sine', vol: 0.035 }),
+  chime2: () => [784, 1175].forEach((f, i) => tone(f, 0.18, { type: 'sine', delay: i * 0.09, vol: 0.035 })),
+  chime3: () => [659, 988, 1319].forEach((f, i) => tone(f, 0.2, { type: 'sine', delay: i * 0.09, vol: 0.035 })),
+  golden: () => { [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, 0.26, { type: 'sine', delay: i * 0.11, vol: 0.04 })); for (let i = 0; i < 8; i++) tone(2093 + (i % 2) * 300, 0.05, { type: 'sine', delay: 0.6 + i * 0.05, vol: 0.012 }); },
+  legend: () => { [523, 659, 784, 1046, 1318, 1568, 2093].forEach((f, i) => tone(f, 0.3, { type: 'sine', delay: i * 0.09, vol: 0.038 })); [1568, 1318, 1046].forEach((f, i) => tone(f, 0.4, { type: 'triangle', delay: 0.75 + i * 0.12, vol: 0.025 })); },
+  rustle: () => { for (let i = 0; i < 6; i++) tone(2400 + ((i * 437) % 1200), 0.012, { type: 'square', delay: i * 0.018, vol: 0.008 }); },
+  stamp: () => { tone(180, 0.05, { type: 'square', vol: 0.03 }); tone(1760, 0.1, { type: 'sine', delay: 0.07, vol: 0.03 }); },
+  // the soul's way (PLAN.md 19.1): a soft choir as it leaves; a start as it wakes
+  choir: () => { [392, 494, 587, 784].forEach((f, i) => tone(f, 1.6, { type: 'sine', delay: i * 0.08, vol: 0.022, slide: 8 })); },
+  wake: () => { tone(330, 0.08, { type: 'triangle', slide: 300, vol: 0.04 }); tone(660, 0.12, { type: 'triangle', delay: 0.08, slide: -120, vol: 0.03 }); },
 };
 export function sfx(name) { if (!on || !SOUNDS[name]) return; try { SOUNDS[name](); } catch (e) { /* no sound here */ } }

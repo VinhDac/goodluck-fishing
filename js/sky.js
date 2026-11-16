@@ -92,7 +92,81 @@ function gullArt(px, ox, oy, f) {                                  // facing lef
   line(cx - 2, cy - 1, cx + tx, cy + ty, '#eef1f7'); P(cx + tx, cy + ty, '#3a3e4a');
 }
 const sunArt = (px, ox, oy) => { for (const [r, a] of [[46, 0.06], [28, 0.09], [16, 0.12]]) px.ell(ox, oy, r, r, `rgba(255,200,120,${a})`); };
-export const art = { letterArt, openedArt, airmailArt, tagArt, gullArt };
+
+// ---- the catch (PLAN.md 19): the float and its bait, the «!», the reel's panel, the mailbag ---------------------------------
+function floatArt(px, ox, oy) {                                    // a float, red over white, a little stick on top; (ox, oy) its middle
+  const { R, P } = px;
+  R(ox, oy - 6, 1, 2, '#3a2a1a');                                  // the stick
+  R(ox - 2, oy - 4, 5, 7, '#5a2a22');                              // its outline
+  R(ox - 1, oy - 4, 3, 1, '#5a2a22'); R(ox - 1, oy + 3, 3, 1, '#5a2a22');
+  R(ox - 1, oy - 3, 3, 3, '#e0402e'); P(ox - 1, oy - 3, '#ff9a80');     // the red cap, lit
+  R(ox - 1, oy, 3, 1, '#3a2a1a');                                  // the band
+  R(ox - 1, oy + 1, 3, 2, '#f6f2e8'); P(ox + 1, oy + 2, '#cfc8b8');    // the white belly
+}
+function baitArt(px, ox, oy) {                                     // the CV, folded small, on the hook: (ox, oy) its top
+  const { R, P } = px;
+  R(ox - 2, oy, 5, 6, '#8a8478'); R(ox - 1, oy + 1, 3, 4, '#ffffff');
+  R(ox - 1, oy + 2, 3, 1, '#b8c0d0'); R(ox - 1, oy + 4, 2, 1, '#b8c0d0');
+  P(ox + 2, oy, '#d8d2c4');                                        // a corner folded down
+}
+function bangArt(px, ox, oy) {                                     // «!» in a little white box with a tail; (ox, oy) the tail's tip
+  const { R, P } = px;
+  R(ox - 4, oy - 13, 9, 11, '#3a2a1a'); R(ox - 3, oy - 12, 7, 9, '#fffdf6');
+  R(ox, oy - 11, 2, 4, '#d03a2a'); R(ox, oy - 6, 2, 2, '#d03a2a');
+  R(ox - 1, oy - 2, 3, 1, '#3a2a1a'); P(ox, oy - 1, '#3a2a1a'); P(ox, oy - 2, '#fffdf6');
+}
+function bagArt(px, ox, oy, n, puffed) {                           // the mailbag hung on the mast, its count on a tag; (ox, oy) its mouth
+  const { R, P, ell, line, text, textW } = px, f = puffed ? 1 : 0;
+  line(ox + 6, oy - 7, ox - 3, oy, '#6b5a3a'); line(ox + 6, oy - 7, ox + 3, oy, '#6b5a3a');   // the strap from its peg
+  ell(ox, oy + 6, 5 + f, 6, '#6b5a3a'); ell(ox, oy + 6, 4 + f, 5, '#d9c9a3');                 // the sack
+  ell(ox - 1, oy + 4, 2, 2, '#ece0c0'); ell(ox + 1, oy + 9, 3 + f, 1, '#b8a67e');
+  R(ox - 4, oy, 9, 2, '#6b5a3a'); R(ox - 3, oy, 7, 1, '#c9b48a');                                 // its tied mouth
+  P(ox - 1, oy + 6, '#d03a2a'); P(ox + 1, oy + 6, '#3a6ad0'); P(ox, oy + 7, '#d03a2a');           // an airmail mark
+  const s = String(n), w = textW(s) + 4;
+  R(ox - Math.floor(w / 2), oy + 13, w, 7, '#3a2a1a'); R(ox - Math.floor(w / 2) + 1, oy + 14, w - 2, 5, '#fff8e7');
+  text(s, ox - Math.floor(w / 2) + 2, oy + 14, '#3a2a1a');
+}
+function panelArt(px, w, h, lane, ribbon, pad) {                  // the reel's panel: paper round a little sky, a ribbon at its side
+  const { R } = px;
+  R(1, 2, w, h, 'rgba(20,20,40,0.28)');                             // its shadow
+  R(0, 0, w, h, '#3a2a1a'); R(1, 1, w - 2, h - 2, '#fff8e7');
+  for (let y = 0; y < h - 2 * pad; y++) {                          // the sky in it, light at the top, paler below
+    const k = y / (h - 2 * pad), c = [Math.round(150 + k * 70), Math.round(204 + k * 34), Math.round(246 + k * 8)];
+    R(pad, pad + y, lane, 1, `rgb(${c})`);
+  }
+  R(pad - 1, pad - 1, lane + 2, 1, '#c8b890'); R(pad - 1, h - pad, lane + 2, 1, '#e8dcc0');
+  R(pad + lane + 2, pad, ribbon, h - 2 * pad, '#e6d8b4');            // the ribbon's bed
+}
+function reelCloudArt(px, w, h) {                                  // the cloud that holds the letter: (0, 0) its top left
+  const { ell, R } = px, cx = Math.floor(w / 2);
+  ell(cx, h / 2, cx - 1, h / 2 - 1, '#b9c8e2');
+  ell(cx, h / 2 - 1, cx - 2, h / 2 - 2, '#ffffff');
+  ell(cx - 3, h / 2 - 3, 3, 2, '#ffffff'); ell(cx + 3, h / 2 - 4, 3, 2, '#ffffff');
+  R(cx - 4, h - 4, 8, 1, '#dfe8f4'); R(cx - 5, h - 3, 10, 1, '#cbd8ec');
+}
+function miniLetterArt(px, ox, oy, kind, f) {                     // the letter on the line, small, in the reel's panel; (ox, oy) its middle
+  const { R, P } = px, [edge, paper, shade, flap, seal] = kind === 'gull' ? ['#7d6e5a', '#fbf7ec', '#e8dfcb', '#cdbf9f', '#3a6ad0'] : (LETTER[kind] || LETTER.plain);
+  const up = f === 0 ? -2 : f === 2 ? 1 : 0;                       // the wings: up, level, down
+  for (const s of [-1, 1]) { P(ox + s * 6, oy - 1 + up, '#8796b8'); P(ox + s * 5, oy - 1 + Math.round(up / 2), '#ffffff'); P(ox + s * 7, oy - 1 + Math.round(up * 1.5), '#8796b8'); }
+  R(ox - 4, oy - 3, 9, 6, edge); R(ox - 3, oy - 2, 7, 4, paper); R(ox - 3, oy + 1, 7, 1, shade);
+  P(ox - 2, oy - 2, flap); P(ox + 2, oy - 2, flap); P(ox - 1, oy - 1, flap); P(ox + 1, oy - 1, flap);
+  if (seal) P(ox, oy, seal);
+  if (kind === 'gull') for (let i = 0; i < 9; i++) P(ox - 4 + i, oy - 3, i % 4 < 2 ? '#d03a2a' : '#3a6ad0');
+}
+function stampArt(px, ox, oy) {                                    // a postage stamp, its edge torn in little teeth
+  const { R, P } = px;
+  R(ox, oy, 7, 8, '#fff8e7');
+  for (let i = 0; i < 7; i += 2) { P(ox + i, oy, '#e8dcc0'); P(ox + i, oy + 7, '#e8dcc0'); }
+  for (let j = 1; j < 7; j += 2) { P(ox, oy + j, '#e8dcc0'); P(ox + 6, oy + j, '#e8dcc0'); }
+  R(ox + 1, oy + 1, 5, 6, '#d03a2a'); R(ox + 2, oy + 2, 3, 3, '#ffd84a'); P(ox + 3, oy + 5, '#ffffff');
+}
+function bowArt(px, ox, oy) {                                      // a little red bow: caught without a slip
+  const { R, P } = px;
+  P(ox - 2, oy - 1, '#d03a2a'); P(ox - 1, oy, '#d03a2a'); P(ox + 1, oy, '#d03a2a'); P(ox + 2, oy - 1, '#d03a2a');
+  R(ox - 2, oy, 1, 2, '#a82a20'); R(ox + 2, oy, 1, 2, '#a82a20'); P(ox, oy, '#ff8a70');
+  P(ox - 1, oy + 2, '#d03a2a'); P(ox + 1, oy + 2, '#d03a2a');
+}
+export const art = { letterArt, openedArt, airmailArt, tagArt, gullArt, floatArt, baitArt, bangArt, bagArt, panelArt, reelCloudArt, miniLetterArt, stampArt, bowArt };
 
 export function makeSky(stage) {
   const city = makeVoyage(stage.g, { deep: true });
@@ -172,14 +246,26 @@ export function makeSky(stage) {
 
   // ---- a letter where it is: its wings by the beat (held out in a glide), lifted a little by each beat --------------------------
   function letter(l, alpha = 1) {
-    const f = l.state === 'closed' ? -1 : l.glide > 0 && l.rate < 0.6 ? 4 : Math.floor((((l.phase % 1) + 1) % 1) * 4);
-    const lift = l.state === 'hooked' || l.state === 'closed' ? 0 : -0.7 * Math.sin(2 * Math.PI * l.phase) * Math.min(1, l.rate / 2);
+    const still = l.state === 'held' || l.state === 'closed';
+    const f = still ? -1 : l.glide > 0 && l.rate < 0.6 ? 4 : Math.floor((((l.phase % 1) + 1) % 1) * 4);
+    const lift = l.state === 'hooked' || still ? 0 : -0.7 * Math.sin(2 * Math.PI * l.phase) * Math.min(1, l.rate / 2);
     const fade = Math.min(1, (l.age ?? 1) / 0.35) * (l.alpha ?? 1) * alpha;
     const y = l.y + lift, [w, h] = [l.w + 14, l.h + 12];
     if (l.state === 'closed' && l.open > 0) {                          // opened at the boat; the stamp comes down with a jolt
       const sh = Math.sin(now * 70) * shaking * 1.5;
       const step = l.open < 0.34 ? 0 : l.open < 0.67 ? 1 : 2, st = Math.round((l.stamp || 0) * 4);
       stage.sprite(l.x + sh, l.y, 28, 22, 14, 11, (px, ox, oy) => openedArt(px, ox, oy, l.kind, (l.stamp || 0), step), `open:${l.kind}:${step}:${st}`, fade);
+      return;
+    }
+    if (l.state === 'held') {                                          // up in the duck's wings, or on its way into the bag
+      if (l.airmail) stage.sprite(l.x, l.y, 11, 8, 5, 3, airmailArt, 'airmail');
+      else if (l.small) stage.sprite(l.x, l.y, 23, 18, 11, 9, (px, ox, oy) => letterArt(px, ox, oy, 'small', l.kind, -1), `L:small:${l.kind}:-1`);
+      else stage.sprite(l.x, l.y, w, h, 7 + Math.floor(l.w / 2), 6 + Math.floor(l.h / 2), (px, ox, oy) => letterArt(px, ox, oy, l.size, l.kind, -1), `L:${l.size}:${l.kind}:-1`);
+      if (l.perfect && !l.small) stage.sprite(l.x - l.w / 2 + 1, l.y - l.h / 2, 5, 4, 2, 1, bowArt, 'bow');
+      if (l.fresh && !l.small) for (let i = 0; i < 2; i++) {             // the dew on a letter posted today
+        const k = (now * 0.8 + i * 0.5) % 1;
+        stage.dot(l.x - l.w / 2 + 2 + i * (l.w - 5) * 0.7, l.y - l.h / 2 + 1 + k * (l.h - 2), `rgba(220,240,255,${(0.9 * (1 - k)).toFixed(2)})`);
+      }
       return;
     }
     stage.sprite(l.x, y, w, h, 7 + Math.floor(l.w / 2), 6 + Math.floor(l.h / 2), (px, ox, oy) => letterArt(px, ox, oy, l.size, l.kind, f), `L:${l.size}:${l.kind}:${f}`, fade);
@@ -200,15 +286,20 @@ export function makeSky(stage) {
     }
   }
 
-  // ---- the boat on its cloud, the duck between the hull's two sides, its rod, its line and hook ----------------------------------
+  // ---- the boat on its cloud, the mailbag on its mast, the duck between the hull's two sides, its rod, its line ------------------
   function boat(v) {
     const b = v.boat, t = v.t;
     stage.sprite(b.x, v.cloudY, 96, 34, 14, 4, (px, ox, oy) => {
       for (const [dx, dy, r] of [[8, 10, 10], [26, 12, 13], [46, 11, 12], [62, 9, 9], [-2, 7, 7]]) px.lump(ox + dx, oy + dy, r, 'near');
     }, 'boatcloud');
     stage.sprite(b.x, b.y, 86, 70, 12, 60, (px, ox, oy) => drawBoat(px, ox, oy, t, { part: 'back', bob: false, shadow: false }));
-    const d = v.duck, blink = (t % 5) > 4.85;
-    stage.sprite(d.x, d.y, 40, 32, 20, 28, (px, ox, oy) => upright(px, ox, oy, { sit: true, blink, look: d.look }), `duck:${blink ? 1 : 0}:${d.look}`);
+    if (v.bag) {                                                      // the mailbag: it puffs up a moment when a letter goes in
+      const pf = v.bag.puff > 0.4, n = v.bag.n;
+      stage.sprite(v.bag.at.x, v.bag.at.y - (pf ? 1 : 0), 24, 30, 12, 8, (px, ox, oy) => bagArt(px, ox, oy, n, pf), `bag:${n}:${pf ? 1 : 0}`);
+    }
+    const d = v.duck, blink = (t % 5) > 4.85, cheer = !!d.cheer;
+    const halo = !!v.halo && !cheer;                                   // in heaven the duck wears a halo
+    stage.sprite(d.x, d.y, 40, 40, 20, 36, (px, ox, oy) => upright(px, ox, oy, { sit: true, blink, look: d.look, cheer, halo }), `duck:${blink ? 1 : 0}:${d.look}:${cheer ? 1 : 0}:${halo ? 1 : 0}`);
     if (d.sip > 0) {                                                  // a sip of coffee: the cup up to the beak and down
       const cx = d.x + 9 + d.sip * 3, cy = d.y + 1 - d.sip * 16;
       stage.sprite(cx, cy, 7, 7, 1, 3, (px, ox, oy) => { px.R(ox, oy, 4, 4, '#f1ead6'); px.R(ox + 4, oy + 1, 1, 2, '#f1ead6'); px.R(ox, oy, 4, 1, '#5a3a1a'); }, 'cup');
@@ -225,12 +316,24 @@ export function makeSky(stage) {
     }
     stage.sprite(h.x, h.y, 6, 5, 1, 0, (px, ox, oy) => { px.R(ox - 1, oy, 4, 3, '#2a1a10'); px.P(ox + 1, oy + 1, '#c8c8d4'); }, 'reel');
   }
-  function line(v) {
-    const a = v.rod.tip, b = v.hook, mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 + v.sag, n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) * 2) + 2;
+  function strand(a, b, sag, col = 'rgba(255,255,255,0.78)') {        // a line between two points, sagging a little
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 + sag, n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) * 2) + 2;
     for (let i = 0; i <= n; i++) {
       const u = i / n, x = (1 - u) * (1 - u) * a.x + 2 * (1 - u) * u * mx + u * u * b.x, y = (1 - u) * (1 - u) * a.y + 2 * (1 - u) * u * my + u * u * b.y;
-      stage.dot(x, y, 'rgba(255,255,255,0.78)');
+      stage.dot(x, y, col);
     }
+  }
+  function line(v) {
+    if (v.float) {                                                    // the float on its line; the CV under it, or the letter on it
+      const fl = v.float;
+      strand(v.rod.tip, { x: fl.x, y: fl.y - 6 }, v.sag);
+      if (v.hooked) { const l = v.hooked; strand({ x: fl.x, y: fl.y + 3 }, { x: l.x, y: l.y - l.h / 2 }, 0.2); }
+      else if (v.bait) { strand({ x: fl.x, y: fl.y + 3 }, v.bait, 0.4, 'rgba(255,255,255,0.7)'); stage.sprite(v.bait.x, v.bait.y, 7, 7, 3, 0, baitArt, 'bait'); }
+      stage.sprite(fl.x, fl.y, 7, 11, 3, 7, floatArt, 'float');
+      return;
+    }
+    const a = v.rod.tip, b = v.hook;
+    strand(a, b, v.sag);
     stage.sprite(b.x, b.y, 3, 6, 1, 0, (px) => { px.P(1, 0, '#c8ccd8'); px.R(1, 1, 1, 3, '#eef1f7'); px.P(0, 3, '#eef1f7'); px.R(0, 4, 2, 1, '#aab0c2'); }, 'hook');
   }
   function gull(v) {
@@ -240,8 +343,57 @@ export function makeSky(stage) {
     stage.sprite(gl.x, gl.y, 22, 18, 10, 9, (px, ox, oy) => gullArt(px, ox, oy, f), `gull${f}`);
     if (gl.job) stage.sprite(gl.x - 7, gl.y + 4, 11, 8, 5, 3, airmailArt, 'airmail');
   }
+
+  // ---- the cast's arc over the duck: it fills and empties like a breath; where the float will come down ------------------------
+  function charge(v) {
+    const c = v.charge;
+    if (!c) return;
+    const d = v.duck, cx = d.x + 4, cy = d.y - 18, r = 14;
+    for (let i = 0; i <= 24; i++) {
+      const u = i / 24, a = Math.PI + u * Math.PI, on = u <= c.k + 0.001;
+      stage.dot(cx + Math.cos(a) * r, cy + Math.sin(a) * r, on ? (u > c.k - 0.06 ? '#fff6c0' : '#ffd84a') : 'rgba(255,255,255,0.35)');
+    }
+    const p = c.land, br = 3 + c.k * 1.5;                               // a faint ring where it will land
+    for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2 + v.t; stage.dot(p.x + Math.cos(a) * br, p.y + Math.sin(a) * br * 0.7, 'rgba(255,255,255,0.55)'); }
+  }
+  // ---- «!» over the duck: it drops into place ---------------------------------------------------------------------------------------
+  function bang(v) {
+    if (!v.bang) return;
+    const d = v.duck, a = v.bang.age, dy = -4 * Math.max(0, 1 - a / 0.12) + Math.sin(a * 18) * Math.max(0, 0.6 - a) * 1.2;
+    stage.sprite(d.x + 3, d.y - 31 + dy, 11, 15, 5, 14, bangArt, 'bang', Math.min(1, a / 0.08));
+  }
+  // ---- the reel's panel: its sky, the cloud the button lifts, the letter fluttering, a stamp now and then, the ribbon ------------
+  function panel(v) {
+    const p = v.panel;
+    if (!p || p.open <= 0) return;
+    const al = smoothstep(p.open), x = p.x, y = p.y + (1 - al) * 8, ix = x + p.pad, iy = y + p.pad;
+    stage.sprite(x, y, p.w + 1, p.h + 2, 0, 0, (px) => panelArt(px, p.w, p.h, p.lane, p.ribbon, p.pad), `panel:${p.w}:${p.h}`, al);
+    for (let i = 0; i < 3; i++) {                                     // wisps drifting down past: the letter is coming up
+      const wy = ((p.t * (6 + i * 3) + i * 31) % p.track), wx = ix + 2 + ((i * 7) % (p.lane - 6));
+      stage.sprite(wx, iy + wy, 6, 1, 0, 0, (px) => px.R(0, 0, 6, 1, 'rgba(255,255,255,0.55)'), 'wisp', al);
+    }
+    stage.sprite(ix, iy + p.cloud, p.lane, p.zone, 0, 0, (px) => reelCloudArt(px, p.lane, p.zone), `reelcloud:${p.lane}:${p.zone}`, al * (p.in ? 1 : 0.85));
+    if (p.stamp) {
+      stage.sprite(ix + p.lane / 2 - 3.5, iy + p.stamp.y, 7, 8, 0, 0, stampArt, 'stamp', al);
+      const n = Math.round(p.stamp.k * 12);
+      for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + (i / 12) * Math.PI * 2; stage.dot(ix + p.lane / 2 + Math.cos(a) * 6, iy + p.stamp.y + 4 + Math.sin(a) * 6, '#ffd84a'); }
+    }
+    const fl = Math.floor(((p.t * (p.in ? 5 : 9)) % 1) * 3);
+    stage.sprite(ix + p.lane / 2, iy + p.letter + 3, 17, 9, 8, 4, (px, ox, oy) => miniLetterArt(px, ox, oy, p.kind, fl), `mini:${p.kind}:${fl}`, al);
+    const rx = ix + p.lane + 2, fillH = p.track * p.p;                // the ribbon, filling from the bottom
+    if (fillH > 0) {
+      stage.g.globalAlpha = al;
+      stage.fill(p.in ? '#ffd84a' : '#e0b850', rx, iy + p.track - fillH, p.ribbon, fillH);
+      stage.fill(p.in ? '#fff6c0' : '#f2d98c', rx, iy + p.track - fillH, p.ribbon, Math.min(1, fillH));
+      stage.g.globalAlpha = 1;
+    }
+  }
+
+  // ---- what passes: sparks, dust, puffs, rings in the air, a warm glow, golden rays and dust ------------------------------------
   function fx(v) {
+    const g = stage.g, K = stage.K;
     for (const f of v.fx) {
+      if (f.age < 0) continue;
       const k = f.age / f.life;
       if (f.kind === 'spark') stage.dot(f.x, f.y, f.col || '#ffffff');
       else if (f.kind === 'dust') stage.dot(f.x, f.y, `rgba(236,230,214,${(0.8 * (1 - k)).toFixed(2)})`);
@@ -249,15 +401,64 @@ export function makeSky(stage) {
       else if (f.kind === 'tink') {
         const r = 1 + k * 4, a = (1 - k).toFixed(2);
         for (const [dx, dy] of [[r, 0], [-r, 0], [0, r], [0, -r]]) stage.dot(f.x + dx, f.y + dy, `rgba(255,255,255,${a})`);
+      } else if (f.kind === 'ring') {                                  // a ring going out through the air
+        const r = 2 + (f.r || 12) * (1 - (1 - k) ** 2), n = Math.max(10, Math.round(r * 2.4)), a = (0.75 * (1 - k)).toFixed(2);
+        for (let i = 0; i < n; i++) { const t2 = (i / n) * Math.PI * 2; stage.dot(f.x + Math.cos(t2) * r, f.y + Math.sin(t2) * r * 0.45, `rgba(255,255,255,${a})`); }
+      } else if (f.kind === 'glow') {                                  // a warm light, swelling and gone
+        const r = (f.r || 20) * (0.4 + 0.6 * Math.sin(Math.min(1, k * 1.4) * Math.PI / 2)), a = 0.45 * Math.sin(Math.PI * k);
+        const gr = g.createRadialGradient(f.x * K, f.y * K, 0, f.x * K, f.y * K, r * K);
+        gr.addColorStop(0, `rgba(${f.col},${a.toFixed(3)})`); gr.addColorStop(1, `rgba(${f.col},0)`);
+        g.globalCompositeOperation = 'lighter'; g.fillStyle = gr; g.fillRect((f.x - r) * K, (f.y - r) * K, 2 * r * K, 2 * r * K); g.globalCompositeOperation = 'source-over';
+      } else if (f.kind === 'gold') {                                  // golden dust, drifting down, twinkling
+        const tw = 0.55 + 0.45 * Math.sin(f.age * 9 + f.tw), a = Math.min(1, f.age * 4) * (1 - k) * tw;
+        stage.dot(f.x, f.y, `rgba(255,${tw > 0.8 ? 246 : 216},${tw > 0.8 ? 192 : 74},${a.toFixed(2)})`);
+      } else if (f.kind === 'rays') rays(f, k, v);
+      else if (f.kind === 'warm') stage.fill(`rgba(255,196,120,${(0.13 * Math.sin(Math.PI * k)).toFixed(3)})`);
+    }
+  }
+  function rays(f, k, v) {                                             // the light behind a golden letter, turning slowly
+    const g = stage.g, K = stage.K, at = v.held ? { x: v.held.x, y: v.held.y } : f, a0 = f.age * 0.5;
+    const a = 0.32 * Math.sin(Math.PI * Math.min(1, k * 1.15));
+    g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 10; i++) {
+      const ang = a0 + (i / 10) * Math.PI * 2, len = (i % 2 ? 26 : 38) * (0.6 + 0.4 * Math.min(1, k * 3)), wd = 0.11;
+      const gr = g.createLinearGradient(at.x * K, at.y * K, (at.x + Math.cos(ang) * len) * K, (at.y + Math.sin(ang) * len) * K);
+      gr.addColorStop(0, `rgba(255,220,120,${a.toFixed(3)})`); gr.addColorStop(1, 'rgba(255,220,120,0)');
+      g.fillStyle = gr; g.beginPath(); g.moveTo(at.x * K, at.y * K);
+      g.lineTo((at.x + Math.cos(ang - wd) * len) * K, (at.y + Math.sin(ang - wd) * len) * K);
+      g.lineTo((at.x + Math.cos(ang + wd) * len) * K, (at.y + Math.sin(ang + wd) * len) * K);
+      g.closePath(); g.fill();
+    }
+    g.globalCompositeOperation = 'source-over';
+  }
+  function behind(v) {                                                 // in the sky behind the city: a rainbow, a flock going over
+    const g = stage.g, K = stage.K;
+    for (const f of v.fx) {
+      if (f.age < 0) continue;
+      const k = f.age / f.life;
+      if (f.kind === 'rainbow') {
+        const a = Math.min(1, f.age / 1.2) * Math.min(1, (f.life - f.age) / 1.6) * 0.42, cx = L.W * 0.55, cy = L.H * 0.95, r0 = Math.max(L.W, L.H) * 0.62;
+        const cols = ['255,90,80', '255,160,70', '255,226,90', '120,210,110', '90,170,240', '150,120,230'];
+        g.lineWidth = 2.2 * K;
+        cols.forEach((c, i) => { g.strokeStyle = `rgba(${c},${a.toFixed(3)})`; g.beginPath(); g.arc(cx * K, cy * K, (r0 - i * 2.2) * K, Math.PI * 1.04, Math.PI * 1.96); g.stroke(); });
+      } else if (f.kind === 'flock') {
+        const x0 = -40 + (L.W + 90) * k, y0 = f.y;
+        for (let i = 0; i < 7; i++) {
+          const side = i === 0 ? 0 : (i % 2 ? 1 : -1) * Math.ceil(i / 2), bx = x0 - Math.abs(side) * 7, by = y0 + side * 5 + Math.sin(f.age * 2 + i) * 1.2;
+          const up = Math.sin(f.age * 9 + i * 1.3) > 0;
+          stage.sprite(bx, by, 7, 3, 3, 1, (px) => { px.P(0, up ? 0 : 1, '#3a3e5a'); px.P(1, 1, '#3a3e5a'); px.P(2, 2, '#3a3e5a'); px.P(3, 1, '#3a3e5a'); px.P(4, up ? 0 : 1, '#3a3e5a'); }, `bird${up ? 1 : 0}`);
+        }
       }
     }
   }
+  const smoothstep = (u) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); };
 
   // ---- the whole sky, one moment ---------------------------------------------------------------------------------------------------
   let now = 0, shaking = 0;
   function draw(v) {
     now = v.t; shaking = v.shake || 0;
     back(v.t, v);
+    behind(v);
     town(v);
     const onLine = v.letters.filter((l) => l.state === 'hooked' || l.state === 'closed');
     for (const l of v.letters) if (!onLine.includes(l)) letter(l);
@@ -265,9 +466,13 @@ export function makeSky(stage) {
     rod(v);
     line(v);
     for (const l of onLine) letter(l);
+    if (v.held) letter(v.held);
     if (v.drop) stage.sprite(v.drop.x, v.drop.y, 11, 8, 5, 3, airmailArt, 'airmail');
     gull(v);
     fx(v);
+    charge(v);
+    bang(v);
+    panel(v);
   }
   return { layout, draw, L, city };
 }

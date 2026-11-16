@@ -151,20 +151,20 @@ body[data-scene="sea"] .seahud { display: flex; }
 .tools button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
 .bump { animation: bump .35s ease-out; }
 @keyframes bump { 30% { transform: scale(1.12); } }
-body[data-scene="sea"] footer { display: none; }
-.talk { position: fixed; z-index: 4; display: flex; gap: 8px; align-items: center; box-sizing: border-box; padding: 4px 10px 4px 6px;
-  left: max(10px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom)); max-width: min(440px, calc(100vw - 370px));
-  background: var(--paper); color: var(--ink); border: 3px solid var(--edge); border-radius: 4px; box-shadow: 0 3px 0 var(--edge);
-  font: 15px/1.25 var(--ui); pointer-events: none; animation: pop .18s ease-out; overflow: hidden; }
+body[data-scene="sea"] footer, body[data-scene="rise"] footer { display: none; }
+.talk { position: fixed; z-index: 4; display: flex; gap: 6px; align-items: center; box-sizing: border-box; padding: 3px 9px 3px 4px; left: 10px; top: 10px;
+  max-width: min(360px, calc(100vw - 20px)); background: rgba(255, 248, 231, 0.9); color: var(--ink); border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(20, 20, 50, 0.25); font: 14px/1.25 var(--ui); pointer-events: none; animation: soft .35s ease-out; }
+@keyframes soft { from { opacity: 0; transform: translateY(4px); } }
 @media (max-width: 560px) {                                   /* a phone: the line across the top, the buttons across the bottom, the words above them */
   .seahud.prog { left: 10px; right: 10px; justify-content: space-between; font-size: 12px; }
   .seahud.tools { left: 10px; right: 10px; justify-content: space-between; gap: 6px; }
-  .tools button { flex: 1; font-size: 13px; padding: 7px 4px; }
-  .talk { right: 10px; bottom: calc(max(10px, env(safe-area-inset-bottom)) + 50px); max-width: none; }
+  .tools button { font-size: 13px; padding: 7px 12px; }
+  .seahud.tools { justify-content: flex-end; }
 }
 .talk[hidden] { display: none; }
-.talk canvas { width: 30px; height: 30px; image-rendering: pixelated; flex: none; background: #9fd4f8; border: 2px solid var(--edge); }
-body[data-scene="sea"] .corner { display: none; }
+.talk canvas { width: 20px; height: 20px; image-rendering: pixelated; flex: none; }
+body[data-scene="sea"] .corner, body[data-scene="rise"] .corner { display: none; }   /* on the way up and in the sky: nothing but the way */
 .rplist li.head .fold { margin-left: 10px; font: 600 12px var(--ui); padding: 2px 8px; background: #efe3c4; color: var(--ink); border: 2px solid var(--edge); border-radius: 3px; cursor: pointer; }
 #rpActs { margin-top: 10px; }
 /* the report's search: one field over the whole list */
@@ -173,3 +173,5 @@ body[data-scene="sea"] .corner { display: none; }
 .report .find:focus { outline: 2px solid var(--yellow); outline-offset: 1px; }
 @media (max-width: 560px) { .talk { font-size: 13px; } .report .find { font-size: 16px; } }   /* 16px: the phone does not zoom in on it */
 .corner button.gofish { background: var(--yellow); }
+/* the reading at the desk: one letter at a time; «Later» quiet beside the link */
+.card .later { margin-left: 12px; font: 600 13px var(--ui); color: #6a5a40; background: none; border: 0; box-shadow: none; padding: 4px 6px; text-decoration: underline; cursor: pointer; }

@@ -4,13 +4,14 @@
 // is given. Pixel art seen three quarters on, lit by the desk lamp, the screen and the light from above (the rest of the
 // room in the dark). Laid out from the canvas's own size: wide on a computer, tall on a phone.
 
-import { makePix } from './pix.js';
-import { sleeping, upright } from './ducks.js';
+import { makePix, FONT } from './pix.js';
+const FONTROW = (ch) => FONT[ch] || FONT[' '];
+import { sleeping, upright, soul } from './ducks.js';
 import { drawEscalator } from './escalator.js';
 
 export function makeRoom(g) {
   const px = makePix(g), { R, P, ell, line, poly, text, textW } = px;
-  let N = {}, T = 0;                                                  // the person's numbers (js/progress.js), the time
+  let N = {}, T = 0, S = {};                                          // the person's numbers (js/progress.js), the time, the state
   const spot = (name, x, y, w, h) => { L.spots[name] = { x, y, w, h }; };   // where each thing can be pressed
 
   // ---- the layout, from the canvas's size -------------------------------------------------------------------------------
@@ -38,7 +39,7 @@ export function makeRoom(g) {
     L.mcx = L.mx - (wide ? 16 : 10);                               // the monitor's middle, left of the duck
     L.monTop = L.deskT - 6 - L.mon.h;
     // the wall's things, laid in rows from the top left, kept off the escalator and above the screen
-    const things = [['window', wide ? 76 : 72, wide ? 54 : 52], ['clock', 21, 21], ['calendar', 29, 34], ['board', 76, 56], ['poster', 30, 42]];
+    const things = [['window', wide ? 76 : 72, wide ? 54 : 52], ['clock', 21, 21], ['calendar', 29, 34], ['board', 76, 56], ['poster', 30, 42], ['apply', 40, 34]];
     L.wall = {};
     let x = 10, y = 18, row = 0;
     for (const [name, w, h] of things) {
@@ -90,7 +91,8 @@ export function makeRoom(g) {
     const cx = o.x + 10, cy = o.y + 10;
     ell(cx, cy, 10, 10, '#1b1f3a'); ell(cx, cy, 8, 8, '#e9e4d0');
     for (let i = 0; i < 12; i++) P(cx + Math.round(Math.sin(i * Math.PI / 6) * 7), cy - Math.round(Math.cos(i * Math.PI / 6) * 7), '#6a6450');
-    const hr = (3 + 47 / 60) * Math.PI / 6, mn = 47 * Math.PI / 30;                  // 3:47 in the morning
+    const at = 3 * 60 + 47 + Math.floor(S.clockMin || 0), hh = Math.floor(at / 60) % 12, mm = at % 60;   // 3:47, and on by the minutes in the sky
+    const hr = (hh + mm / 60) * Math.PI / 6, mn = mm * Math.PI / 30;
     line(cx, cy, cx + Math.sin(hr) * 4, cy - Math.cos(hr) * 4, '#1b1f3a');
     line(cx, cy, cx + Math.sin(mn) * 6, cy - Math.cos(mn) * 6, '#1b1f3a');
     P(cx, cy, '#b03a2a');
@@ -153,6 +155,21 @@ export function makeRoom(g) {
     spot('poster', x, y, w, h);
   }
 
+  function apply(o) {                                               // a cork board: the letters kept, to apply to
+    const { x, y, w, h } = o;
+    R(x + 2, y + 2, w, h, 'rgba(0,0,0,0.3)');
+    R(x, y, w, h, '#5a3a20'); R(x + 2, y + 2, w - 4, h - 4, '#c49a62');
+    for (let i = 0; i < 24; i++) P(x + 3 + ((i * 29) % (w - 6)), y + 3 + ((i * 13) % (h - 6)), '#b0864e');
+    R(x + 3, y + 3, w - 6, 7, '#1b1f3a'); text('TO APPLY', x + Math.round((w - textW('TO APPLY')) / 2), y + 4, '#ffd84a');
+    const n = Math.min(6, N.keep || 0);
+    for (let i = 0; i < n; i++) {                                    // one card for each letter kept
+      const cx = x + 4 + (i % 3) * 11, cy = y + 13 + Math.floor(i / 3) * 10;
+      R(cx + 1, cy + 1, 9, 8, 'rgba(0,0,0,0.25)'); R(cx, cy, 9, 8, '#fbf7ec'); R(cx + 2, cy + 3, 5, 1, '#b9b3a3'); R(cx + 2, cy + 5, 4, 1, '#b9b3a3');
+      P(cx + 4, cy, ['#e03a3a', '#3a7be0', '#3ae07b'][i % 3]);
+    }
+    if (!n) text('-', x + w / 2 - 1, y + h / 2 + 2, '#7a5a30');
+    spot('apply', x, y, w, h);
+  }
   function shelf(x, y, w) {
     if (w < 40 || y > L.monTop + 10) return;
     R(x + 2, y + 3, w, 3, 'rgba(0,0,0,0.3)'); R(x, y, w, 3, '#6a4224'); R(x, y, w, 1, '#8a5a32');
@@ -190,11 +207,17 @@ export function makeRoom(g) {
     R(x - 9, y - 14, 18, 1, '#ffe9a0');                                                // the bulb's glow under the shade
     R(x - 6, y - 18, 8, 1, '#4f9b72');
   }
-  function papers(x) {
-    shadow(x, 16);
-    const n = Math.min(18, 2 + (N.papers || 0));                                    // the jobs in the bucket not looked at yet
-    for (let i = 0; i < n; i++) R(x + (i % 3) - 1, on(-1) - i * 2, 16, 2, i % 4 ? '#f1ead6' : '#ddd2b6');
-    spot('papers', x - 1, on(-1) - n * 2, 18, n * 2 + 2);
+  function tray(x) {                                                // the in-tray: the letters brought back, not opened yet
+    shadow(x, 18);
+    const n = Math.min(8, N.tray || 0), y = on(-1), glow = S.fresh && n > 0;
+    if (glow) { const c = px.ctx, a = 0.18 + 0.1 * Math.sin(T * 3); c.globalCompositeOperation = 'lighter'; ell(x + 8, y - 6, 14, 9, `rgba(255,220,120,${a.toFixed(2)})`); c.globalCompositeOperation = 'source-over'; }
+    R(x - 1, y - 1, 18, 2, '#7a7a8a'); R(x - 1, y - 7, 1, 7, '#7a7a8a'); R(x + 16, y - 7, 1, 7, '#7a7a8a');   // a wire tray
+    for (let i = 0; i < n; i++) {                                    // the envelopes in it, a little askew
+      const ey = y - 3 - i * 2, ex = x + ((i * 3) % 3) - 1;
+      R(ex, ey, 16, 3, '#7d6e5a'); R(ex + 1, ey, 14, 2, i === n - 1 && glow ? '#fff6d8' : '#fbf7ec'); P(ex + 8, ey + 1, '#d03a2a');
+    }
+    for (let k = 0; k < 4; k++) R(x - 1 + k * 5, y - 7, 1, 7, 'rgba(122,122,138,0.6)');
+    spot('tray', x - 2, y - 6 - n * 2, 21, n * 2 + 8);
   }
   function monitor() {
     const { w, h } = L.mon, x = L.mcx - w / 2, y = L.monTop;
@@ -276,12 +299,24 @@ export function makeRoom(g) {
     if (o.up) { R(o.x - 30, 0, L.W - o.x + 30, L.ceil + 1, '#9fd4f8'); ell(o.x - 6, 3, 7, 2, '#ffffff'); }
     else { R(L.W - 10, o.y - 60, 10, 70, '#9fd4f8'); ell(L.W - 3, o.y - 40, 6, 3, '#ffffff'); }
     drawEscalator(px, { bx, by, tx, ty, slope, t, bottom: true });
-    // a sign on the wall by it: where it goes
-    const sy = L.wide ? Math.min(L.deskT - 44, L.monTop - 22) : L.monTop - 66, sw = textW('JOBS THIS WAY') + 8, sx = Math.min(L.escX(sy + 16) - sw - 10, L.W - sw - 4);
-    R(sx + 2, sy + 2, sw, 17, 'rgba(0,0,0,0.35)'); R(sx, sy, sw, 17, '#1b1f3a');
-    R(sx, sy, sw, 1, '#d9a63a'); R(sx, sy + 16, sw, 1, '#d9a63a'); R(sx, sy, 1, 17, '#d9a63a'); R(sx + sw - 1, sy, 1, 17, '#d9a63a');
-    text('^ SKY', sx + 4, sy + 3, '#ffd84a'); text('JOBS THIS WAY', sx + 4, sy + 10, '#fff8e7');
-    spot('sign', sx, sy, sw, 17);
+    // a sign on the wall by it, in neon: HEAVEN, up; one of its letters never quite works
+    const word = 'HEAVEN', sub2 = 'JOBS DEPT', sw = textW(word) * 2 + 14, sh = 24;
+    const sy = L.wide ? Math.min(L.deskT - 48, L.monTop - 26) : L.monTop - 70, sx = Math.min(L.escX(sy + 20) - sw - 10, L.W - sw - 4);
+    R(sx + 2, sy + 2, sw, sh, 'rgba(0,0,0,0.35)'); R(sx, sy, sw, sh, '#14162e');
+    R(sx, sy, sw, 1, '#3a3f6a'); R(sx, sy + sh - 1, sw, 1, '#0a0b1a');
+    const flick = Math.sin(t * 13.1) + Math.sin(t * 7.7) + Math.sin(t * 2.3) > 1.9;   // the second E flickers, now and then
+    const c = px.ctx;
+    c.globalCompositeOperation = 'lighter'; ell(sx + sw / 2, sy + 8, sw / 2, 7, 'rgba(255,160,200,0.10)'); c.globalCompositeOperation = 'source-over';
+    let lx = sx + 5;
+    [...word].forEach((ch, i) => {                                    // each letter twice as big, a neon tube
+      const f = (i === 4 && flick) ? '#4a2a3a' : '#ffb0d8', glow = (i === 4 && flick) ? null : 'rgba(255,120,190,0.35)';
+      const rows = FONTROW(ch);
+      rows.forEach((row, j) => [...row].forEach((b, k) => { if (b === '#') { if (glow) R(lx + k * 2 - 1, sy + 3 + j * 2 - 1, 4, 4, glow); R(lx + k * 2, sy + 3 + j * 2, 2, 2, f); } }));
+      lx += rows[0].length * 2 + 2;
+    });
+    P(sx + sw - 6, sy + 4, '#ffd84a'); R(sx + sw - 7, sy + 5, 3, 1, '#ffd84a'); R(sx + sw - 6, sy + 6, 1, 6, '#ffd84a');   // an arrow, up
+    text(sub2, sx + Math.round((sw - textW(sub2)) / 2), sy + sh - 8, '#c9d0ff');
+    spot('sign', sx, sy, sw, sh);
     spot('escalator', bx - 12, by - 70, Math.round(70 * slope) + 30, 74);
   }
   function beam(a) {                                                // the light from the opening, down the steps
@@ -323,11 +358,41 @@ export function makeRoom(g) {
     g.globalCompositeOperation = 'source-over';
   }
 
+  // ---- the soul's way, by its pose and the seconds it has been in it -----------------------------------------------------------
+  // soul: 4 s up out of the body, a look down, a poke, a shrug; walk: 2.4 s over to the escalator; ride: 4 s up it, slowly;
+  // descend: 4 s down it; back: 2.4 s back over the desk; enter: 1 s into the body
+  const SOUL = { soul: 4, walk: 2.4, ride: 4, descend: 4, back: 2.4, enter: 1 };
+  const smooth = (u) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); };
+  function soulAt(pose, k, t) {
+    const body = { x: L.mx - 2, y: on(-6) }, above = { x: L.mx - 2, y: on(-30) }, foot = { x: L.bx - 18, y: L.fy + 8 };
+    const bob = Math.sin(t * 2.4) * 1.5;
+    const ride = (u) => { const y = L.by - 6 - u * (L.by - L.ceil + 40); return { x: L.escX(y) + 2, y }; };
+    if (pose === 'soul') {
+      const up = smooth(k / 1.6), poke = k > 2.4 && k < 3 ? Math.sin(((k - 2.4) / 0.6) * Math.PI) * 4 : 0;
+      return { x: body.x + (above.x - body.x) * up, y: body.y + (above.y - body.y) * up + bob * up + poke, alpha: 0.85 * Math.min(1, k / 0.9), look: k > 1.6 && k < 3 ? -1 : 0, beam: Math.min(1, k / 0.6) * (k > 3.4 ? Math.max(0, 1 - (k - 3.4) / 0.6) : 1) };
+    }
+    if (pose === 'walk' || pose === 'back') {
+      const u = smooth(k / SOUL.walk), [a, b] = pose === 'walk' ? [above, foot] : [foot, above];
+      return { x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u - Math.sin(Math.PI * u) * 10 + bob };
+    }
+    if (pose === 'ride') return { ...ride(smooth(k / SOUL.ride)), alpha: 0.85 };
+    if (pose === 'descend') return ride(1 - smooth(k / SOUL.descend));
+    if (pose === 'enter') { const u = smooth(k / SOUL.enter); return { x: above.x, y: above.y + (body.y - above.y) * u, alpha: 0.85 * (1 - u) }; }
+    return null;
+  }
+  function beamDown(a) {                                             // a light from the ceiling onto the desk
+    const c = px.ctx; c.globalCompositeOperation = 'lighter';
+    poly([[L.mx - 16, L.ceil], [L.mx + 12, L.ceil], [L.mx + 20, on(2)], [L.mx - 26, on(2)]], `rgba(255,244,200,${(0.16 * a).toFixed(3)})`);
+    poly([[L.mx - 8, L.ceil], [L.mx + 4, L.ceil], [L.mx + 10, on(2)], [L.mx - 16, on(2)]], `rgba(255,244,200,${(0.14 * a).toFixed(3)})`);
+    c.globalCompositeOperation = 'source-over';
+  }
+
   // ---- the whole room -------------------------------------------------------------------------------------------------------
-  // state: n (the numbers of js/progress.js), open (a CV is given), duck: { pose: sleep | wake | walk | ride, k: 0..1 on the way }
+  // state: n (the numbers of js/progress.js), open (a CV is given), clockMin (minutes spent in the sky), fresh (letters just
+  // brought back, not opened), duck: { pose: faint | soul | walk | ride | descend | back | enter | awake, k: seconds in it }
   function draw(W, H, t = 0, state = {}) {
     px.use(g);
-    N = state.n || {}; T = t; L.spots = {};
+    N = state.n || {}; T = t; S = state; L.spots = {};
     walls();
     const wl = L.wall;
     if (wl.window) window_(wl.window);
@@ -335,20 +400,27 @@ export function makeRoom(g) {
     if (wl.calendar) calendar(wl.calendar);
     if (wl.board) board(wl.board);
     if (wl.poster) poster(wl.poster);
+    if (wl.apply) apply(wl.apply);
     if (L.wide && wl.window) shelf(wl.window.x, wl.window.y + wl.window.h + 22, Math.min(wl.window.w, L.mcx - L.mon.w / 2 - wl.window.x - 10));
     desk();
     // on the desk, left to right: the lamp, the papers, the screen and the duck, the mugs, the noodles, the plant
     const x0 = L.deskL;
     L.lampX = x0 + 14; lamp(L.lampX);
-    if (L.mcx - L.mon.w / 2 - (x0 + 26) >= 18) papers(x0 + 28);
+    if (L.mcx - L.mon.w / 2 - (x0 + 26) >= 20) tray(x0 + 28);
     monitor(); keyboard();
-    const pose = (state.duck && state.duck.pose) || 'sleep';
-    if (pose === 'sleep') {
-      sleeping(px, L.mx - 2, on(-2) - (L.buzz ? 1 : 0));                              // the phone buzzes: it twitches
+    const D = state.duck || {}, pose = D.pose || 'faint', k = D.k || 0;
+    const awake = pose === 'awake';
+    if (!awake) {                                                    // out cold on the keyboard, little stars going round
+      sleeping(px, L.mx - 2, on(-2) - (L.buzz ? 1 : 0), { fainted: true });
+      for (let i = 0; i < 3; i++) {
+        const a = t * 2.2 + i * 2.1, sx = L.mx - 4 + Math.cos(a) * 9, sy = on(-24) + Math.sin(a) * 2.5;
+        if (Math.sin(a) > -0.3 || i === 0) { P(sx, sy, '#ffd84a'); P(sx - 1, sy, '#ffe58a'); P(sx + 1, sy, '#ffe58a'); P(sx, sy - 1, '#ffe58a'); P(sx, sy + 1, '#ffe58a'); }
+      }
       L.head = { x: L.mx - 2, y: on(-20) };
-      spot('duck', L.mx - 16, on(-24), 52, 24);
-    } else if (pose === 'wake') {
-      upright(px, L.mx + 6, on(-1), { blink: (t % 3) > 2.85 });
+      if (pose === 'faint') spot('duck', L.mx - 16, on(-24), 52, 24);
+    } else {
+      const jolt = k < 0.5 ? Math.round(Math.sin(k * Math.PI * 2) * 3) : 0;   // just woken: a jolt upright
+      upright(px, L.mx + 6, on(-1) - Math.max(0, jolt), { blink: (t % 3) > 2.85 });
       L.head = { x: L.mx + 10, y: on(-28) };
       spot('duck', L.mx - 8, on(-30), 30, 30);
     }
@@ -362,17 +434,14 @@ export function makeRoom(g) {
     bin();
     escalator(t);
     rope(state.open);
-    // the duck on its way: down from the desk, across the floor, then up the steps
-    if (pose === 'walk' || pose === 'ride') {
-      const k = Math.min(1, state.duck.k || 0);
-      let x, y;
-      if (pose === 'walk') { x = L.mx + 6 + (L.bx - 18 - (L.mx + 6)) * k; y = L.fy + 9; }
-      else { y = L.by - 6 - k * (L.by - L.ceil + 40); x = L.escX(y) + 2; }
-      const hop = pose === 'walk' ? Math.abs(Math.sin(t * 10)) * 2 : 0;
-      upright(px, Math.round(x), Math.round(y - hop));
-      L.head = { x: Math.round(x) + 4, y: Math.round(y) - 28 };
+    // its soul: up out of the body, a look back, over to the escalator, up through the ceiling; and the same way home
+    const at = soulAt(pose, k, t);
+    if (at) {
+      if (at.beam) beamDown(at.beam);
+      soul(px, Math.round(at.x), Math.round(at.y), { look: at.look || 0, alpha: at.alpha ?? 0.85 });
+      L.head = { x: Math.round(at.x) + 4, y: Math.round(at.y) - 30 };
     }
     light(W, H);
   }
-  return { layout, draw, L };
+  return { layout, draw, L, SOUL };
 }

@@ -1,4 +1,6 @@
-// THE CLOUD PIER (Vin, 15/11: «khi lên rồi thì phải có 1 cái bến, trước khi bắt đầu đi câu»; and of the first try,
+// HEAVEN'S PIER (PLAN.md 19: the soul arrives by the escalator, through a gate of cloud with HEAVEN over it; the gull keeps
+// the gate at a lectern, its ledger open; the boat goes out to the right and comes back in from the right; the way home is the
+// escalator, down. Before it: THE CLOUD PIER) (Vin, 15/11: «khi lên rồi thì phải có 1 cái bến, trước khi bắt đầu đi câu»; and of the first try,
 // «ẩu rồi, đã chốt làm 2.5D ... chất lượng kém xa lobby»): drawn as the office's escalator is, in an oblique view from the
 // front left and a little above, so each thing shows its front, its top and its right side. A wooden pier over a sea of
 // clouds in the early morning; the sun low at the back right lights the tops and the right sides and throws every shadow
@@ -35,7 +37,7 @@ export function makePier(g) {
       L.lamp = { x: 128, z: 4 };
       L.sign = { x: 274, z: 50 };                                     // at the back right corner, pointing out to sea
       L.boat = { x: L.x1 + 18, y: L.yF + 20 };
-      L.duck = { x: 50, z: 10 };
+      L.duck = { x: 70, z: 10 };                                       // just through the gate
     } else {
       Object.assign(L, { hz: 176, yF: 292, Dz: 84, x0: 14, x1: W + 30 });
       L.hut = { x: 14, z: 60, w: 58, d: 18, h: 30 };
@@ -46,7 +48,7 @@ export function makePier(g) {
       L.lamp = null;
       L.sign = null;
       L.boat = { x: 96, y: L.yF + 56 };
-      L.duck = { x: 24, z: 12 };
+      L.duck = { x: 40, z: 12 };
     }
     const ox = Math.round((W - (wide ? 384 : 195)) / 2);             // a window wider or narrower than drawn for: the pier in its middle
     if (ox) {
@@ -229,10 +231,10 @@ export function makePier(g) {
     const [cx, cy] = S(x + w - 12, z + d / 2 + 4, h + rh + 6);
     for (let i = 0; i < 5; i++) { const k = (t * 0.35 + i / 5) % 1; ell(cx - k * 22, cy - 3 - k * 20, 1 + k * 3, 1 + k * 2, `rgba(244,244,250,${(0.75 * (1 - k)).toFixed(2)})`); }
     // the name board on the ridge
-    const [nx, ny] = S(x + w / 2 - 22, z + d / 2, h + rh), bw = textW('CLOUD PIER') + 8;
+    const [nx, ny] = S(x + w / 2 - 22, z + d / 2, h + rh), bw = textW('HEAVEN PIER') + 8;
     R(nx + 3, ny - 2, 1, 3, '#5a3a22'); R(nx + bw - 4, ny - 2, 1, 3, '#5a3a22');
     R(nx, ny - 12, bw, 10, '#fff8ea'); R(nx, ny - 3, bw, 1, '#c8b890'); R(nx + bw, ny - 12, 1, 10, '#d8ccb0');
-    text('CLOUD PIER', nx + 4, ny - 9, '#2a4a8a');
+    text('HEAVEN PIER', nx + 4, ny - 9, '#2a4a8a');
     // the bell at the front corner, swinging a little
     const s = Math.sin(t * 1.4) * 0.8;
     R(fx - 4, fy - h + 1, 5, 1, '#5a3a22'); R(fx - 3, fy - h + 2, 1, 2, '#5a3a22');
@@ -276,60 +278,32 @@ export function makePier(g) {
     });
     spot('board', fx, top, w, bh);
   }
-  const SHORT = { python: 'PY', pytorch: 'PT', tensorflow: 'TF', javascript: 'JS', typescript: 'TS', 'machine learning': 'ML',
-    'deep learning': 'DL', llms: 'LLM', llm: 'LLM', nlp: 'NLP', 'computer vision': 'CV', kubernetes: 'K8S', docker: 'DKR', react: 'RCT', golang: 'GO', go: 'GO' };
-  function short(k, used) {                                                   // a skill in three letters, as people write it
-    const w = k.toLowerCase(), words = w.split(/\s+/);
-    for (const c of [SHORT[w], words.length > 1 ? words.map((x) => x[0]).join('').slice(0, 3) : w.slice(0, 3), w[0] + w.slice(-2)]) {
-      const u = (c || '').toUpperCase().replace(/[^A-Z0-9+#]/g, '');
-      if (u && !used.has(u)) { used.add(u); return u; }
+  function lectern(t) {                                                       // the gull keeps the gate: a lectern, its ledger open
+    const { x, z } = L.stall, lx = x + 12;
+    shade(lx, z, 13, 8, 18);
+    const [fx, fy] = box(lx, z, 13, 7, 15, { top: '#c08a52', side: '#a87444', front: '#7a4e2c' });
+    R(fx + 2, fy - 11, 9, 5, '#fff8ea'); text('CV', fx + 4, fy - 11, '#8a3a2a');
+    const [bx, by] = S(lx + 1, z + 3, 15);                                   // the ledger, open, its lines
+    R(bx, by - 3, 13, 3, '#f4efe2'); R(bx + 6, by - 3, 1, 3, '#c8b890');
+    for (let i = 0; i < 2; i++) { R(bx + 1, by - 2 + i, 4, 1, '#b9b3a3'); R(bx + 8, by - 2 + i, 4, 1, '#b9b3a3'); }
+    R(bx + 10, by - 6, 1, 4, '#3a2a1a'); P(bx + 10, by - 7, '#ffffff');      // a quill
+    gull(lx + 10, z + 10, t, 0);
+  }
+  function gate(t) {                                                          // where the escalator comes up: a gate of cloud, HEAVEN over it
+    const x0 = L.x0 - 4, x1 = L.x0 + (L.wide ? 22 : 18), z = 6;
+    for (const gx of [x0, x1]) {
+      const [cx, cy] = S(gx, z);
+      for (let k = 0; k < 4; k++) px.lump(cx, cy - 4 - k * 9, 7 - (k === 3 ? 1 : 0), 'near');
     }
-    return '?';
-  }
-  function stall(skills, t) {                                                 // bait and tackle: jars of the CV's own skills
-    const { x, z, w, d, h } = L.stall, ah = h + 22;
-    shade(x, z, w, d, ah + 6);
-    for (const p0 of [x + 1, x + w - 3]) box(p0, z + d - 2, 2, 2, ah + 6, { top: '#9a7048', side: '#9a7048', front: '#6a4628' });   // the back poles
-    const [fx, fy] = box(x, z, w, d, h, { top: '#c08a52', side: '#a87444', front: '#7a4e2c' });
-    for (let i = 0; i < 3; i++) R(fx + 3, fy - h + 4 + i * 4, w - 6, 1, '#5a3820');
-    R(fx + w / 2 - 9, fy - h + 3, 18, 7, '#f4efe2'); text('FREE', fx + w / 2 - 7, fy - h + 4, '#d03a2a');   // the price
-    const used = new Set(), cols = ['#e8a040', '#7fb0e0', '#a0d070', '#d080c0'];
-    skills.slice(0, 4).forEach((k, i) => {                                   // the jars standing on the counter
-      const on = D.bait === k, [jx, jb0] = S(x + 2 + i * 13, z + 4, h), jb = jb0 - (on ? 3 : 0);
-      if (on) { const c = px.ctx; c.globalCompositeOperation = 'lighter'; ell(jx + 5, jb - 6, 9, 9, 'rgba(255,220,120,0.25)'); c.globalCompositeOperation = 'source-over'; }
-      R(jx, jb - 11, 11, 11, 'rgba(214,240,255,0.7)'); R(jx + 1, jb - 7, 9, 7, cols[i]); R(jx + 9, jb - 11, 2, 11, 'rgba(255,255,255,0.5)');
-      ell(jx + 5, jb - 12, 5, 1, on ? '#d9a63a' : '#6a6a7a'); R(jx + 2, jb - 12, 7, 1, on ? '#ffe58a' : '#a0a0b0');
-      const lab = short(k, used); R(jx + 1, jb - 7, 9, 6, '#f4efe2'); text(lab, jx + 6 - textW(lab) / 2, jb - 7, '#3a2a1a');
-      spot(`jar:${k}`, jx - 1, jb - 14, 13, 16);
-    });
-    const [wx, wy] = S(x + 6, z + 4, h + 11), wob = Math.sin(t * 4);           // a worm out of the first jar, looking about
-    line(wx, wy, wx + 1 + wob, wy - 5, '#e88a8a', 2); P(wx + 1 + wob, wy - 6, '#1b1f3a');
-    // the awning, sloping down toward us, red and white
-    const n = 7, a = (w + 6) / n;
-    for (let i = 0; i < n; i++) quad([[x - 3 + i * a, z - 4, ah], [x - 3 + (i + 1) * a, z - 4, ah], [x - 3 + (i + 1) * a, z + d, ah + 8], [x - 3 + i * a, z + d, ah + 8]], i % 2 ? '#f4efe2' : '#d03a2a');
-    quad([[x + w + 3, z - 4, ah], [x + w + 3, z + d, ah + 8], [x + w + 3, z + d, ah + 6], [x + w + 3, z - 4, ah - 2]], '#a82a20');
-    for (let i = 0; i < n; i++) { const [vx, vy] = S(x - 3 + (i + 0.5) * a, z - 4, ah); ell(vx, vy + 1, Math.floor(a / 2), 1, i % 2 ? '#e0dccf' : '#a82a20'); }
-    const [sx0, sy0] = S(x + w / 2, z + d, ah + 9), sw = textW('BAIT & TACKLE') + 6;
-    R(sx0 - sw / 2, sy0 - 9, sw, 8, '#f4efe2'); R(sx0 - sw / 2, sy0 - 2, sw, 1, '#c8b890'); text('BAIT & TACKLE', sx0 - sw / 2 + 3, sy0 - 7, '#d03a2a');
-    // a net hung on its side, a rod leaning on its front
-    const [nx, ny] = S(x + w, z + 2, ah - 2);
-    for (let i = 0; i < 4; i++) { line(nx + 1, ny + i * 3, nx + 6, ny + 2 + i * 3, '#c8b890'); line(nx + 2 + i, ny - 1, nx + 2 + i, ny + 10, '#c8b890'); }
-    const [rx, ry] = S(x - 3, z, 0); line(rx, ry, rx - 6, ry - ah - 4, '#5a3a1a');
-  }
-  function hooks() {
-    const { x, z } = L.stall, hx = x - 20, hz = z + 2;                          // a little rack by the stall's left side
-    shade(hx, hz, 12, 3, 26);
-    box(hx, hz, 2, 2, 24, { top: '#9a7048', side: '#9a7048', front: '#6a4628' });
-    box(hx + 12, hz, 2, 2, 24, { top: '#9a7048', side: '#9a7048', front: '#6a4628' });
-    const [bx, by] = S(hx, hz, 24);
-    R(bx - 1, by - 8, 17, 8, '#e8d8b0'); R(bx - 1, by - 8, 17, 1, '#fff4d8'); text('HOOK', bx + 1, by - 6, '#5a3a22');
-    [['small', 0, 3], ['medium', 5, 4], ['big', 11, 5]].forEach(([k, dx, r]) => {
-      const cx = bx + dx, cy = by + 3, on = D.hook === k;
-      R(cx, cy, 1, 3, '#7a7a8a');
-      for (let a = 0; a <= Math.PI; a += 0.35) P(cx - r + 1 + Math.round(Math.cos(a) * (r - 1)) + r - 1, cy + 3 + Math.round(Math.sin(a) * r), on ? '#ffd84a' : '#c8c8d4');
-      if (on) R(cx - 1, cy + r + 5, 4, 2, '#ffd84a');
-      spot(`hook:${k}`, cx - 2, cy - 1, r + 4, r + 8);
-    });
+    const [ax, ay] = S(x0, z, 40), [bx] = S(x1, z, 40), w = bx - ax;
+    R(ax - 4, ay - 2, w + 8, 4, '#d9a63a'); R(ax - 4, ay - 2, w + 8, 1, '#ffe58a');
+    const word = 'HEAVEN', tw = textW(word) + 6, sx = Math.round(ax + w / 2 - tw / 2);
+    R(sx, ay - 12, tw, 10, '#fff8e7'); R(sx, ay - 12, tw, 1, '#d9a63a'); R(sx, ay - 3, tw, 1, '#d9a63a');
+    text(word, sx + 3, ay - 10, '#b8860b');
+    const c = px.ctx; c.globalCompositeOperation = 'lighter';
+    ell(ax + w / 2, ay - 6, w / 2 + 8, 9, `rgba(255,230,160,${(0.12 + 0.04 * Math.sin(t * 2)).toFixed(3)})`);
+    c.globalCompositeOperation = 'source-over';
+    spot('down', ax - 14, ay - 14, w + 24, 60);
   }
   function crates() {                                                         // two crates: HOPE, and a CV's thirteenth draft
     const { x, z } = L.crates;
@@ -374,8 +348,8 @@ export function makePier(g) {
     arrow(by - 35, 1, 'FISHING', '#e8c890');
     spot('sign', bx - 4, by - 36, 40, 12);
   }
-  function gull(x, z, t) {                                                    // a gull on the bollard, in a captain's hat
-    const [gx, gy0] = S(x, z), y = gy0 - 10, b = Math.round(Math.sin(t * 1.3) * 0.5), look = Math.sin(t * 0.4) > 0.6 ? -1 : 1;
+  function gull(x, z, t, lift = 10) {                                         // the gull in a captain's hat (on a bollard: lifted)
+    const [gx, gy0] = S(x, z), y = gy0 - lift, b = Math.round(Math.sin(t * 1.3) * 0.5), look = Math.sin(t * 0.4) > 0.6 ? -1 : 1;
     ell(gx + 1, y - 5 + b, 5, 4, '#f6f6f8'); ell(gx + 2, y - 4 + b, 4, 2, '#b8c0cc'); R(gx - 4, y - 5 + b, 3, 2, '#3a3a48');
     ell(gx + 3, y - 10 + b, 3, 3, '#f6f6f8');
     if (look > 0) { R(gx + 6, y - 10 + b, 3, 1, '#f0b030'); P(gx + 4, y - 11 + b, '#1b1f3a'); } else { R(gx - 2, y - 10 + b, 3, 1, '#f0b030'); P(gx + 1, y - 11 + b, '#1b1f3a'); }
@@ -388,10 +362,10 @@ export function makePier(g) {
   function boat(t) {
     const { x, y } = L.boat, yy = y + Math.round(Math.sin(t * 1.6) * 1.2);
     const [rx0, ry0] = S(...L.bollards[1]);                                    // the rope from the bollard to its bow
-    const go = D.duck && D.duck.pose === 'sail' ? D.duck.k : 0;                 // casting off: it sails away to the right
+    const go = D.duck && D.duck.pose === 'sail' ? D.duck.k : D.duck && D.duck.pose === 'return' ? 1 - Math.min(1, D.duck.k) : 0;   // out to the right; back from it
     if (!go) for (let i = 0; i <= 24; i++) { const k = i / 24; P(rx0 + (x + 6 - rx0) * k, ry0 - 6 + (yy - 8 - ry0 + 6) * k + Math.sin(Math.PI * k) * 5, '#e0c896'); }
-    const aboard = D.duck && (D.duck.pose === 'aboard' || D.duck.pose === 'sail');
-    drawBoat(px, x + go * go * (L.W + 40), y - go * 6, t, { duck: aboard, sailing: go > 0 });
+    const aboard = D.duck && (D.duck.pose === 'aboard' || D.duck.pose === 'sail' || D.duck.pose === 'return');
+    drawBoat(px, x + go * go * (L.W + 40), y - go * 6, t, { duck: aboard, sailing: go > 0 && D.duck.pose === 'sail', halo: aboard });
     spot('boat', x - 2, yy - 52, 74, 60);
   }
 
@@ -410,18 +384,18 @@ export function makePier(g) {
     px.use(g);
     D = data; L.spots = {};
     const nums = data.board || [['LONDON', 69, 'ON TIME'], ['REMOTE', 12, 'ON TIME'], ['GOLDEN', 2, 'BOARDING']];
-    const skills = data.skills || ['python', 'sql', 'pytorch', 'aws'];
-    const pose = (data.duck && data.duck.pose) || 'stand', walk = pose === 'walk' ? Math.min(1, data.duck.k) : 0;
-    const dz = L.duck.z, dxw = L.duck.x + walk * (L.bollards[1][0] - 8 - L.duck.x);        // along the front of the deck, to the boat
+    const pose = (data.duck && data.duck.pose) || 'stand', dk = Math.min(1, (data.duck && data.duck.k) || 0);
+    const walk = pose === 'walk' ? dk : pose === 'walkback' ? 1 - dk : 0;
+    const toEsc = pose === 'down' ? Math.min(1, dk / 0.45) : 0;                         // over to the escalator, then down it
+    const dz = L.duck.z, dxw = L.duck.x + walk * (L.bollards[1][0] - 8 - L.duck.x) + toEsc * (L.x0 - 2 - L.duck.x);   // along the front of the deck
     const items = [                                                       // what stands on the deck, by how far back it is
-      [L.board.z, L.board.x, () => board(nums, t)], [L.hut.z, L.hut.x, () => hut(t)], [L.stall.z, L.stall.x, () => stall(skills, t)],
+      [L.board.z, L.board.x, () => board(nums, t)], [L.hut.z, L.hut.x, () => hut(t)], [L.stall.z, L.stall.x, () => lectern(t)],
       [L.crates.z, L.crates.x, crates], ...L.bollards.map(([x, z]) => [z, x, () => bollard(x, z)]),
       [2, L.bollards[0][0] + 12, () => coil(L.bollards[0][0] + 12, 2)],
       ...(L.lamp ? [[L.lamp.z, L.lamp.x, lamp]] : []), ...(L.sign ? [[L.sign.z, L.sign.x, signpost]] : []),
-      [L.stall.z + 2, L.stall.x - 20, hooks],
-      ...(pose === 'stand' || pose === 'walk' ? [[dz, dxw, () => {
-        shade(dxw - 8, dz - 3, 16, 6, 22); const [dx, dy] = S(dxw, dz), hop = walk ? Math.abs(Math.sin(t * 10)) * 2 : 0;
-        upright(px, dx, dy - hop, { blink: (t % 4) > 3.85 }); L.duckHead = { x: dx + 4, y: dy - 30 };
+      ...(pose === 'stand' || pose === 'walk' || pose === 'walkback' || (pose === 'down' && dk < 0.45) ? [[dz, dxw, () => {
+        shade(dxw - 8, dz - 3, 16, 6, 22); const [dx, dy] = S(dxw, dz), hop = walk || toEsc ? Math.abs(Math.sin(t * 10)) * 2 : 0;
+        upright(px, dx, dy - hop, { blink: (t % 4) > 3.85, halo: true }); L.duckHead = { x: dx + 4, y: dy - 30 };
       }]] : []),
     ].sort((a, b) => b[0] - a[0] || a[1] - b[1]);
     shadows.length = 0; scratch.canvas.width = W; scratch.canvas.height = H;
@@ -429,10 +403,14 @@ export function makePier(g) {
     sky(t); farSea(t); rays();
     railing(); deck(); castShadows(); shadows.length = 0;
     items.forEach(([, , f]) => f());
-    gull(...L.bollards[1], t);
     nearBase(t); piles(); frontBeam(); nearLumps(t);
     boat(t);
-    drawEscalator(px, { bx: L.esc.bx, by: L.esc.by, tx: L.esc.tx, ty: L.esc.ty, slope: L.esc.slope, t, bottom: false, top: true });
+    drawEscalator(px, { bx: L.esc.bx, by: L.esc.by, tx: L.esc.tx, ty: L.esc.ty, slope: L.esc.slope, t: pose === 'down' ? -t : t, bottom: false, top: true });
+    if (pose === 'down' && dk >= 0.45) {                                      // down the escalator, out of sight
+      const u = (dk - 0.45) / 0.55, e = L.esc, y = e.ty + u * (e.by - e.ty) * 0.6, x = e.bx + (e.by - y) * e.slope;
+      upright(px, Math.round(x + 4), Math.round(y - 4), { halo: true }); L.duckHead = { x: Math.round(x) + 8, y: Math.round(y) - 34 };
+    }
+    gate(t);
     grade();
   }
   return { layout, draw, L };

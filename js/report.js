@@ -1,5 +1,5 @@
-// THE REPORT (PLAN.md 4, and 17 C): the day's numbers, then the list of jobs to act on, each with I applied, Expired, Not for
-// me; those applied to below, with the day. The list goes on from day to day (js/box.js). Opened as the morning's results
+// THE REPORT (PLAN.md 4, 17 C and 19.4): the day's numbers, then the letters kept to apply to, each with I applied, Expired,
+// Not for me; the letters still in the tray, not opened (Keep, Expired, Not for me); those applied to below, with the day. The list goes on from day to day (js/box.js). Opened as the morning's results
 // («Catch of the day»), it may also hold what is still in the lake, folded (each can be kept from there), and the buttons
 // the moment calls for (Keep fishing, Home) in place of Close. A search over all of it (Vin, 15/11): every word typed is in
 // the job's title, company, place or skills. A job's page opens outside the game (js/fleet.js openOut).
@@ -37,35 +37,39 @@ const found = (j) => { const s = said(j); return words.every((w) => s.includes(`
 function draw() {
   const items = all(), week = Date.now() - 7 * 864e5;
   const todays = bagToday();                                          // kept today: the BAG button's own number
-  const fresh = items.filter((e) => e.status === 'new').sort((a, b) => (b.job.fit ?? -1) - (a.job.fit ?? -1) || b.job.posted - a.job.posted);
+  const byFit = (a, b) => (b.job.fit ?? -1) - (a.job.fit ?? -1) || b.job.posted - a.job.posted;
+  const keep = items.filter((e) => e.status === 'keep').sort(byFit);
+  const fresh = items.filter((e) => e.status === 'new').sort(byFit);
   const applied = items.filter((e) => e.status === 'applied').sort((a, b) => b.at.localeCompare(a.at));
   const away = items.filter((e) => e.status === 'expired' || e.status === 'not_for_me').length;
   $('rpStats').replaceChildren(...[
-    [todays.length, 'caught today'], [todays.filter((e) => e.job.size === 'gold').length, 'golden'],
-    [fresh.length, 'to look at'], [applied.filter((e) => Date.parse(e.at) >= week).length, 'applied this week'],
+    [todays.length, 'in the bag today'], [todays.filter((e) => e.job.size === 'gold').length, 'golden'],
+    [keep.length, 'to apply'], [applied.filter((e) => Date.parse(e.at) >= week).length, 'applied this week'],
   ].map(([n, w]) => { const d = document.createElement('div'); d.innerHTML = `<b>${n}</b><span>${w}</span>`; return d; }));
   // what is still in the lake: not in the bucket, the best first; any of them can be kept from here
   const kept = new Set(items.map((e) => e.job.id)), left = pond.filter((j) => !kept.has(j.id));
-  const freshHit = fresh.filter((e) => found(e.job)), appliedHit = applied.filter((e) => found(e.job)), leftHit = left.filter(found);
+  const keepHit = keep.filter((e) => found(e.job)), freshHit = fresh.filter((e) => found(e.job)), appliedHit = applied.filter((e) => found(e.job)), leftHit = left.filter(found);
   const list = $('rpList'); list.replaceChildren();
   const section = (title) => { const h = document.createElement('li'); h.className = 'head'; h.textContent = title; list.appendChild(h); return h; };
   const note = (text) => { const li = document.createElement('li'); li.className = 'empty'; li.textContent = text; list.appendChild(li); };
   const of = (hit, whole) => (words.length ? `${hit.length} of ${whole.length}` : `${whole.length}`);
-  if (!fresh.length && !applied.length && !left.length) note('Nothing in the bucket yet. Go fishing!');
-  else if (!freshHit.length && !appliedHit.length && !leftHit.length) note('Nothing here has those words.');
-  if (freshHit.length) section(`To look at: ${of(freshHit, fresh)}`);
-  for (const e of freshHit) list.appendChild(row(e, [['I applied', 'applied'], ['Expired', 'expired'], ['Not for me', 'not_for_me']]));
+  if (!keep.length && !fresh.length && !applied.length && !left.length) note('Nothing in the bag yet. Go fishing!');
+  else if (!keepHit.length && !freshHit.length && !appliedHit.length && !leftHit.length) note('Nothing here has those words.');
+  if (keepHit.length) section(`To apply: ${of(keepHit, keep)}`);
+  for (const e of keepHit) list.appendChild(row(e, [['I applied', 'applied'], ['Expired', 'expired'], ['Not for me', 'not_for_me']]));
+  if (freshHit.length) section(`In the tray, not opened: ${of(freshHit, fresh)}`);
+  for (const e of freshHit) list.appendChild(row(e, [['Keep', 'keep'], ['Expired', 'expired'], ['Not for me', 'not_for_me']]));
   if (appliedHit.length) section(`Applied: ${of(appliedHit, applied)}`);
-  for (const e of appliedHit) list.appendChild(row(e, [[e.replied ? 'Reply: yes' : 'Got a reply', 'reply'], ['Undo', 'new']], `applied ${new Date(e.at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`));
+  for (const e of appliedHit) list.appendChild(row(e, [[e.replied ? 'Reply: yes' : 'Got a reply', 'reply'], ['Undo', 'keep']], `applied ${new Date(e.at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`));
   if (leftHit.length) {
-    const h = section(`Still in the lake: ${of(leftHit, left)}`);
+    const h = section(`Still in the sky: ${of(leftHit, left)}`);
     if (!words.length) {                                              // folded, unless a search is looking in it
       const tog = document.createElement('button'); tog.type = 'button'; tog.className = 'fold'; tog.textContent = showPond ? 'Hide' : 'See all';
       tog.onclick = () => { showPond = !showPond; draw(); };
       h.appendChild(tog);
     }
     if (showPond || words.length) {
-      for (const j of leftHit.slice(0, LAKE_SHOWN)) list.appendChild(row({ job: j, how: 'lake' }, [['Keep', 'keep']]));
+      for (const j of leftHit.slice(0, LAKE_SHOWN)) list.appendChild(row({ job: j, how: 'lake' }, [['Keep', 'catch']]));
       if (leftHit.length > LAKE_SHOWN) note(`And ${leftHit.length - LAKE_SHOWN} more. Search to find one.`);
     }
   }
@@ -77,7 +81,7 @@ function row(e, buttons, note) {
   const b = document.createElement('b'); b.textContent = j.title;
   const s = document.createElement('span');
   s.textContent = [j.fit != null ? `${j.fit}%` : '', j.company, j.place, j.posted ? `posted ${ago(j.posted)}` : '',
-    e.how === 'net' ? 'in the net' : e.how === 'ashore' ? 'washed ashore, not looked at' : '', note || '']
+    e.how === 'net' ? 'in the net' : e.how === 'ashore' ? 'left at sunset, not opened' : '', note || '']
     .filter(Boolean).join(' · ');
   t.append(b, s);
   const a = document.createElement('a'); a.href = j.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Open ↗';
@@ -86,7 +90,7 @@ function row(e, buttons, note) {
   acts.append(a, ...buttons.map(([label, status]) => {
     const x = document.createElement('button'); x.type = 'button'; x.textContent = label;
     x.onclick = () => {
-      if (status === 'keep') { if (add(j, 'caught') && onKeep) onKeep(j); }
+      if (status === 'catch') { if (add(j, 'caught', 'keep') && onKeep) onKeep(j); }
       else if (status === 'reply') replied(j.id, !e.replied);
       else mark(j.id, status);
       draw();
