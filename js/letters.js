@@ -89,6 +89,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome, o
       sip: { in: rand(6, 10), k: 0, on: false, age: 0 },
       gull: null, gullIn: opts.gullFirst ?? 40, gullEvery: opts.gullEvery ?? 80, bottles: (opts.bottles || []).slice(), drop: null,
       season: opts.season || 'autumn', weather: opts.weather || 'fair', rain: 0, junkIn: rand(50, 80), junkN: 0,
+      level: Math.min(6, Math.max(0, opts.level || 0)), flockIn: rand(35, 60),
     });
     const tip = rodTip();
     Object.assign(F.float, { x: tip.x, y: tip.y + HANG });
@@ -348,7 +349,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome, o
     }
   }
   function strike(k) {                                                 // the hook is set: the panel of sky opens beside the boat
-    const s = k.suitor, kind = reelKind(s), c = REEL[kind];
+    const s = k.suitor, kind = reelKind(s), c = { ...REEL[kind], zone: REEL[kind].zone + F.level };   // the duck has fished before: a bigger cloud
     s.state = 'hooked';
     Object.assign(k, {
       phase: 'reel', age: 0, kind, cfg: c, p: 0.25, pv: 0.25, p0: 0.25, open: 0, out: 0, tick: 0, in: true, got: false,
@@ -696,6 +697,11 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome, o
     }
   }
 
+  function birds(dt) {                                                // a V of birds going over, now and then
+    if ((F.flockIn -= dt) > 0) return;
+    F.flockIn = rand(70, 120);
+    F.fx.push({ kind: 'flock', age: 0, life: rand(14, 20), y: L.top - 50 + rand(-10, 20) });
+  }
   function weather(dt) {
     if (F.weather !== 'quiet') { F.rain = Math.max(0, F.rain - dt * 0.3); return; }
     const want = F.t > 75 && F.t < 120 ? 1 : 0;
@@ -722,6 +728,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome, o
     F.at += F.speed * dt;
     if (!F.over) { stock(dt); junkFly(dt); }
     weather(dt);
+    birds(dt);
     if ((F.resort -= dt) <= 0) {                                         // now and then a letter finds its height again
       F.resort = 1.2;
       const l = F.sky[Math.floor(Math.random() * F.sky.length)];

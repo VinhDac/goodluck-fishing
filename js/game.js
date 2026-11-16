@@ -402,7 +402,7 @@ async function setSail() {
   fished();
   const my = trip = { store: null, pace: null, told: false, homeIn: 0 };
   const sky0 = skyToday();
-  letters.start({ W, H, L: sky.L }, { skills: person.skills, auto: false, dayLength: DAY, known: has, dream: dreamList(), season: sky0.season, weather: sky0.weather });
+  letters.start({ W, H, L: sky.L }, { skills: person.skills, auto: false, dayLength: DAY, known: has, dream: dreamList(), season: sky0.season, weather: sky0.weather, level: Math.floor((numbers().day || 1) / 3) });
   talk(`Hold anywhere and let go to cast. ${PRESS} the duck to let it fish.`, 'duck', 5);
   if (!soundOn() && !store('glf.asked')) setTimeout(() => { if (scene === 'sea') $('ask').hidden = false; }, 6000);   // once: some music?
   if (!dock.lake) {                                                    // the store read now, if the pier did not

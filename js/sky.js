@@ -210,6 +210,13 @@ export function makeSky(stage) {
       stage.sprite(x, y, w, 3, 0, 0, (px) => { px.R(0, 0, w, 2, 'rgba(255,255,255,0.6)'); px.R(5, 2, w - 10, 1, late > 0.3 ? 'rgba(255,190,150,0.7)' : 'rgba(220,230,250,0.6)'); }, `thin${i}:${late > 0.3 ? 1 : 0}`);
     }
     balloon(t); plane(t);
+    { const k = ((t + 40) % 200) / 200, x = W + 60 - k * (W + 160), y = H * 0.3;   // a cloud like a whale, very slowly across
+      stage.sprite(x, y, 64, 26, 32, 13, (px, ox, oy) => {
+        for (const [dx, dy, r] of [[-14, 1, 9], [-2, -1, 11], [10, 0, 10], [20, 2, 7]]) px.puff(ox + dx, oy + dy, r, late > 0.4 ? '#ffe2d0' : '#ffffff', late > 0.4 ? '#e8c0c8' : '#dfe8f4');
+        px.poly([[ox + 26, oy + 1], [ox + 31, oy - 5], [ox + 30, oy + 1], [ox + 31, oy + 7]], late > 0.4 ? '#ffe2d0' : '#f4f8ff');   // its tail
+        px.P(ox - 18, oy - 1, '#9aa6c8');                                   // its eye
+        px.R(ox - 4, oy - 13, 1, 3, 'rgba(255,255,255,0.8)'); px.R(ox - 6, oy - 14, 1, 2, 'rgba(255,255,255,0.7)'); px.R(ox - 2, oy - 14, 1, 2, 'rgba(255,255,255,0.7)');   // its spout
+      }, `whale:${late > 0.4 ? 1 : 0}`, 0.85); }
     for (let i = 0; i < 7; i++) {
       const x = ((hash(i + 40) * (W + 120) - t * 1.5) % (W + 120) + W + 120) % (W + 120) - 60, y = H * (0.46 + hash(i + 50) * 0.08), r = Math.round(5 + hash(i + 60) * 5);
       stage.sprite(x, y, r * 3, r * 2 + 4, Math.round(r * 1.5), r, (px, ox, oy) => px.lump(ox, oy, r, late > 0.4 ? 'dusk' : 'far'), `far${i}:${late > 0.4 ? 1 : 0}`, 0.5);
@@ -469,6 +476,22 @@ export function makeSky(stage) {
   }
   const smoothstep = (u) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); };
   // ---- the season in the air, by the real month: autumn's leaves, winter's snow, spring's petals, summer's fireflies at dusk ---
+  function dusk(v) {                                                 // as the light goes: the stars, letters glowing, the lantern lit
+    const late = city.late;
+    if (late <= 0.3) return;
+    const a = Math.min(1, (late - 0.3) / 0.5);
+    for (let i = 0; i < 40; i++) { const tw = 0.5 + 0.5 * Math.sin(v.t * (1.3 + hash(i) * 2) + i); stage.dot(hash(i + 70) * L.W, hash(i + 90) * L.H * 0.42, `rgba(255,250,230,${(a * tw * 0.8).toFixed(2)})`); }
+  }
+  function glows(v) {
+    const late = city.late;
+    if (late <= 0.4) return;
+    const a = Math.min(1, (late - 0.4) / 0.4), g = stage.g, K = stage.K;
+    g.globalCompositeOperation = 'lighter';
+    for (const l of v.letters) { if (l.state === 'leave') continue; const gr = g.createRadialGradient(l.x * K, l.y * K, 0, l.x * K, l.y * K, 9 * K); gr.addColorStop(0, `rgba(255,220,140,${(0.22 * a).toFixed(3)})`); gr.addColorStop(1, 'rgba(255,220,140,0)'); g.fillStyle = gr; g.fillRect((l.x - 9) * K, (l.y - 9) * K, 18 * K, 18 * K); }
+    const lx = v.boat.x + 45, ly = v.boat.y - 35, gr = g.createRadialGradient(lx * K, ly * K, 0, lx * K, ly * K, 14 * K);   // the lantern on the mast, lit
+    gr.addColorStop(0, `rgba(255,210,120,${(0.6 * a).toFixed(3)})`); gr.addColorStop(1, 'rgba(255,210,120,0)'); g.fillStyle = gr; g.fillRect((lx - 14) * K, (ly - 14) * K, 28 * K, 28 * K);
+    g.globalCompositeOperation = 'source-over';
+  }
   function season(v) {
     const t = v.t, W2 = L.W, H2 = L.H, kind = v.season;
     if (!kind) return;
@@ -507,6 +530,7 @@ export function makeSky(stage) {
     now = v.t; shaking = v.shake || 0;
     back(v.t, v);
     behind(v);
+    dusk(v);
     town(v);
     season(v);
     const onLine = v.letters.filter((l) => l.state === 'hooked' || l.state === 'closed');
@@ -519,6 +543,7 @@ export function makeSky(stage) {
     if (v.drop) stage.sprite(v.drop.x, v.drop.y, 11, 8, 5, 3, airmailArt, 'airmail');
     gull(v);
     fx(v);
+    glows(v);
     shower(v);
     charge(v);
     bang(v);
