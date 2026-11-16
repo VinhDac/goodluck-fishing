@@ -1,7 +1,8 @@
-"""THE PICTURES OUTSIDE THE GAME: the tab's icon, the phone's home-screen icon, and the card a shared link shows. Drawn
+"""THE PICTURES OUTSIDE THE GAME: the tab's icon and the phone's home-screen icon (the card a shared link shows is drawn from
+the game itself: tools/card.py). Drawn
 from the game's own yellow duck (js/art.js, read here so there is one duck), pixel by pixel, written as PNG.
 
-    python tools/icons.py        -> img/duck-64.png, img/icon-180.png, img/icon-192.png, img/icon-512.png, img/card.png
+    python tools/icons.py        -> img/duck-64.png, img/icon-180.png, img/icon-192.png, img/icon-512.png
 
 Standard library alone.
 """
@@ -81,89 +82,11 @@ class Pic:
                          + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
 
 
-# a small pixel font, 7 rows high, for the card's words
-FONT = {
-    "G": [".###.", "#...#", "#....", "#.###", "#...#", "#...#", ".###."],
-    "O": [".###.", "#...#", "#...#", "#...#", "#...#", "#...#", ".###."],
-    "D": ["####.", "#...#", "#...#", "#...#", "#...#", "#...#", "####."],
-    "L": ["#....", "#....", "#....", "#....", "#....", "#....", "#####"],
-    "U": ["#...#", "#...#", "#...#", "#...#", "#...#", "#...#", ".###."],
-    "C": [".###.", "#...#", "#....", "#....", "#....", "#...#", ".###."],
-    "K": ["#...#", "#..#.", "#.#..", "##...", "#.#..", "#..#.", "#...#"],
-    "F": ["#####", "#....", "#....", "####.", "#....", "#....", "#...."],
-    "I": ["###", ".#.", ".#.", ".#.", ".#.", ".#.", "###"],
-    "S": [".####", "#....", "#....", ".###.", "....#", "....#", "####."],
-    "H": ["#...#", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
-    "N": ["#...#", "##..#", "#.#.#", "#..##", "#...#", "#...#", "#...#"],
-    "B": ["####.", "#...#", "#...#", "####.", "#...#", "#...#", "####."],
-    "Y": ["#...#", "#...#", ".#.#.", "..#..", "..#..", "..#..", "..#.."],
-    "V": ["#...#", "#...#", "#...#", "#...#", "#...#", ".#.#.", "..#.."],
-    "A": [".###.", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
-    " ": ["..", "..", "..", "..", "..", "..", ".."],
-}
-
-
-def words_w(s: str, k: int) -> int:
-    return sum((len(FONT[ch][0]) + 1) * k for ch in s) - k
-
-
-def words(p: Pic, s: str, x, y, k, c, edge):
-    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (1, 1)]:           # an outline, then the letters
-        words_at(p, s, x + dx, y + dy, k, edge)
-    words_at(p, s, x, y, k, c)
-
-
-def words_at(p, s, x, y, k, c):
-    for ch in s:
-        g = FONT[ch]
-        for j, r in enumerate(g):
-            for i, b in enumerate(r):
-                if b == "#":
-                    p.rect(x + i * k, y + j * k, k, k, c)
-        x += (len(g[0]) + 1) * k
-
-
 def icon(size: int, k: int, bg) -> Pic:
     d = duck()
     p = Pic(size, size, bg)
     p.sprite(d, (size - len(d[0]) * k) // 2, (size - len(d) * k) // 2, k)
     return p
-
-
-def card() -> Pic:
-    """1200 by 630: the sky scene at a fifth of that, scaled up."""
-    W, H = 240, 126
-    p = Pic(W, H)
-    top, bot = (92, 160, 230), (200, 232, 250)
-    for b in range(12):
-        t = b / 11
-        p.rect(0, b * H / 12, W, H / 12 + 1, tuple(round(a + (z - a) * t) for a, z in zip(top, bot)))
-    p.blob(224, 48, 7, (255, 243, 176))                                   # the sun
-    for i in range(6):
-        p.blob((i * 53 + 17) % W, 50 + (i * 19) % 30, 5, (226, 240, 252))
-    for i, n in enumerate(range(10)):                                     # the city
-        bw, bh = 22, 14 + (i * 37) % 18
-        x = 2 + i * 24
-        p.rect(x, H - bh, bw, bh, (91, 107, 140))
-        for y in range(H - bh + 3, H - 2, 4):
-            for xx in range(x + 2, x + bw - 2, 4):
-                p.rect(xx, y, 2, 2, (255, 230, 160) if (xx * y) % 7 else (74, 88, 120))
-    bx, by = 34, 80                                                       # the boat on its cloud, the duck, the rod
-    p.blob(bx + 16, by + 6, 15, (255, 255, 255))
-    p.rect(bx + 2, by - 4, 30, 5, (138, 90, 50))
-    p.rect(bx + 4, by + 1, 26, 2, (106, 66, 36))
-    p.sprite(duck(), bx + 6, by - 19)
-    tip = (bx + 30, by - 22)
-    p.line(bx + 22, by - 9, *tip, (90, 58, 26))
-    for cx, cy, r, c in [(128, 98, 8, (255, 255, 255)), (156, 52, 7, (255, 255, 255)), (178, 82, 11, (255, 214, 90)),
-                         (214, 64, 6, (255, 255, 255))]:
-        p.blob(cx, cy, r, c)
-    p.line(*tip, 176, 78, (255, 255, 255))                                # the line, to the golden cloud
-    p.rect(175, 77, 3, 3, (224, 58, 58))
-    title, by_ = "GOODLUCK FISHING", "BY VINH DAC"
-    words(p, title, (W - words_w(title, 2)) // 2, 10, 2, (255, 216, 74), (122, 74, 18))
-    words(p, by_, (W - words_w(by_, 1)) // 2, 30, 1, (255, 255, 255), (58, 42, 26))
-    return p.scaled(5)
 
 
 def main() -> int:
@@ -172,7 +95,6 @@ def main() -> int:
     icon(180, 6, NIGHT).png(OUT / "icon-180.png")
     icon(192, 6, NIGHT).png(OUT / "icon-192.png")
     icon(512, 17, NIGHT).png(OUT / "icon-512.png")
-    card().png(OUT / "card.png")
     for f in sorted(OUT.iterdir()):
         print(f.name, f.stat().st_size)
     return 0

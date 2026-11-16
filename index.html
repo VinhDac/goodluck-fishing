@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>GoodLuck Fishing</title>
-  <meta name="description" content="A tired duck, a golden escalator, and a sky full of real jobs to fish. By Vinh Dac.">
+  <meta name="description" content="A calm fishing game. The letters are real jobs, posted this month. No account; your CV stays on your device. By Vinh Dac.">
   <link rel="icon" type="image/png" href="img/duck-64.png">
   <link rel="apple-touch-icon" href="img/icon-180.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -16,11 +16,12 @@
   <!-- the card a shared link shows -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="GoodLuck Fishing">
-  <meta property="og:description" content="A tired duck, a golden escalator, and a sky full of real jobs to fish. Your CV stays on your device. By Vinh Dac.">
+  <meta property="og:description" content="A calm fishing game. The letters are real jobs, posted this month. No account; your CV stays on your device. By Vinh Dac.">
   <meta property="og:url" content="https://vinhdac.github.io/goodluck-fishing/">
   <meta property="og:image" content="https://vinhdac.github.io/goodluck-fishing/img/card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="A duck in a boat called Good Luck holds up a golden letter over a sky of flying letters.">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,6 +31,9 @@
 <body>
   <main id="stage">
     <canvas id="scene" aria-label="A duck asleep at its desk, late at night, a golden escalator beside it."></canvas>
+    <!-- while the page loads (PLAN.md 20 F): the duck, bobbing, not a black screen -->
+    <div class="loading" id="loading"><img src="img/duck-64.png" alt="" width="64" height="64"><span>Waking the duck…</span></div>
+    <noscript><p class="noscript">GoodLuck Fishing is a calm fishing game where the letters are real jobs. It needs JavaScript to play.</p></noscript>
     <!-- what the duck, the gull or the sky says, in a bubble over the speaker -->
     <div class="bubble" id="say" hidden></div>
     <div class="corner"><button id="getapp" class="getapp" type="button" title="The app: a fleet of your own, live">Get the app</button><button id="bucket" hidden>My list</button><button id="mycv" hidden>My CV</button><button id="gofish" class="gofish" hidden>Go fishing</button><button id="sound" type="button" title="Sound on or off">Sound: off</button></div>
@@ -112,7 +116,7 @@
         <div class="who" id="ctWho"></div>
         <div class="meta" id="ctMeta"></div>
         <p class="fit" id="ctFit"></p>
-        <div class="row center"><button class="go" id="ctKeep" type="button">Keep</button><button class="ghost" id="ctThrow" type="button">Not for me</button></div>
+        <div class="row center"><button class="go" id="ctKeep" type="button">Keep</button><button class="ghost" id="ctThrow" type="button">Not for me</button><button class="ghost" id="ctShare" type="button" hidden>Share my morning</button></div>
         <a class="link" id="ctOpen" href="#" target="_blank" rel="noopener">Open the job ↗</a> <button class="later" id="ctLater" type="button">Later</button>
       </div>
     </div>
@@ -128,7 +132,7 @@
       </div>
     </div>
   </main>
-  <footer>GoodLuck Fishing · by <a href="https://vinhdac.github.io" target="_blank" rel="noopener">Vinh Dac</a><span id="footApp"> · <button type="button" id="footGet">Get the app</button></span></footer>
+  <footer>GoodLuck Fishing · by <a href="https://vinhdac.github.io" target="_blank" rel="noopener">Vinh Dac</a><span id="footApp"> · <button type="button" id="footGet">Get the app</button></span> · <a href="https://github.com/VinhDac/goodluck-fishing" target="_blank" rel="noopener">GitHub</a></footer>
   <script type="module" src="js/game.js"></script>
 </body>
 </html>

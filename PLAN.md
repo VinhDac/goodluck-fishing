@@ -940,6 +940,23 @@ hiện ngay, ghi «comes out this week» tới khi có exe; E có nút «Share m
   chính app thì mọi chỗ này ẩn.
 - Sửa thêm: tắt nối chữ «fi» cho mọi phần tử (khai báo `font:` gộp bật lại nó, nên dòng phụ còn hiện «Ashing»).
 
+**Bước 3 đã làm (E và F; Vin, 16/11: «được, làm bước 3 đi»):**
+- Thẻ chia sẻ mới (`img/card.png`, 1200 x 630) vẽ từ chính game: `tools/card.html` dựng hồ thư bằng code của game với việc
+  và CV bịa (không tên công ty thật), số ngẫu nhiên cố định nên lần nào cũng ra một hình; vịt tự câu, bắt thư vàng, và thẻ
+  chụp đúng lúc vịt giơ thư vàng lên (tia vàng, nhãn «Golden letter!»), chữ GOODLUCK FISHING bên phải. `tools/card.py` mở
+  trang ấy trong Chrome không cửa sổ và giữ hình. `tools/icons.py` thôi vẽ thẻ cũ (chạy lại là đè mất thẻ mới).
+- Ảnh động cho README (`img/play.gif`, 768 x 432, 112 khung, 10 khung một giây): vịt quăng câu, chờ, thư vàng cắn, kéo, giơ
+  lên, bỏ vào túi; `python tools/card.py --moving` (cần Pillow để ghép GIF).
+- «Share my morning»: trong My list (khi hôm nay có thư) và ở thẻ cuối buổi đọc thư. Một dòng với đúng hai con số của My list
+  («I fished 84 letters this morning, 1 golden. GoodLuck Fishing: …» kèm link site): điện thoại mở bảng chia sẻ của máy,
+  máy tính chép vào clipboard và nút ghi «Copied: paste it anywhere»; My list vẫn mở.
+- Lúc tải trang: vịt nhấp nhô «Waking the duck…» thay cho màn đen, tắt khi có hình đầu tiên; có dòng cho trình duyệt tắt
+  JavaScript. Chân trang thêm link GitHub. Mô tả của trang và thẻ chia sẻ viết lại («A calm fishing game. The letters are
+  real jobs, posted this month. No account; your CV stays on your device»), thêm mô tả cho ảnh thẻ.
+- README viết lại: ảnh động ở đầu, chơi trên trình duyệt, app trên GitHub Releases (sắp có), cách game chạy đúng như bây giờ.
+- Sửa luôn: thẻ cuối buổi đọc thư vẫn hiện link «Open the job» dù đã ẩn (CSS của link đè thuộc tính hidden).
+- Các trang mạng xã hội giữ ảnh thẻ cũ một thời gian; LinkedIn làm mới bằng Post Inspector khi cần.
+
 ---
 
 ## Nhật ký bàn bạc
@@ -962,3 +979,4 @@ hiện ngay, ghi «comes out this week» tới khi có exe; E có nút «Share m
 - 16/11: Vin thử: trời thư thành hồ mây trong, mờ dần theo độ sâu; cảnh luôn trôi tới, thật chậm; bấm cái thùng trên boong xem mọi lá đã câu theo ngày.
 - 16/11: «hoàn thiện website để quảng bá ... rồi mới đến bản exe»: đề xuất mục 20; Vin duyệt cả ba đề xuất; bước 1 xong (chơi ngay với CV mẫu theo ngành, bỏ đăng nhập email).
 - 16/11: Vin thử bước 1: vịt quay mặt theo đường về, My list ở mọi cảnh; rồi «được, làm bước 2 đi»: tên trò chơi trên văn phòng, tờ Get the app (nói đúng app làm gì, nút tải tự tìm bản trên GitHub Releases).
+- 16/11: «được, làm bước 3 đi»: thẻ chia sẻ và ảnh động vẽ từ chính game (tools/card.py), Share my morning, vịt chờ lúc tải, link GitHub, README mới. Còn lại: exe.

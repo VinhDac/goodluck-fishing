@@ -79,7 +79,25 @@ function logShow(job, info) {
   saveLog(g);
 }
 function myList() {                                                   // the list of letters; the stamp album from it, on any screen
-  openReport('Your letters', () => { office.n = nums(); }, { actions: [{ label: 'Close', fn: () => { office.n = nums(); } }, { label: 'Stamp album', quiet: true, fn: album }] });
+  const acts = [{ label: 'Close', fn: () => { office.n = nums(); } }, { label: 'Stamp album', quiet: true, fn: album }];
+  if (todays().length) acts.push({ label: 'Share my morning', quiet: true, stay: true, fn: shareMorning });
+  openReport('Your letters', () => { office.n = nums(); }, { actions: acts });
+}
+// a line of the morning's own numbers, with the link (PLAN.md 20 E): on a phone its own share sheet, else copied
+const SITE = 'https://vinhdac.github.io/goodluck-fishing/';
+async function shareMorning(btn) {
+  const t = todays(), k = t.length, g = t.filter((e) => e.job.size === 'gold').length;   // the list's own two numbers
+  const text = `I fished ${k} letter${k === 1 ? '' : 's'} this morning${g ? `, ${g} golden` : ''}. GoodLuck Fishing: a calm fishing game where the letters are real jobs.`;
+  const said = (s) => { if (!btn) return; const was = btn.textContent; btn.textContent = s; setTimeout(() => { btn.textContent = was; }, 2200); };
+  try {
+    if (touch && navigator.share) { await navigator.share({ title: 'GoodLuck Fishing', text, url: SITE }); return; }
+    await navigator.clipboard.writeText(`${text} ${SITE}`);
+    said('Copied: paste it anywhere');
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;                         // the share sheet put away
+    said('Could not copy');
+  }
+  sfx('pip');
 }
 function album() {                                                     // the stamp album: a stamp for each company caught, gold for a golden one
   const el = ui.el, items = all().filter((e) => e.job && e.job.company), by = new Map();
@@ -268,7 +286,7 @@ function reading() {
 }
 function letter() {                                                    // the next letter, opened
   const r = reads, e = r.list[r.i];
-  $('catch').hidden = false; $('ctOpen').hidden = false; $('ctKeep').hidden = false; $('ctThrow').hidden = false;
+  $('catch').hidden = false; $('ctOpen').hidden = false; $('ctKeep').hidden = false; $('ctThrow').hidden = false; $('ctShare').hidden = true;
   if (!e) {
     $('ctKicker').textContent = 'All read';
     $('ctTitle').textContent = r.kept ? `${r.kept} kept, to apply to` : 'None kept this time';
@@ -277,6 +295,7 @@ function letter() {                                                    // the ne
       + (inApp ? '' : ' This was a shared sky. In the app, a fleet of your own goes out live each time you sail.');   // PLAN.md 20 C
     $('ctKeep').textContent = 'See the list'; $('ctOpen').hidden = true; $('ctLater').textContent = 'Close';
     $('ctThrow').hidden = inApp; $('ctThrow').textContent = 'Get the app';
+    $('ctShare').hidden = !todays().length;
     r.done = true;
     return;
   }
@@ -553,6 +572,7 @@ addEventListener('pointercancel', () => { if (scene === 'sea') letters.release(n
 $('ctKeep').addEventListener('click', () => decide(true));
 $('ctThrow').addEventListener('click', () => { if (reads && reads.done) { $('catch').hidden = true; reads = null; office.n = nums(); return openApp(); } decide(false); });
 $('ctLater').addEventListener('click', () => { $('catch').hidden = true; reads = null; office.n = nums(); });
+$('ctShare').addEventListener('click', () => shareMorning($('ctShare')));
 $('ctOpen').addEventListener('click', (e) => { e.preventDefault(); openOut($('ctOpen').href); });   // outside the game, never in its place
 $('askYes').addEventListener('click', () => { store('glf.asked', '1'); $('ask').hidden = true; setSound(true); soundLabels(); playMusic(true); sfx('chime2'); });
 $('askNo').addEventListener('click', () => { store('glf.asked', '1'); $('ask').hidden = true; });
@@ -596,7 +616,11 @@ document.body.dataset.scene = 'office';
 if (person) { $('mycv').hidden = false; $('bucket').hidden = false; $('gofish').hidden = false; }
 else $('title').hidden = false;                                     // a first visit: the title, over the office
 let last = performance.now();
-function frame(now) { tick(now); requestAnimationFrame(frame); }
+function frame(now) { tick(now); loaded(); requestAnimationFrame(frame); }
+function loaded() {                                                    // the first picture is up: the duck waiting for it goes
+  const ld = $('loading'); if (!ld || ld.classList.contains('gone')) return;
+  ld.classList.add('gone'); setTimeout(() => ld.remove(), 450);
+}
 const away = () => scene !== 'office' || ['soul', 'walk', 'ride', 'descend', 'back', 'enter'].includes(office.pose);
 function tick(now, step) {
   const dt = step ?? Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
@@ -644,7 +668,7 @@ requestAnimationFrame(frame);
 // ?debug: the game's own hands, to try it where a page draws no frames
 if (new URLSearchParams(location.search).has('debug')) window.game = { letters, sky, stage, rise, ride, dock, office, room, pier, ui, go, get scene() { return scene; }, get trip() { return trip; }, all, has, todays,
   // run the game for a while where the page draws no frames of its own, in steps of dt seconds
-  run(sec, dt = 0.05) { let now = last; for (let i = 0; i < sec / dt; i++) { now += dt * 1000; tick(now, dt); } return scene; },
+  run(sec, dt = 0.05) { let now = last; for (let i = 0; i < sec / dt; i++) { now += dt * 1000; tick(now, dt); } loaded(); return scene; },
   // press a named thing of the office or the pier, as a hand would
   press(name) {
     const s = (scene === 'office' ? room : pier).L.spots[name]; if (!s) return false;

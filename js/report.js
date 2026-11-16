@@ -21,9 +21,9 @@ export function openReport(head, closed, opts = {}) {
   $('rpFind').value = ''; words = [];
   $('rpHead').textContent = head || 'Your bucket';
   const acts = $('rpActs'); acts.replaceChildren();
-  for (const { label, fn, quiet } of opts.actions || [{ label: 'Close', fn: null }]) {
+  for (const { label, fn, quiet, stay } of opts.actions || [{ label: 'Close', fn: null }]) {   // stay: it does its thing, the list stays open
     const b = document.createElement('button'); b.type = 'button'; b.className = quiet ? 'ghost' : 'go'; b.textContent = label;
-    b.onclick = () => { $('report').hidden = true; if (fn) fn(); else if (onClose) onClose(); };
+    b.onclick = () => { if (stay) return fn(b); $('report').hidden = true; if (fn) fn(); else if (onClose) onClose(); };
     acts.appendChild(b);
   }
   draw();
