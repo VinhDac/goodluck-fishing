@@ -369,7 +369,7 @@ export function makeRoom(g) {
   // ---- the soul's way, by its pose and the seconds it has been in it -----------------------------------------------------------
   // soul: 4 s up out of the body, a look down, a poke, a shrug; walk: 2.4 s over to the escalator; ride: 4 s up it, slowly;
   // descend: 4 s down it; back: 2.4 s back over the desk; enter: 1 s into the body
-  const SOUL = { soul: 4, walk: 2.4, ride: 4, descend: 4, back: 2.4, enter: 1 };
+  const SOUL = { soul: 4, walk: 1.8, ride: 2.4, descend: 2.4, back: 1.8, enter: 1 };   // seconds of each (16/11: shorter, the soul's look back kept)
   const smooth = (u) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); };
   function soulAt(pose, k, t) {
     const body = { x: L.mx - 2, y: on(-6) }, above = { x: L.mx - 2, y: on(-30) }, foot = { x: L.bx - 18, y: L.fy + 8 };

@@ -967,6 +967,9 @@ hiện ngay, ghi «comes out this week» tới khi có exe; E có nút «Share m
   ba nút vẽ bằng điểm ảnh (đóng đỏ khi rê chuột). Kéo thanh để dời, kéo mép để giãn, bấm đúp để phóng to, Aero Snap vẫn có.
   Game nằm dưới thanh (khung vẽ đo theo hộp của nó, chữ và nhãn đặt theo chỗ thật của khung vẽ). Biểu tượng vịt trên thanh
   tác vụ thay cho biểu tượng Python. Chỉ trong app trên Windows; web và Mac như cũ.
+- Đường lên ngắn lại (Vin: «cắt ngắn đoạn đi thang đi. dài quá», «đẹp nhưng dài»): thang cuốn 25 giây còn 12 (lên và xuống),
+  hồn đi tới thang và đi thang lên trần ở văn phòng ngắn lại, giữ đoạn hồn xuất ra nhìn lại xác; từ lúc bấm vịt tới bến còn
+  khoảng 22 giây (trước 37). Từ lần đi thứ hai, lời nhắc «walk up the steps» thay chỗ câu đầu cho khỏi đè nhau.
 
 ---
 

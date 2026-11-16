@@ -330,7 +330,9 @@ function rideStep(dt) {
   ride.k = Math.min(1, ride.k + (dt / RIDE) * (ride.walking ? 2 : 1));
   const th = THOUGHTS[ride.dir];
   if (ride.said < th.length && ride.k >= th[ride.said][0]) { talk(th[ride.said][1], 'duck', 3); ride.said++; }
-  if (ride.dir > 0 && been() && ride.k > 0.1 && !ride.walking && !ride.hinted) { ride.hinted = true; talk(`${PRESS} to walk up the steps, if you are in a hurry.`, 'duck', 3.5); }
+  if (ride.dir > 0 && been() && ride.k > 0.02 && !ride.walking && !ride.hinted) {   // up again: the hint, in the first thought's place
+    ride.hinted = true; ride.said = Math.max(ride.said, 1); talk(`${PRESS} to walk up the steps, if you are in a hurry.`, 'duck', 3.2);
+  }
   if (ride.k >= 1 && !fade) {
     if (ride.dir > 0) { dock.fromSea = false; go('pier', '#fff4d8'); }
     else { office.pose = 'descend'; office.k = 0; go('office', '#0c0f24'); }

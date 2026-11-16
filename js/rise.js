@@ -1,6 +1,6 @@
 // THE LONG WAY UP (PLAN.md 19.1; Vin, 16/11: «lúc đi lên thang máy đi thật từ từ thôi. vì thang máy cuốn mà»). The soul rides
-// the golden escalator from the office's ceiling to the gate of HEAVEN, slowly, as an escalator does, about twenty-five
-// seconds: up through the floors of the building at night (a meeting room left with «Q4 SYNERGY» on its board, a coffee
+// the golden escalator from the office's ceiling to the gate of HEAVEN, as an escalator does, in twelve seconds (twenty-five
+// at first; Vin, 16/11: «đẹp nhưng dài»): up through the floors of the building at night (a meeting room left with «Q4 SYNERGY» on its board, a coffee
 // machine OUT OF ORDER, another duck asleep under its desk, the server room blinking, a cleaner's cart, the boss's door
 // with HIRING FREEZE on it), out over the roof (pigeons on the water tower, a red light on the mast), into the night with
 // the city below growing small, its lit windows as many as the letters out for the person today, up through the clouds,
@@ -12,7 +12,7 @@ import { drawEscalator } from './escalator.js';
 import { soul, upright } from './ducks.js';
 
 export const TOP = 1200;                                             // art pixels from the office's ceiling to the gate
-export const RIDE = 25;                                              // seconds, up or down
+export const RIDE = 12;                                              // seconds, up or down (Vin, 16/11: «đẹp nhưng dài»: 25 before)
 const FLOOR = 60, FLOORS = 6, ROOF = FLOOR * FLOORS;
 const STOPS = [[-200, [26, 30, 70]], [300, [10, 14, 44]], [700, [20, 28, 74]], [930, [64, 56, 128]], [1070, [214, 128, 140]], [1190, [255, 196, 150]], [1500, [255, 236, 196]]];
 const smooth = (u) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); };
