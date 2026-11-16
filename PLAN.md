@@ -923,6 +923,23 @@ hiện ngay, ghi «comes out this week» tới khi có exe; E có nút «Share m
 - My list ở mọi cảnh: văn phòng và bến có ở góc trên như cũ; trên trời thêm nút «My list» cạnh «Back to the pier»; trên thang
   cuốn (góc trên cất đi) nút ấy ở góc dưới bên phải.
 
+**Bước 2 đã làm (A và C; Vin, 16/11: «được, làm bước 2 đi»):**
+- Tên trò chơi trên văn phòng khi chưa chọn ngành: chữ lớn GOODLUCK FISHING vàng viền nâu kiểu chữ điểm ảnh, dòng «A calm
+  fishing game. The letters are real jobs.», nút Play, nút «Get the app», «by Vinh Dac». Bấm Play hay bấm con vịt là chữ tan,
+  ra tờ chọn ngành. Đã chọn ngành thì lần sau vào thẳng. Bấm chỗ khác vẫn tới cảnh (vịt vẫn lẩm bẩm dưới chữ).
+- Tờ «Get the app» (`js/getapp.js`) nói đúng những gì app làm (đọc từ `app/`): mỗi lần ra khơi, các thuyền đọc trực tiếp
+  khoảng 2.800 trang việc của công ty theo chức danh và thành phố; trước khi thư cắn câu, tin được hỏi còn mở không, đóng
+  rồi thì đóng dấu cất đi; CV và thư ở trên máy, không tài khoản, miễn phí. Sửa so với đề xuất: app KHÔNG tự đi mỗi sáng
+  (đội tàu chỉ ra khơi khi người chơi cho thuyền đi), nên không hứa câu đó.
+- Nút tải tự tìm bản mới nhất trên GitHub Releases của repo lúc mở tờ: có file .exe thì hiện «Download for Windows · N MB»
+  trỏ thẳng tới file; chưa có thì ghi «The Windows app comes out this week. Fish here meanwhile.» Tới bước exe chỉ cần đưa
+  bản cài lên Releases, không phải sửa trang.
+- Chỗ có «Get the app»: màn tên, góc trên (văn phòng và bến; trên điện thoại góc trên không đủ chỗ nên chỉ còn ở màn tên và
+  chân trang), chân trang, mòng biển nói một lần sau một buổi có thư («Look for «Get the app»»), và thẻ cuối buổi đọc thư ở
+  bàn («This was a shared sky. In the app, a fleet of your own goes out live each time you sail» và nút Get the app). Trong
+  chính app thì mọi chỗ này ẩn.
+- Sửa thêm: tắt nối chữ «fi» cho mọi phần tử (khai báo `font:` gộp bật lại nó, nên dòng phụ còn hiện «Ashing»).
+
 ---
 
 ## Nhật ký bàn bạc
@@ -944,3 +961,4 @@ hiện ngay, ghi «comes out this week» tới khi có exe; E có nút «Share m
 - 16/11 (đêm): Vin duyệt cả mục 19 và cho làm trọn; đã dựng hết: một lần câu, đường đi lên HEAVEN và đường về, đọc thư ở bàn, nhạc, mùa và thời tiết theo số thật, sổ tem, ngăn kéo đồ linh tinh; build lại exe.
 - 16/11: Vin thử: trời thư thành hồ mây trong, mờ dần theo độ sâu; cảnh luôn trôi tới, thật chậm; bấm cái thùng trên boong xem mọi lá đã câu theo ngày.
 - 16/11: «hoàn thiện website để quảng bá ... rồi mới đến bản exe»: đề xuất mục 20; Vin duyệt cả ba đề xuất; bước 1 xong (chơi ngay với CV mẫu theo ngành, bỏ đăng nhập email).
+- 16/11: Vin thử bước 1: vịt quay mặt theo đường về, My list ở mọi cảnh; rồi «được, làm bước 2 đi»: tên trò chơi trên văn phòng, tờ Get the app (nói đúng app làm gì, nút tải tự tìm bản trên GitHub Releases).

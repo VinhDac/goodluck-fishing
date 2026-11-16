@@ -4,7 +4,7 @@
 // me; no veil, nothing to answer: the sky goes on behind it. Used by the game and by its trying page (tools/catch.html).
 
 const CSS = `
-.ctag, .cside, .cside button { font-variant-ligatures: none; font-feature-settings: "liga" 0, "clig" 0; }
+.ctag, .ctag *, .cside, .cside * { font-variant-ligatures: none !important; font-feature-settings: "liga" 0, "clig" 0 !important; }
 .ctag { position: fixed; z-index: 6; left: 0; top: 0; transform: translate(-50%, -100%); max-width: min(270px, calc(100vw - 20px));
   background: #fff8e7; color: #1b1f3a; border: 3px solid #3a2a1a; border-radius: 4px; box-shadow: 0 3px 0 #3a2a1a;
   padding: 5px 10px 6px; font: 600 13px/1.25 "Pixelify Sans", ui-monospace, monospace; text-align: center; cursor: pointer;

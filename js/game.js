@@ -19,6 +19,7 @@ import { makeSky } from './sky.js';
 import { makeRise, RIDE } from './rise.js';
 import { makeLetters, JUNK } from './letters.js';
 import { makeCatchUI, fitWords } from './catchui.js';
+import { openApp } from './getapp.js';
 import { readLake, boardOf } from './lake.js';
 import { numbers, fished } from './progress.js';
 import { sfx, soundOn, setSound, setMood, playMusic } from './sound.js';
@@ -205,7 +206,7 @@ const THINGS = {
 };
 const clockText = () => { const m = 3 * 60 + 47 + Math.floor(office.clockMin); return `${Math.floor(m / 60) % 12 || 12}:${String(m % 60).padStart(2, '0')}`; };
 function goFishing() {
-  if (!person) { say('First things first: what do I fish for?', 'duck'); pick(asked); return; }
+  if (!person) { say('First things first: what do I fish for?', 'duck'); choose(); return; }
   if (scene !== 'office' || (office.pose !== 'faint' && office.pose !== 'awake')) return;
   if (!$('catch').hidden) return;
   if (office.pose === 'awake') say('One more time, then.', 'duck', 1.8);
@@ -251,7 +252,7 @@ function wake() {                                                      // back i
   setTimeout(() => { if (scene === 'office' && office.pose === 'awake' && office.fresh && $('catch').hidden) say(`${office.n.tray} letter${office.n.tray === 1 ? '' : 's'} in my tray. Real ones. Let us read them.`, 'duck', 4); }, 4000);
   if (trip && letters.F.over) endMorning();                            // the sun had set: that morning is over
 }
-const anySheet = () => ['field', 'paper', 'notes', 'map', 'report', 'catch'].some((id) => !$(id).hidden);
+const anySheet = () => ['field', 'paper', 'notes', 'map', 'report', 'catch', 'app'].some((id) => !$(id).hidden);
 
 // ---- reading the letters at the desk (PLAN.md 19.4): one at a time, as letters are opened -----------------------------------------
 let reads = null;
@@ -272,8 +273,11 @@ function letter() {                                                    // the ne
     $('ctKicker').textContent = 'All read';
     $('ctTitle').textContent = r.kept ? `${r.kept} kept, to apply to` : 'None kept this time';
     $('ctWho').textContent = ''; $('ctMeta').textContent = '';
-    $('ctFit').textContent = r.kept ? 'They are pinned on the board, with their links. The list has them all.' : 'Tomorrow, more letters.';
-    $('ctKeep').textContent = 'See the list'; $('ctThrow').hidden = true; $('ctOpen').hidden = true; $('ctLater').textContent = 'Close';
+    $('ctFit').textContent = (r.kept ? 'They are pinned on the board, with their links. The list has them all.' : 'Tomorrow, more letters.')
+      + (inApp ? '' : ' This was a shared sky. In the app, a fleet of your own goes out live each time you sail.');   // PLAN.md 20 C
+    $('ctKeep').textContent = 'See the list'; $('ctOpen').hidden = true; $('ctLater').textContent = 'Close';
+    $('ctThrow').hidden = inApp; $('ctThrow').textContent = 'Get the app';
+    r.done = true;
     return;
   }
   const j = e.job, mine = new Set(person.skills || []);
@@ -382,6 +386,10 @@ function pierStep(dt) {
   else if (d.pose === 'walkback' && (d.k += dt / 2.4) >= 1) {
     d.pose = 'stand'; d.k = 0; d.fromSea = false;
     if (trip && letters.F.over) setTimeout(() => { if (scene === 'pier' && dock.pose === 'stand') { dock.pose = 'down'; dock.k = 0; say('The sun is down. Home, then.', 'duck', 2); } }, 1200);
+    else if (!inApp && bagN > 0 && !store('glf.appsaid')) {                // once, after a haul: what the app is (PLAN.md 20 C)
+      store('glf.appsaid', '1');
+      setTimeout(() => { if (scene === 'pier' && dock.pose === 'stand') say('Want a fleet of your own, out live each time you sail? That is the app. Look for «Get the app».', 'gull', 6); }, 3600);
+    }
   } else if (d.pose === 'down' && (d.k += dt / 3) >= 1 && !fade) { ride.dir = -1; go('rise', '#fff4d8'); }
 }
 
@@ -543,7 +551,7 @@ cv.addEventListener('pointermove', (e) => {
 addEventListener('pointerup', (e) => { if (scene === 'sea') letters.release(stage.toArt(e)); });
 addEventListener('pointercancel', () => { if (scene === 'sea') letters.release(null); });
 $('ctKeep').addEventListener('click', () => decide(true));
-$('ctThrow').addEventListener('click', () => decide(false));
+$('ctThrow').addEventListener('click', () => { if (reads && reads.done) { $('catch').hidden = true; reads = null; office.n = nums(); return openApp(); } decide(false); });
 $('ctLater').addEventListener('click', () => { $('catch').hidden = true; reads = null; office.n = nums(); });
 $('ctOpen').addEventListener('click', (e) => { e.preventDefault(); openOut($('ctOpen').href); });   // outside the game, never in its place
 $('askYes').addEventListener('click', () => { store('glf.asked', '1'); $('ask').hidden = true; setSound(true); soundLabels(); playMusic(true); sfx('chime2'); });
@@ -570,12 +578,23 @@ function ready() {
 }
 $('mycv').addEventListener('click', () => { if (scene === 'office') begin(asked); });
 
+// ---- the title, while no field is chosen (PLAN.md 20 A): Play, or a press on the duck, and it fades; Get the app (20 C) -------
+function untitle() {
+  const tl = $('title');
+  if (tl.hidden || tl.classList.contains('out')) return;
+  tl.classList.add('out'); setTimeout(() => { tl.hidden = true; tl.classList.remove('out'); }, 460);
+}
+function choose() { untitle(); pick(asked); }
+$('titlePlay').addEventListener('click', () => { sfx('quack'); choose(); });
+for (const id of ['getapp', 'titleApp', 'footGet']) $(id).addEventListener('click', () => { if (!anySheet()) openApp(); });
+if (inApp) for (const id of ['getapp', 'titleApp', 'footApp']) $(id).hidden = true;   // in the app itself, nothing to get
+
 // ---- the loop -------------------------------------------------------------------------------------------------------------------
 addEventListener('resize', fit);
 fit();
 document.body.dataset.scene = 'office';
 if (person) { $('mycv').hidden = false; $('bucket').hidden = false; $('gofish').hidden = false; }
-else setTimeout(() => { if (!person && !anySheet()) pick(asked); }, 900);
+else $('title').hidden = false;                                     // a first visit: the title, over the office
 let last = performance.now();
 function frame(now) { tick(now); requestAnimationFrame(frame); }
 const away = () => scene !== 'office' || ['soul', 'walk', 'ride', 'descend', 'back', 'enter'].includes(office.pose);

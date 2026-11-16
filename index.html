@@ -32,7 +32,28 @@
     <canvas id="scene" aria-label="A duck asleep at its desk, late at night, a golden escalator beside it."></canvas>
     <!-- what the duck, the gull or the sky says, in a bubble over the speaker -->
     <div class="bubble" id="say" hidden></div>
-    <div class="corner"><button id="bucket" hidden>My list</button><button id="mycv" hidden>My CV</button><button id="gofish" class="gofish" hidden>Go fishing</button><button id="sound" type="button" title="Sound on or off">Sound: off</button></div>
+    <div class="corner"><button id="getapp" class="getapp" type="button" title="The app: a fleet of your own, live">Get the app</button><button id="bucket" hidden>My list</button><button id="mycv" hidden>My CV</button><button id="gofish" class="gofish" hidden>Go fishing</button><button id="sound" type="button" title="Sound on or off">Sound: off</button></div>
+
+    <!-- the title, while no field is chosen (PLAN.md 20 A): over the office, the duck out cold under it -->
+    <div class="title" id="title" hidden>
+      <h1>GoodLuck Fishing</h1>
+      <p>A calm fishing game. The letters are real jobs.</p>
+      <div class="row center"><button class="go" id="titlePlay" type="button">Play</button><button class="ghost" id="titleApp" type="button">Get the app</button></div>
+      <div class="by">by <a href="https://vinhdac.github.io" target="_blank" rel="noopener">Vinh Dac</a></div>
+    </div>
+
+    <!-- the app (PLAN.md 20 C): what it does that the web does not, and where to get it (js/getapp.js) -->
+    <div class="sheet app" id="app" hidden>
+      <h2>GoodLuck Fishing, the app</h2>
+      <p>Here you fish a shared sky, gathered a few times a day. The app gives you a fleet of your own.</p>
+      <ul class="perks">
+        <li><b>Live.</b> Each time you sail, your boats read about 2,800 company job boards for your titles and your city.</li>
+        <li><b>Only open jobs.</b> Before a letter bites, its posting is checked; a closed one is stamped and put away.</li>
+        <li><b>All on your computer.</b> Your CV and your letters never leave it. No account. Free.</li>
+      </ul>
+      <div class="row"><a class="go" id="appGet" href="https://github.com/VinhDac/goodluck-fishing/releases/latest" target="_blank" rel="noopener" hidden>Download for Windows</a><button class="ghost" id="appClose" type="button">Back to the game</button></div>
+      <div class="said quiet" id="appSaid"></div>
+    </div>
 
     <!-- 0. the first visit (PLAN.md 20 B): what they fish for, one press, and they play; their own CV later, on the desk -->
     <div class="sheet field" id="field" hidden>
@@ -107,7 +128,7 @@
       </div>
     </div>
   </main>
-  <footer>GoodLuck Fishing · by <a href="https://vinhdac.github.io" target="_blank" rel="noopener">Vinh Dac</a></footer>
+  <footer>GoodLuck Fishing · by <a href="https://vinhdac.github.io" target="_blank" rel="noopener">Vinh Dac</a><span id="footApp"> · <button type="button" id="footGet">Get the app</button></span></footer>
   <script type="module" src="js/game.js"></script>
 </body>
 </html>
