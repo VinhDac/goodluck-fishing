@@ -829,6 +829,8 @@ trang thử riêng (tools/catch.html); game trên site giữ nguyên tới khi V
   chối cũ, ủng cũ) thỉnh thoảng bay lên, câu được thì vịt ném vào ngăn kéo bàn (không bao giờ đếm là việc); sổ tem trên giá
   sách (mỗi công ty một tem, tem vàng cho thư vàng) và kỷ lục (số thư, thư vàng, hợp nhất, buổi nhiều nhất, chuỗi ngày, câu
   perfect, tem nhặt được); công ty mơ ước hỏi cùng nơi làm.
+- **Trời sống thêm**: đàn chim bay chữ V thỉnh thoảng qua, một đám mây hình cá voi trôi rất chậm, hoàng hôn thì sao hiện, thư
+  phát sáng khẽ, đèn lồng trên cột buồm sáng; đám mây đỡ to thêm một chút theo số ngày câu (tối đa 6 điểm ảnh).
 - **Đo chuyển động** (60 khung một giây, điểm ảnh thiết bị): thư, thuyền đi về, thư trên dây, thư giơ lên không giật; phao chỉ có
   cú giật cố ý lúc cắn. Đã sửa: thư nhảy về phía thuyền lúc móc, phao nhảy khi về con lắc.
 - Ghi chú: thuyền về là chạy lùi (vẽ lật thì chữ GOOD LUCK bị ngược); album trên giá sách chỉ có ở màn hình rộng, trên điện
