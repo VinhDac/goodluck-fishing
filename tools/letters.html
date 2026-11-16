@@ -100,7 +100,6 @@
     },
     // a made-up check for this page: about one posting in seven has closed
     onCheck: (job) => new Promise((ok) => setTimeout(() => ok([...String(job.id)].reduce((n, c) => (n * 31 + c.charCodeAt(0)) % 997, 7) % 7 !== 3), 300)),
-    onClosed: () => {},
   });
   letters.onSound((n) => sfx(n));
   const answer = (keep) => { $('cardVeil').hidden = true; letters.answer(keep); };
@@ -133,7 +132,7 @@
     lake = Array.from({ length: 140 }, (_, i) => ({ id: `demo${i}`, company: cos[i % 10], title: ['ML Engineer', 'AI Engineer', 'Data Scientist', 'Backend Engineer'][i % 4],
       place: 'London', url: '#', posted: Date.now() - (i % 30) * 864e5, skills: Object.fromEntries(sk.filter((_, k) => (i * 7 + k * 3) % 5 < 2).map((k) => [k, 1 + (i % 3)])) }));
   }
-  letters.start({ W: stage.W, H: stage.H, L: sky.L }, { skills: ME.skills, bottles, auto: true, gullFirst: 30, gullEvery: 70 });
+  letters.start({ W: stage.W, H: stage.H, L: sky.L }, { skills: ME.skills, bottles, auto: true, day: 0.1, gullFirst: 30, gullEvery: 70 });
   sky.draw(letters.view());                                            // once, so the city knows where its roofs are
 
   // the search, played out: the boards read over about seventy seconds, each job found as it comes

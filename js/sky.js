@@ -142,7 +142,7 @@ export function makeSky(stage) {
   function plane(t) {
     const { W } = L, k = (t % 45) / 16;
     if (k > 1) return;
-    const x = W + 60 - k * (W + 220), y = 20 + Math.sin(t) * 1.5, f = Math.floor(t * 8) % 2;
+    const x = W + 60 - k * (W + 220), y = (L.wide ? 20 : 34) + Math.sin(t) * 1.5, f = Math.floor(t * 8) % 2;   // on a phone, under the line across the top
     stage.sprite(x, y, 84, 14, 8, 6, (px, ox, oy) => {
       const { R, P, ell, poly, line, text, textW } = px;
       ell(ox, oy, 7, 2, '#eceef4'); R(ox - 3, oy - 4, 4, 3, '#d03a2a'); R(ox + 3, oy - 1, 3, 1, '#2a3a6a'); poly([[ox - 1, oy], [ox + 3, oy], [ox - 4, oy + 4]], '#c8ccd8');

@@ -13,6 +13,9 @@ const slim = (j) => ({ id: j.id, company: j.company, title: j.title, place: j.pl
 
 export const all = () => Object.values(box);
 export const has = (id) => !!box[id];
+// in the bag today: kept today, not put away (expired, not for me), not left at sunset unopened: the BAG button's number,
+// the same as the report's «caught today»
+export const todays = () => { const d = today(); return all().filter((e) => e.day === d && e.how !== 'ashore' && e.status !== 'not_for_me' && e.status !== 'expired'); };
 
 // a catch into the box; a job already there keeps its state
 export function add(job, how, status = 'new') {

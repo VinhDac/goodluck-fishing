@@ -610,6 +610,20 @@ một chút, đứng lại); lưỡi là con lắc; thư trên lưỡi đung đ�
 chạy giả 60 khung một giây: thư không có khung nào giật; lưỡi chỉ có cú vung khi ném (tối đa 3 điểm pixel); thư hợp hơn bay
 cao hơn (tương quan 0,79); vẽ một khung khoảng 2 ms. tools/letters-art.html: từng hình phóng to để soi.
 
+**Bước 2 xong, chờ Vin chấm (16/11; Vin: «được, làm bước 2 đi»):** thư bay vào game thay cá (js/game.js; js/fishing.js,
+js/deep.js và trang ảnh tĩnh hồ cá bỏ). Trên trời: góc trên phải một dòng có vạch mảnh, «Searching · 187 of 2,840 boards ·
+336 letters» (web: «Searching · 312 letters»), xong thì «Search done · 575 letters», cạnh đó nút tiếng; dưới cùng bốn nút
+chữ AUTO ON/OFF · BAG n · PIER · LOBBY; khung thoại góc dưới trái. BAG n là số thư vào túi hôm nay, cùng một số với «caught
+today» trong bảng mở ra khi bấm BAG. PIER và LOBBY không mất gì: trời đứng chờ, việc tìm vẫn chạy, bấm thuyền ở bến hay
+«Go fishing» ở văn phòng là về đúng buổi đó (bến khi ấy ghi từng thuyền AT SEA hay HOME). Thẻ thư: Keep, Not for me, Open;
+Not for me cất đi như bảng vẫn cất. Mặt trời đi tám phút rồi lặn; «Catch of the day» khi tìm xong và túi có 12 lá; thư
+vàng chưa câu thì lúc lặn được cất vào túi, chưa mở. Trên web kho chung ra dần trong khoảng 45 giây, theo thứ tự một cuộc
+tìm gặp; trong app là đội thuyền thật, và nếu đội không ra khơi được thì lấy kho chung, nói rõ. Văn phòng và bến vẽ qua
+cùng sân khấu mới, hình giữ nguyên. Mòng biển bay vào thấp hơn, máy bay trên điện thoại thấp hơn, để không lẩn dưới dòng
+tiến độ. Đo trong game ở 60 khung một giây: thư không khung nào giật, thành phố mỗi khung 0 hoặc 1 điểm ảnh, lưỡi chỉ có
+cú vung khi ném (tối đa 3 điểm pixel). Để cho bước 3: bến (quầy mồi, giá lưỡi, chữ của mòng biển, tên GREENHOUSE đè số
+trên bảng), chữ «bucket», «lake», «washed ashore» ở văn phòng và trong bảng, bảng kết quả, build lại exe.
+
 ---
 
 ## Nhật ký bàn bạc
@@ -626,3 +640,4 @@ cao hơn (tương quan 0,79); vẽ một khung khoảng 2 ms. tools/letters-art.
 - 15/11 (tối): hồ cá vào game thật (7a184f1), bảng kết quả có ô tìm và Open ra ngoài (21228cf); Vin thử: khó câu, chuyển
   động kém, đổi cá thành thư bay, câu dễ và thư thái, phần phụ bàn lại; đề xuất mục 18.
 - 16/11: Vin duyệt cả bảy mục của 18; sửa các lỗi một lượt soát tìm ra ở hồ cá (f2a058b); bước 1 (trang chuyển động) xong.
+- 16/11: Vin duyệt chuyển động («được, làm bước 2 đi»); bước 2 xong: thư bay trong game, thanh nút mới, PIER và LOBBY giữ buổi.

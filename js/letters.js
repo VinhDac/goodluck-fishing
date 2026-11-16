@@ -9,6 +9,11 @@
 // and a stop slows down; its wings beat faster climbing and rest in a glide now and then, and each beat lifts it a little.
 // The rod is a spring (back, forward, a little past, settling); the hook hangs on a pendulum that the boat's bob and the
 // rod's swing set going; a letter on the hook swings under it as it comes up. This file holds the state; js/sky.js draws.
+//
+// In the game (js/game.js) a morning is eight minutes of sun (dayLength): the sun crosses the sky and sets, and the
+// morning is over. The game keeps the bag: each letter kept is handed to onBag, each put away (not for me, or closed) to
+// onAway; a job already in the bag (known) never flies. Away from the sky (on the pier, in the office) nothing here moves:
+// the game stops stepping it, and the letters the search finds meanwhile wait in the queue.
 
 import { fitOf, sizeOf } from './lake.js';
 
@@ -17,26 +22,30 @@ const SIZE = { gold: [13, 8], big: [13, 8], medium: [11, 7], small: [9, 6], unre
 const CRUISE = { gold: 5.5, big: 6, medium: 7, small: 8, unread: 7.5 };   // art pixels a second, flying level
 const T = { windup: 0.22, cast: 0.5, hook: 0.18, take: 0.45, closed: 1.9 };   // a catch, in seconds; the reel by its length
 const EDGE = 16;                                                     // how near the side a letter turns round
+const DAWN = 0.08, DUSK = 0.94;                                      // the hour the sky shows, at the start and at sunset
 const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const ease = (u) => (u < 0.5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2);   // slow, quick, slow
 const easeOut = (u) => 1 - (1 - u) ** 3;
 const daysOld = (ms) => (Date.now() - ms) / 864e5;
 
-export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
+export function makeLetters({ onCard, onSay, onBag, onAway, onCheck, onSunset } = {}) {
   const F = { on: false };
-  let L = null, W = 384, H = 216, mine = new Set();
+  let L = null, W = 384, H = 216, mine = new Set(), known = () => false;
 
   const order = (a, b) => (b.fit ?? -1) - (a.fit ?? -1) || b.posted - a.posted;
   const room = () => (W >= H ? ROOM.wide : ROOM.narrow);
   const kindOf = (j) => (j.size === 'gold' ? 'gold' : j.fit == null ? 'unread' : daysOld(j.posted) > 21 ? 'old' : 'plain');
 
   // ---- a morning out ----------------------------------------------------------------------------------------------------------
+  // opts: skills (the CV's), lake (jobs at once), bottles (the gull's), auto, day (the hour, if the sun stands still),
+  // dayLength (seconds of sun: then it moves, and sets), known (a job's id already in the bag), gullFirst, gullEvery
   function start(view, opts = {}) {
     L = view.L; W = view.W; H = view.H;
     mine = new Set(opts.skills || []);
+    known = opts.known || (() => false);
     Object.assign(F, {
-      on: true, t: 0, day: opts.day ?? 0.1, at: 0, speed: 14, waiting: true, found: 0,
+      on: true, over: false, t: 0, day: opts.day ?? DAWN, dayLength: opts.dayLength || 0, at: 0, speed: 14, waiting: true, found: 0, gold: 0,
       sky: [], queue: [], seen: new Set(), fx: [], bag: 0, next: null,
       line: null, auto: opts.auto ?? true, autoIn: 3, pending: null, releaseIn: 0.5, resort: 1.2,
       rod: { a: 0.42, va: 0, bend: 0, vb: 0, target: 0.42, bendTo: 0 },
@@ -50,14 +59,17 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
     for (const j of opts.lake || []) feed(j);
   }
   function feed(job) {
-    if (!F.on || F.seen.has(job.id)) return false;
+    if (!F.on || F.over || F.seen.has(job.id) || known(job.id)) return false;
     F.seen.add(job.id);
     const fit = job.fit !== undefined && !mine.size ? job.fit : fitOf(job.skills, mine);
     const j = { ...job, fit, size: sizeOf(fit) };
     const i = F.queue.findIndex((x) => order(j, x) < 0);
     F.queue.splice(i < 0 ? F.queue.length : i, 0, j);
-    F.found++;
+    F.found++; if (j.size === 'gold') F.gold++;
     return true;
+  }
+  function give({ bottles } = {}) {                                    // the gull's letters, once they are read
+    if (F.on && bottles) F.bottles.push(...bottles.filter((j) => !known(j.id)));
   }
   function searchDone() { F.waiting = false; }
   function setAuto(on) { F.auto = !!on; F.autoIn = 1.2; }
@@ -162,14 +174,19 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
   }
 
   // ---- the hands: a tap on a letter ---------------------------------------------------------------------------------------------------
-  function tap(p) {
-    if (!F.on || F.pending) return false;
+  function hit(p) {                                                     // the letter under a finger, if any
+    if (!F.on || F.over) return null;
     let best = null, bd = 1e9;
     for (const l of F.sky) {
       if (l.state !== 'fly' && l.state !== 'rise') continue;
       const d = Math.hypot(l.x - p.x, l.y - p.y), r = Math.max(11, l.w * 0.95);   // a finger is big
       if (d < r && d < bd) { best = l; bd = d; }
     }
+    return best;
+  }
+  function tap(p) {
+    if (!F.on || F.over || F.pending) return false;
+    const best = hit(p);
     if (!best) return false;
     if (F.line) { if (F.next) F.next.chosen = false; F.next = best; best.chosen = true; return true; }   // the next one, then
     begin(best, 'you');
@@ -256,8 +273,8 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
       if (k.age >= 1.25) { l.vy += 60 * dt; l.y += l.vy * dt; l.x += Math.sin(k.age * 6) * 12 * dt; l.alpha = clamp(1 - (k.age - 1.25) / 0.6, 0, 1); }
       if (k.age >= T.closed) {
         F.sky.splice(F.sky.indexOf(l), 1); F.line = null;
-        if (onClosed) onClosed(l.job);
-        onSay(`${l.job.company} has closed that one. Return to sender: marked expired.`, 'duck', 3.5);
+        if (onAway) onAway(l.job, 'expired');
+        say(`${l.job.company} has closed that one. Return to sender: marked expired.`, 'duck', 3.5);
         after();
       }
     }
@@ -270,8 +287,8 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
     const n = l.kind === 'gold' ? 14 : 6;
     for (let i = 0; i < n; i++) F.fx.push({ kind: 'spark', x: b.x, y: b.y, vx: rand(-30, 30), vy: rand(-38, -6), age: 0, life: rand(0.5, 0.9), col: l.kind === 'gold' ? (i % 2 ? '#ffd84a' : '#fff2b0') : '#ffffff' });
     sound(l.kind === 'gold' ? 'fanfare' : 'catch');
-    if (k.by === 'you') { F.pending = l.job; onCard(l.job, { kind: l.kind }); }
-    else { bagIt(l.job); onSay(`${l.kind === 'gold' ? 'A golden one! ' : ''}${l.job.title}, ${l.job.company}. In the bag.`, 'duck', 3.2); }
+    if (k.by === 'you') { F.pending = l.job; onCard(l.job, { kind: l.kind, checked: k.checked }); }
+    else { bagIt(l.job); say(`${l.kind === 'gold' ? 'A golden one! ' : ''}${l.job.title}, ${l.job.company}. In the bag.`, 'duck', 3.2); }
     after();
   }
   function after() {                                                    // a letter chosen meanwhile is next; else the duck rests
@@ -282,11 +299,27 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
     else if (n) n.chosen = false;
   }
   function bagIt(job) { F.bag++; if (onBag) onBag(job, F.bag); }
-  function answer(keep) {                                               // the card's answer
+  function answer(keep) {                                               // the card's answer: Keep, or Not for me
     const j = F.pending; F.pending = null;
     if (j && keep) bagIt(j);
+    else if (j && onAway) onAway(j, 'not_for_me');
     after();
   }
+  // a job kept from the list (the bag's, not from the sky): out of the queue; its letter, if flying, flies off
+  function kept(job) {
+    if (!F.on) return;
+    F.queue = F.queue.filter((j) => j.id !== job.id);
+    for (const l of F.sky) {
+      if (l.job.id !== job.id || (l.state !== 'fly' && l.state !== 'rise')) continue;
+      l.state = 'leave'; l.dir = l.x < W / 2 ? -1 : 1;
+      if (F.next === l) F.next = null;
+      l.chosen = false;
+    }
+    F.bag++;
+  }
+  // in the middle of something: a catch, a card waiting, the gull's letter coming down or lying on the deck
+  const busy = () => !!(F.line || F.pending || F.drop || (F.gull && F.gull.job));
+  const left = () => F.sky.filter((l) => l.state !== 'leave').length + F.queue.length;   // still to catch: flying, and waiting
   function resetHook() {                                                // the hook back on its pendulum, from where it is: the line
     const tip = rodTip(), dx = F.hook.x - tip.x, dy = F.hook.y - tip.y;  // as long as it is now, let out to its length slowly
     F.hook.th = Math.atan2(dx, dy); F.hook.vth = 0; F.hook.len = Math.max(1, Math.hypot(dx, dy));
@@ -316,9 +349,9 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
   }
 
   // ---- the duck by itself: the best letter in the sky, now and then; a sip of coffee between ------------------------------------
-  function duck(dt) {
+  function duck(dt, hold) {
     if (F.line || F.pending) return;
-    if (F.auto && (F.autoIn -= dt) <= 0) {
+    if (F.auto && !hold && !F.over && (F.autoIn -= dt) <= 0) {
       const pick = F.sky.filter((l) => l.state === 'fly' && l.age > 2).sort((a, b) => order(a.job, b.job))[0];
       if (pick) { begin(pick, 'duck'); F.autoIn = rand(4.5, 7.5); return; }
       F.autoIn = 1;
@@ -333,11 +366,12 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
   }
 
   // ---- the gull, the postman: in from the right with a letter, drops it on the deck, away up to the left -----------------------
-  function gull(dt) {
+  function gull(dt, hold) {
     if (!F.gull) {
-      if (F.bottles.length && (F.gullIn -= dt) <= 0 && !F.drop) {
+      if (F.bottles.length && !hold && !F.over && !F.line && !F.pending && (F.gullIn -= dt) <= 0 && !F.drop) {
         const to = { x: L.boat.x + 22, y: L.boat.y - 64 };             // over the deck, clear of the mast
-        F.gull = { phase: 'in', age: 0, job: { ...F.bottles.shift(), bottle: true }, from: { x: W + 24, y: L.boat.y - 64 }, to, c: { x: W * 0.55, y: L.boat.y - 84 }, x: W + 24, y: L.boat.y - 64, dir: -1, flap: 0 };
+        // in low from the right, under the line of how the search goes, rising to the deck: never along the top edge
+        F.gull = { phase: 'in', age: 0, job: { ...F.bottles.shift(), bottle: true }, from: { x: W + 24, y: L.boat.y - 40 }, to, c: { x: W * 0.55, y: L.boat.y - 70 }, x: W + 24, y: L.boat.y - 40, dir: -1, flap: 0 };
         F.gullIn = F.gullEvery;
       }
     } else {
@@ -346,7 +380,7 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
       if (gl.phase === 'in') {
         const u = Math.min(1, gl.age / 2.8), p = bez(gl.from, gl.c, gl.to, easeOut(u));
         gl.x = p.x; gl.y = p.y; gl.flap += dt * (u < 0.55 ? 5 : u < 0.8 ? 1.2 : 7);
-        if (u >= 1) { gl.phase = 'drop'; gl.age = 0; F.drop = { job: gl.job, x: gl.x - 1, y: gl.y + 4, vy: 0, age: 0, x0: gl.x - 1 }; gl.job = null; onSay('The gull brought you a letter!', 'gull', 2.5); }
+        if (u >= 1) { gl.phase = 'drop'; gl.age = 0; F.drop = { job: gl.job, x: gl.x - 1, y: gl.y + 4, vy: 0, age: 0, x0: gl.x - 1 }; gl.job = null; say('The gull brought you a letter!', 'gull', 2.5); }
       } else if (gl.phase === 'drop') {
         gl.flap += dt * 7; gl.y = gl.to.y - Math.sin(gl.age * 6) * 1.2;
         if (gl.age >= 0.45) { gl.phase = 'out'; gl.age = 0; gl.from = { x: gl.x, y: gl.y }; gl.c = { x: gl.x - 40, y: gl.y - 6 }; gl.to = { x: -30, y: L.boat.y - 96 }; }
@@ -358,26 +392,33 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
     }
     const d = F.drop;                                                   // the letter it let go: down to the deck, side to side
     if (d) {
-      d.age += dt; d.vy = Math.min(16, d.vy + 30 * dt);
-      d.y += d.vy * dt; d.x = d.x0 + Math.sin(d.age * 4.2) * 4 * Math.min(1, d.age * 2);
       const deck = boatY() - 14;
-      if (d.y >= deck) {
-        F.fx.push({ kind: 'puff', x: d.x, y: deck + 2, age: 0, life: 0.5, r: 3 });
+      if (!d.down) {
+        d.age += dt; d.vy = Math.min(16, d.vy + 30 * dt);
+        d.y += d.vy * dt; d.x = d.x0 + Math.sin(d.age * 4.2) * 4 * Math.min(1, d.age * 2);
+        if (d.y >= deck) { d.down = true; d.y = deck; F.fx.push({ kind: 'puff', x: d.x, y: deck + 2, age: 0, life: 0.5, r: 3 }); }
+      } else d.y = deck;                                                // on the deck, riding with the boat
+      if (d.down && (F.auto || (!F.line && !F.pending))) {             // the duck takes it in; or, by hand, its card once none is open
         F.drop = null;
-        if (F.auto && !F.line) { bagIt(d.job); onSay(`From the gull: ${d.job.title}, ${d.job.company}. Not one of your titles, but your CV fits it. In the bag.`, 'gull', 4); }
+        if (F.auto) { bagIt(d.job); say(`From the gull: ${d.job.title}, ${d.job.company}. Not one of your titles, but your CV fits it. In the bag.`, 'gull', 4); }
         else { F.pending = d.job; onCard(d.job, { kind: 'gull' }); }
       }
     }
   }
 
   // ---- each moment --------------------------------------------------------------------------------------------------------------------
-  function step(dt) {
+  // hold: a sheet is open over the sky (a card, the bag): the letters fly on, but the duck starts nothing and the sun waits
+  function step(dt, hold = false) {
     if (!F.on) return;
     F.t += dt;
+    if (F.dayLength && !hold && !F.over) {                              // the sun crosses the sky; it sets once nothing is on the go
+      F.day = Math.min(DUSK, F.day + ((DUSK - DAWN) * dt) / F.dayLength);
+      if (F.day >= DUSK && !busy()) { F.over = true; F.next = null; if (onSunset) onSunset(); }
+    }
     F.speed = F.waiting ? 14 : F.speed * Math.exp(-dt * 0.45);         // the search done, the city slows, and stops
     if (F.speed < 0.05) F.speed = 0;
     F.at += F.speed * dt;
-    stock(dt);
+    if (!F.over) stock(dt);
     if ((F.resort -= dt) <= 0) {                                         // now and then a letter finds its height again
       F.resort = 1.2;
       const l = F.sky[Math.floor(Math.random() * F.sky.length)];
@@ -392,8 +433,8 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
     apart(dt);
     springs(dt);
     if (F.line) catchStep(dt);
-    duck(dt);
-    gull(dt);
+    duck(dt, hold);
+    gull(dt, hold);
     for (const f of F.fx) { f.age += dt; if (f.vx != null) { f.x += f.vx * dt; f.y += f.vy * dt; f.vy += (f.kind === 'dust' ? -4 : 50) * dt; f.vx *= 1 - dt * 2; } }
     F.fx = F.fx.filter((f) => f.age < f.life);
   }
@@ -420,9 +461,10 @@ export function makeLetters({ onCard, onSay, onBag, onCheck, onClosed } = {}) {
   }
   const sounds = { fn: null };
   function sound(name) { if (sounds.fn) sounds.fn(name); }
+  function say(text, who, secs) { if (onSay) onSay(text, who, secs); }
 
   return {
-    F, start, feed, searchDone, setAuto, resize, step, tap, answer, view, rest,
-    onSound(fn) { sounds.fn = fn; }, stop() { F.on = false; },
+    F, start, feed, give, searchDone, setAuto, resize, step, hit, tap, answer, kept, busy, left, view, rest,
+    onSound(fn) { sounds.fn = fn; }, stop() { F.on = false; F.line = null; F.pending = null; },
   };
 }

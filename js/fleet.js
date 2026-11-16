@@ -18,7 +18,8 @@ export async function moored() {                                      // the boa
 // out: every boat, for this person's titles and place; the boards the shared store knows have jobs for them read first
 export async function sail(me, first, on) {
   after = 0;
-  await post('/api/fleet/start', { titles: me.titles || [], city: me.city || '', remote: !!me.remote, first });
+  const r = await post('/api/fleet/start', { titles: me.titles || [], city: me.city || '', remote: !!me.remote, first });
+  if (!r || !r.ok) throw new Error('refused');                             // never a search line waiting on boats that never left
   clearInterval(timer);
   timer = setInterval(async () => {
     let r;

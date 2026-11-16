@@ -3,7 +3,7 @@
 // («Catch of the day»), it may also hold what is still in the lake, folded (each can be kept from there), and the buttons
 // the moment calls for (Keep fishing, Home) in place of Close. A search over all of it (Vin, 15/11): every word typed is in
 // the job's title, company, place or skills. A job's page opens outside the game (js/fleet.js openOut).
-import { all, mark, replied, add } from './box.js';
+import { all, mark, replied, add, todays as bagToday } from './box.js';
 import { openOut } from './fleet.js';
 
 const $ = (id) => document.getElementById(id);
@@ -35,8 +35,8 @@ const said = (j) => ` ${[j.title, j.company, j.place, ...(Array.isArray(j.skills
 const found = (j) => { const s = said(j); return words.every((w) => s.includes(` ${w}`)); };
 
 function draw() {
-  const items = all(), day = new Date().toLocaleDateString('en-CA'), week = Date.now() - 7 * 864e5;
-  const todays = items.filter((e) => e.day === day && e.how !== 'ashore' && e.status !== 'not_for_me' && e.status !== 'expired');   // kept today, as the sunset counts
+  const items = all(), week = Date.now() - 7 * 864e5;
+  const todays = bagToday();                                          // kept today: the BAG button's own number
   const fresh = items.filter((e) => e.status === 'new').sort((a, b) => (b.job.fit ?? -1) - (a.job.fit ?? -1) || b.job.posted - a.job.posted);
   const applied = items.filter((e) => e.status === 'applied').sort((a, b) => b.at.localeCompare(a.at));
   const away = items.filter((e) => e.status === 'expired' || e.status === 'not_for_me').length;

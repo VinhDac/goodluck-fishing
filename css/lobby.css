@@ -105,7 +105,7 @@ button.chip, select.chip { cursor: pointer; }
 
 /* in the sky the corner keeps only the Bucket: the CV and the sign-in are the office's */
 body[data-scene="sea"] #mycv, body[data-scene="sea"] #signin, body[data-scene="sea"] #who,
-body[data-scene="pier"] #mycv, body[data-scene="pier"] #signin, body[data-scene="pier"] #who { display: none; }
+body[data-scene="pier"] #mycv, body[data-scene="pier"] #signin, body[data-scene="pier"] #who, body[data-scene="pier"] #gofish { display: none; }   /* on the pier the boat is the way out */
 select.chip { max-width: 11em; text-overflow: ellipsis; }
 /* a phone: 16px in a field (smaller, and the phone zooms in on it), the chips a size down, no email in the corner */
 .sheet input, .sheet textarea, .sheet.postcard input { font-size: 16px; }
@@ -134,10 +134,34 @@ button.chip:disabled { opacity: .55; cursor: default; }
 .sheet { z-index: 10; }
 .veil { z-index: 10; }
 
-/* out fishing: the talk box at the bottom (PLAN.md 17: words never over the gauges) */
+/* in the sky (PLAN.md 18): one line of how the search goes, top right, the sound beside it; four plain buttons along the
+   bottom; the talk box at the bottom left, only when there is something to say, over nothing that matters */
+.seahud { position: fixed; z-index: 4; display: none; font: 600 14px var(--ui); color: var(--paper); }
+body[data-scene="sea"] .seahud { display: flex; }
+.seahud.prog { top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); align-items: center; gap: 10px;
+  background: rgba(27, 31, 58, .78); border-radius: 4px; padding: 6px 10px 8px; }
+.prog .line { display: flex; flex-direction: column; gap: 4px; }
+.prog .bar { height: 3px; background: rgba(255, 255, 255, .18); border-radius: 2px; overflow: hidden; }
+.prog .bar i { display: block; height: 100%; width: 0; background: var(--yellow); transition: width .4s linear; }
+.prog button { all: unset; cursor: pointer; font: 600 13px var(--ui); color: #c9d0ff; white-space: nowrap; }
+.seahud.tools { right: max(10px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom)); gap: 8px; }
+.tools button { font: 600 15px var(--ui); color: var(--ink); background: var(--paper); border: 3px solid var(--edge); border-radius: 4px;
+  box-shadow: 0 3px 0 var(--edge); padding: 6px 12px; cursor: pointer; }
+.tools button.on { background: var(--yellow); }
+.tools button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
+.bump { animation: bump .35s ease-out; }
+@keyframes bump { 30% { transform: scale(1.12); } }
+body[data-scene="sea"] footer { display: none; }
 .talk { position: fixed; z-index: 4; display: flex; gap: 8px; align-items: center; box-sizing: border-box; padding: 4px 10px 4px 6px;
+  left: max(10px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom)); max-width: min(440px, calc(100vw - 370px));
   background: var(--paper); color: var(--ink); border: 3px solid var(--edge); border-radius: 4px; box-shadow: 0 3px 0 var(--edge);
   font: 15px/1.25 var(--ui); pointer-events: none; animation: pop .18s ease-out; overflow: hidden; }
+@media (max-width: 560px) {                                   /* a phone: the line across the top, the buttons across the bottom, the words above them */
+  .seahud.prog { left: 10px; right: 10px; justify-content: space-between; font-size: 12px; }
+  .seahud.tools { left: 10px; right: 10px; justify-content: space-between; gap: 6px; }
+  .tools button { flex: 1; font-size: 13px; padding: 7px 4px; }
+  .talk { right: 10px; bottom: calc(max(10px, env(safe-area-inset-bottom)) + 50px); max-width: none; }
+}
 .talk[hidden] { display: none; }
 .talk canvas { width: 30px; height: 30px; image-rendering: pixelated; flex: none; background: #9fd4f8; border: 2px solid var(--edge); }
 body[data-scene="sea"] .corner { display: none; }

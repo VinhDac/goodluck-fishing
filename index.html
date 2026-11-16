@@ -75,7 +75,10 @@
       <div class="said"></div>
       <button class="go" id="mapGo" type="button">Done</button>
     </div>
-    <!-- out fishing: what the duck (or the gull) says, in a box at the bottom, over nothing that matters -->
+    <!-- in the sky (PLAN.md 18): how the search goes, top right, the sound beside it; four plain buttons along the bottom;
+         what the duck (or the gull) says, in a box at the bottom left, over nothing that matters -->
+    <div class="seahud prog"><div class="line"><span id="progText">Getting ready…</span><div class="bar"><i id="progBar"></i></div></div><button id="seaSound" type="button" title="Sound on or off">♪ off</button></div>
+    <div class="seahud tools"><button id="auto" class="on" type="button">AUTO ON</button><button id="bag" type="button">BAG 0</button><button id="toPier" type="button" title="To the pier: the sky waits, the search goes on">PIER</button><button id="toLobby" type="button" title="To the office: the sky waits, the search goes on">LOBBY</button></div>
     <div class="talk" id="talk" hidden><canvas id="talkFace" width="16" height="16"></canvas><span id="talkText"></span></div>
     <div class="veil" id="catch" hidden>
       <div class="card">
@@ -84,7 +87,7 @@
         <div class="who" id="ctWho"></div>
         <div class="meta" id="ctMeta"></div>
         <p class="fit" id="ctFit"></p>
-        <div class="row center"><button class="go" id="ctKeep" type="button">Keep</button><button class="ghost" id="ctThrow" type="button">Throw back</button></div>
+        <div class="row center"><button class="go" id="ctKeep" type="button">Keep</button><button class="ghost" id="ctThrow" type="button">Not for me</button></div>
         <a class="link" id="ctOpen" href="#" target="_blank" rel="noopener">Open the job ↗</a>
       </div>
     </div>
