@@ -835,6 +835,17 @@ trang thử riêng (tools/catch.html); game trên site giữ nguyên tới khi V
   cú giật cố ý lúc cắn. Đã sửa: thư nhảy về phía thuyền lúc móc, phao nhảy khi về con lắc.
 - Ghi chú: thuyền về là chạy lùi (vẽ lật thì chữ GOOD LUCK bị ngược); album trên giá sách chỉ có ở màn hình rộng, trên điện
   thoại mở từ My list.
+- **Hồ mây, cảnh trôi chậm, cái thùng** (Vin, 16/11, khi thử: «khoảng này nhiều mây hơn 1 chút, cảm giác như hồ, làm nó mờ mờ
+  đi, như 1 cái hồ trong. bấm vào thùng xem được toàn bộ cá. thế thôi là đủ rồi»; rồi «lúc nào khung cảnh cũng trôi về phía
+  trước, thật chậm thôi. thật chill»):
+  - Trời dưới mây của thuyền là một cái hồ trong, phố là đáy hồ. Mây trôi chậm trong hồ (càng sâu càng nhỏ và nhạt), sương
+    thành từng dải mỏng nằm trên mái nhà, càng xuống càng mờ (mờ nhất là dãy mái phía trong), vài đốm sáng lấp lánh đến rồi
+    đi. Thư ở sâu cũng hơi mờ, như cá trong nước trong; móc lên thì rõ.
+  - Cảnh lúc nào cũng trôi về phía trước, 5 điểm ảnh một giây (trước là 14 khi đang tìm, tìm xong thì dừng hẳn); chỉ lúc về
+    bến mới trôi ngược. Tìm xong, mòng biển nói «Fish at your ease».
+  - Cái thùng trên boong: bấm là tờ bên cạnh liệt kê mọi lá đã câu, theo ngày (hôm nay trước, đúng số của túi thư), hợp
+    nhất trước, có ghi to apply hay applied; bấm một lá là phần còn lại của nó (Open, Not for me). Sửa luôn: tờ chi tiết và
+    thẻ đọc thư ở bàn từng ghi kỹ năng thành «0, 1, 2» với thư lấy từ hộp.
 
 ---
 
@@ -855,3 +866,4 @@ trang thử riêng (tools/catch.html); game trên site giữ nguyên tới khi V
 - 16/11: Vin duyệt chuyển động («được, làm bước 2 đi»); bước 2 xong: thư bay trong game, thanh nút mới, PIER và LOBBY giữ buổi.
 - 16/11: Vin thử bước 2: «ổn đấy»; muốn câu thư thư giãn như câu cá trong Stardew Valley, chuyện kể đi và về, chiều sâu từng chi tiết; đề xuất mục 19.
 - 16/11 (đêm): Vin duyệt cả mục 19 và cho làm trọn; đã dựng hết: một lần câu, đường đi lên HEAVEN và đường về, đọc thư ở bàn, nhạc, mùa và thời tiết theo số thật, sổ tem, ngăn kéo đồ linh tinh; build lại exe.
+- 16/11: Vin thử: trời thư thành hồ mây trong, mờ dần theo độ sâu; cảnh luôn trôi tới, thật chậm; bấm cái thùng trên boong xem mọi lá đã câu theo ngày.

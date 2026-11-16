@@ -116,7 +116,7 @@
     read = Math.min(TOTAL, read + Math.round(30 + Math.random() * 50));
     const due = Math.round((order.length * read) / TOTAL);
     while (fed < due) letters.feed(order[fed++]);
-    if (read >= TOTAL) { done = true; letters.searchDone(); say(`The search is done: ${letters.F.found} letters. The city slows, and stops.`, 'duck', 4); clearInterval(search); }
+    if (read >= TOTAL) { done = true; letters.searchDone(); say(`The search is done: ${letters.F.found} letters. Fish at your ease.`, 'duck', 4); clearInterval(search); }
     prog();
   }, 1000);
   prog();

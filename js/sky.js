@@ -263,6 +263,54 @@ export function makeSky(stage) {
     L.tops = (city.L.tops || []).map((r) => ({ x: r.x - out.frac, y: r.y }));
   }
 
+  // ---- the lake (Vin, 16/11: «khoảng này nhiều mây hơn 1 chút, cảm giác như hồ, làm nó mờ mờ đi, như 1 cái hồ trong»): the sky
+  // under the boat's cloud is a clear lake and the city its bed. Clouds drift in it, slowly, the deeper the smaller and the
+  // fainter; a mist lies along its bed over the roofs; the deeper, the hazier, so the city is seen as through clear water. The
+  // letters swim in it, those deep down a little veiled (deep(), after them), as fish are in a clear lake.
+  const surface = () => L.top - 10, bed = () => L.bottom;
+  function veil(stops) {                                               // a haze down the lake: [y, alpha] by depth, the lake's own tint
+    const g = stage.g, K = stage.K, late = city.late, c = [216, 236, 252].map((v0, i) => Math.round(v0 + ([250, 218, 222][i] - v0) * late)).join(',');
+    const y0 = stops[0][0], y1 = stops[stops.length - 1][0];
+    const gr = g.createLinearGradient(0, y0 * K, 0, y1 * K);
+    for (const [y, a] of stops) gr.addColorStop(Math.max(0, Math.min(1, (y - y0) / (y1 - y0))), `rgba(${c},${a})`);
+    g.fillStyle = gr; g.fillRect(0, Math.floor(y0 * K), stage.canvas.width, Math.ceil((y1 - y0) * K) + 1);
+  }
+  function mistArt(px, w, h, seed) {                                   // a long strip of mist in wisps, its two ends meeting when laid end to end
+    for (let k = 0; k < 3; k++) {                                      // three wisps, gaps between them
+      const mid = w * (k + 0.2 + hash(seed + k * 1.7) * 0.6) / 3, len = 26 + hash(seed + k * 2.3) * 34;
+      for (let i = 0; i < 5; i++) {
+        const cx = mid + (hash(seed + k * 9.1 + i * 3.1) - 0.5) * len, rx = Math.round(7 + hash(seed + k * 4.7 + i * 5.3) * 14), ry = Math.round(2 + hash(seed + k * 6.1 + i * 7.7) * 3);
+        const cy = h / 2 + Math.round((hash(seed + k * 8.3 + i * 11.9) - 0.5) * 4);
+        for (const dx of [-w, 0, w]) if (cx + dx + rx > 0 && cx + dx - rx < w) px.ell(cx + dx, cy, rx, ry, 'rgba(255,255,255,0.22)');
+      }
+    }
+  }
+  function lake(v) {
+    const { W } = L, t = v.t, at = v.at || 0, late = city.late, S = surface(), B = bed(), eve = late > 0.4 ? 1 : 0;
+    const top = eve ? '#ffe2d0' : '#ffffff', under = eve ? '#e8c0c8' : '#dfe8f4';
+    for (let i = 0; i < (L.wide ? 9 : 6); i++) {                       // clouds in the lake, drifting with the city and the wind
+      const d = hash(i + 211), r = Math.round(13 - d * 6 + hash(i + 213) * 3), flat = hash(i + 223) > 0.4, span = W + r * 5 + 40;
+      const y = S + 16 + d * (B - S - 34), go = at * (0.5 + 0.35 * (1 - d)) + t * (0.5 + hash(i + 219) * 0.9);
+      const x = (((hash(i + 217) * span - go) % span) + span) % span - r * 2.5 - 20;
+      stage.sprite(x, y, r * 5, r * 2 + 4, Math.round(r * 2.5), r + 1, (px, ox, oy) => {
+        if (flat) { px.ell(ox, oy + 1, r * 2, Math.max(2, Math.round(r * 0.32)), under); px.ell(ox - r * 0.7, oy - 1, Math.round(r * 1.2), Math.max(1, Math.round(r * 0.28)), top); px.ell(ox + r * 0.6, oy - 1, r, Math.max(1, Math.round(r * 0.25)), top); }
+        else { px.puff(ox - r * 0.7, oy + 1, Math.round(r * 0.7), top, under); px.puff(ox + r * 0.4, oy, r, top, under); }
+      }, `lk${i}:${eve}`, 0.8 - d * 0.32);
+    }
+    for (const [k, y, pf, wind] of [[0, B - 6, 0.85, 0.7], [1, B + 22, 0.95, 1.1], [2, B + 50, 1.05, 1.5]]) {   // the mist along its bed
+      const SW = 240, go = at * pf + t * wind, x0 = -((go % SW) + SW) % SW;
+      for (let x = x0; x < W; x += SW) stage.sprite(x, y, SW, 14, 0, 7, (px, ox, oy) => mistArt(px, SW, 14, 401 + k * 37), `mist${k}`, eve ? 0.7 : 0.85);
+    }
+    veil([[S, 0], [S + (B - S) * 0.5, 0.05], [B, 0.17], [B + 30, 0.19], [L.H, 0.13]]);   // the deeper, the hazier; the far roofs most
+    for (let i = 0; i < 7; i++) {                                      // a glint of light on it, here and there, coming and going slowly
+      const p = 4 + hash(i + 301) * 3, u = (t + hash(i + 303) * p) / p, c = Math.floor(u), a = Math.sin(Math.PI * (u - c)) ** 2 * 0.55;
+      const x = Math.round(hash(i * 13 + c * 7.31) * W), y = Math.round(S + 12 + hash(i * 17 + c * 3.37) * (B - S - 24)), n = 3 + Math.floor(hash(i * 19 + c * 5.1) * 5);
+      if (x < L.boat.x + 90 && y < L.top + 12) continue;               // not on the boat's cloud
+      stage.fill(`rgba(255,255,255,${(a * 0.55).toFixed(3)})`, x, y, n, 1); stage.dot(x + Math.floor(n / 2), y, `rgba(255,255,255,${a.toFixed(3)})`);
+    }
+  }
+  function deep(v) { veil([[surface(), 0], [bed(), 0.1], [L.H, 0.07]]); }   // the letters deep in the lake, a little veiled
+
   // ---- a letter where it is: its wings by the beat (held out in a glide), lifted a little by each beat --------------------------
   function letter(l, alpha = 1) {
     const still = l.state === 'held' || l.state === 'closed';
@@ -532,9 +580,11 @@ export function makeSky(stage) {
     behind(v);
     dusk(v);
     town(v);
+    lake(v);
     season(v);
     const onLine = v.letters.filter((l) => l.state === 'hooked' || l.state === 'closed');
     for (const l of v.letters) if (!onLine.includes(l)) letter(l);
+    deep(v);
     boat(v);
     rod(v);
     line(v);

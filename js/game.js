@@ -276,7 +276,7 @@ function letter() {                                                    // the ne
     $('ctKeep').textContent = 'See the list'; $('ctThrow').hidden = true; $('ctOpen').hidden = true; $('ctLater').textContent = 'Close';
     return;
   }
-  const j = e.job, mine = new Set(person.skills || []), asks = Object.keys(j.skills || {});
+  const j = e.job, mine = new Set(person.skills || []), asks = Array.isArray(j.skills) ? j.skills : Object.keys(j.skills || {});   // the box keeps them as a list
   const have = asks.filter((k) => mine.has(k)), miss = asks.filter((k) => !mine.has(k));
   $('ctKicker').textContent = `Letter ${r.i + 1} of ${r.list.length}${j.size === 'gold' ? ' · a golden one' : ''}${e.how === 'ashore' ? ' · left at sunset' : ''}`;
   $('ctTitle').textContent = j.title; $('ctWho').textContent = j.company;
@@ -441,7 +441,7 @@ function searchDone(quiet) {
   if (!F.on || !F.waiting) return;
   letters.searchDone();
   sfx('chime2');
-  if (!quiet) talk(`The search is done: ${n(F.found)} letters for you, ${n(F.gold)} golden. The city slows, and stops.`, 'gull', 4.5);
+  if (!quiet) talk(`The search is done: ${n(F.found)} letters for you, ${n(F.gold)} golden. Fish at your ease.`, 'gull', 4.5);
 }
 
 // ---- in the sky: one line of how the search goes, the sound; one way home; the mailbag on the mast ------------------------------
@@ -469,6 +469,34 @@ const onBagAt = (p) => { const b = letters.view().bag.at; return p.x > b.x - 8 &
 function bagSheet() {                                                  // the bag: today's letters; each one's rest of it, at a press
   const list = todays().map((e) => e.job).sort((a, b) => (b.fit ?? -1) - (a.fit ?? -1));
   ui.list(`Today's bag · ${list.length} letter${list.length === 1 ? '' : 's'}`, list, (j) => letters.tierOf(j));
+  sfx('rustle');
+}
+// the bucket on the deck (Vin, 16/11: «bấm vào thùng xem được toàn bộ cá»): every letter caught, day by day, today's first (the
+// bag's own), the best fit first in each; those put away (not for me, closed) and the golden ones the sunset left are not in it
+const onBucketAt = (p) => { const b = letters.view().boat; return p.x > b.x + 11 && p.x < b.x + 26 && p.y > b.y - 26 && p.y < b.y - 11; };
+function dayName(d) {
+  const iso = (x) => x.toLocaleDateString('en-CA'), now = new Date(), yday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  if (d === iso(now)) return 'Today';
+  if (d === iso(yday)) return 'Yesterday';
+  const [y, m, dd] = String(d).split('-').map(Number);
+  return new Date(y, m - 1, dd).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function bucketSheet() {
+  const days = new Map();
+  for (const e of all()) {
+    if (!e.job || e.how === 'ashore' || e.status === 'not_for_me' || e.status === 'expired') continue;
+    if (!days.has(e.day)) days.set(e.day, []);
+    days.get(e.day).push(e);
+  }
+  const rows = [];
+  let total = 0;
+  for (const d of [...days.keys()].sort().reverse()) {
+    const es = days.get(d).sort((a, b) => (b.job.fit ?? -1) - (a.job.fit ?? -1));
+    total += es.length;
+    rows.push(`${dayName(d)} · ${es.length}`);
+    for (const e of es) rows.push({ ...e.job, note: e.status === 'keep' ? 'to apply' : e.status === 'applied' ? 'applied' : '' });
+  }
+  ui.list(`The bucket · ${n(total)} letter${total === 1 ? '' : 's'}`, rows, (j) => letters.tierOf(j), 'In your bucket');
   sfx('rustle');
 }
 
@@ -500,11 +528,12 @@ cv.addEventListener('pointerdown', (e) => {
   if (scene === 'rise') { if (ride.dir > 0 && been() && !ride.walking) { ride.walking = true; talk('Walking up. Like everyone in a hurry.', 'duck', 2); } return; }
   cv.setPointerCapture?.(e.pointerId);
   if (onBagAt(p) && !letters.F.line) return bagSheet();
+  if (onBucketAt(p) && !letters.F.line) return bucketSheet();
   letters.press(p);
 });
 cv.addEventListener('pointermove', (e) => {
   const p = stage.toArt(e);
-  if (scene === 'sea') { letters.move(p); cv.style.cursor = letters.hovering(p) || onBagAt(p) ? 'pointer' : 'default'; return; }
+  if (scene === 'sea') { letters.move(p); cv.style.cursor = letters.hovering(p) || onBagAt(p) || onBucketAt(p) ? 'pointer' : 'default'; return; }
   const on = scene === 'office' ? !!hit(p, room.L.spots) : scene === 'pier' ? !!hit(p, pier.L.spots) : false;
   cv.style.cursor = on ? 'pointer' : 'default';
 });

@@ -52,6 +52,8 @@ const CSS = `
 .cside .it .ti { display: block; font: 600 14px/1.25 "Pixelify Sans", monospace; }
 .cside .it .co { display: block; font: 12px system-ui, sans-serif; color: #5a4a30; }
 .cside .it .st { color: #d9a020; }
+.cside .day { font: 600 11px "Pixelify Sans", monospace; letter-spacing: .08em; text-transform: uppercase; color: #8a6a3a; padding: 10px 2px 3px; border-bottom: 1px dashed #e2d3ab; }
+.cside .day:first-child { padding-top: 4px; }
 @media (max-width: 560px) { .cside { top: auto; bottom: 64px; left: 10px; right: 10px; width: auto; transform: translateY(calc(100% + 90px)); } .cside.in { transform: none; } }
 `;
 
@@ -100,10 +102,11 @@ export function makeCatchUI({ toCss, skills = () => new Set(), away = () => {}, 
     tag.style.opacity = String(Math.max(0, Math.min(1, t.age / 0.2, (t.life - t.age) / 0.7)));
   }
   function sheet(j, d) {                                               // the rest of it, at the side; the sky goes on behind
-    const mine = skills(), asks = Object.keys(j.skills || {}), have = asks.filter((k) => mine.has(k)), miss = asks.filter((k) => !mine.has(k));
+    const mine = skills(), asks = Array.isArray(j.skills) ? j.skills : Object.keys(j.skills || {});   // the box keeps a letter's skills as a list
+    const have = asks.filter((k) => mine.has(k)), miss = asks.filter((k) => !mine.has(k));
     side.replaceChildren();
     const x = el('button', 'x', '×'); x.type = 'button'; x.title = 'Close'; x.onclick = shut;
-    const kick = KICK[d.tier] || (d.gull ? 'Airmail, from the gull: not one of your titles, but your CV fits it' : 'In your bag');
+    const kick = KICK[d.tier] || (d.gull ? 'Airmail, from the gull: not one of your titles, but your CV fits it' : d.kick || 'In your bag');
     side.append(x, el('div', 'k', kick), el('h2', '', j.title), el('div', 'who', j.company || ''),
       el('p', 'meta', [j.place, j.posted ? ago(j.posted) : ''].filter(Boolean).join(' · ')),
       el('p', 'fit', j.fit == null ? 'Its posting names too little to weigh: open it to judge.'
@@ -115,16 +118,18 @@ export function makeCatchUI({ toCss, skills = () => new Set(), away = () => {}, 
     row.append(a, no, said); side.appendChild(row);
     side.hidden = false; side.classList.remove('in'); void side.offsetWidth; side.classList.add('in');
   }
-  function list(title, jobs, tierOf = () => 0) {                       // a list (the bag of the day): each, at a press, its rest
+  function list(title, jobs, tierOf = () => 0, kick = '') {            // a list (the bag of the day, the bucket by day): each, at a press, its rest
     side.replaceChildren();
     const x = el('button', 'x', '×'); x.type = 'button'; x.title = 'Close'; x.onclick = shut;
     const box = el('div', 'lst');
     if (!jobs.length) box.appendChild(el('p', 'said', 'Nothing in it yet: cast, and wait for a bite.'));
     for (const j of jobs) {
+      if (typeof j === 'string') { box.appendChild(el('div', 'day', j)); continue; }   // a day's heading
       const b = el('button', 'it'), tier = tierOf(j); b.type = 'button';
       const co = el('span', 'co', j.company || ''); if (STARS[tier]) co.appendChild(el('span', 'st', ` ${STARS[tier]}`));
+      if (j.note) co.appendChild(document.createTextNode(` · ${j.note}`));
       b.append(el('span', 'ti', j.title), co);
-      b.onclick = () => sheet(j, { tier: String(tier), gull: j.bottle ? '1' : '' });
+      b.onclick = () => sheet(j, { tier: String(tier), gull: j.bottle ? '1' : '', kick });
       box.appendChild(b);
     }
     side.append(x, el('div', 'k', title), box);

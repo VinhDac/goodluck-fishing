@@ -28,6 +28,8 @@ const SIZE = { gold: [13, 8], big: [13, 8], medium: [11, 7], small: [9, 6], unre
 const CRUISE = { gold: 5.5, big: 6, medium: 7, small: 8, unread: 7.5 };   // art pixels a second, flying level
 const EDGE = 16;                                                     // how near the side a letter turns round
 const DAWN = 0.08, DUSK = 0.94;                                      // the hour the sky shows, at the start and at sunset
+const DRIFT = 5;                                                     // art pixels a second: out here the city always goes by, slowly
+                                                                     // (Vin, 16/11: «lúc nào khung cảnh cũng trôi về phía trước, thật chậm thôi. thật chill»)
 const BREATH = 1.6;                                                  // seconds of the cast's arc: full, and empty again
 const BITE = 1.5;                                                    // seconds to set the hook once it bites
 const HANG = 14;                                                     // the float's line at rest, in art pixels
@@ -79,7 +81,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome, o
     known = opts.known || (() => false);
     dream = new Set((opts.dream || []).map((c) => String(c).toLowerCase()));
     Object.assign(F, {
-      on: true, over: false, t: 0, day: opts.day ?? DAWN, dayLength: opts.dayLength || 0, at: 0, speed: 14, waiting: true, found: 0, gold: 0,
+      on: true, over: false, t: 0, day: opts.day ?? DAWN, dayLength: opts.dayLength || 0, at: 0, speed: DRIFT, waiting: true, found: 0, gold: 0,
       sky: [], queue: [], seen: new Set(), fx: [], bag: 0, bagPuff: 0, stamps: 0, met: new Set(), checks: new Map(),
       auto: !!opts.auto, autoIn: 2.5, releaseIn: 0.5, resort: 1.2, holding: false, press: null, missed: 0,
       line: null, held: null, show: null, tag: null, showId: 0, bang: null, scale: 1, slow: 0, sag: 0.6, boatDx: 0, homing: null, arriving: { age: 0 },
@@ -546,7 +548,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome, o
     F.homing = { age: 0 }; F.arriving = null;
     return true;
   }
-  function comeBack() { F.homing = null; F.arriving = { age: 0 }; F.boatDx = -(L.boat.x + 110); }
+  function comeBack() { F.homing = null; F.arriving = { age: 0 }; F.boatDx = -(L.boat.x + 110); F.speed = DRIFT; }   // out again: forward at once
   function sailing(dt) {
     if (F.homing) {
       const h = F.homing; h.age += dt;
@@ -723,8 +725,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome, o
       if (F.day >= DUSK && !busy()) { F.over = true; if (onSunset) onSunset(); }
     }
     if (F.homing) F.speed += (-18 - F.speed) * Math.min(1, dt * 1.5);   // sailing back: the city goes by the other way
-    else if (F.waiting) F.speed += (14 - F.speed) * Math.min(1, dt * 1.5);
-    else { F.speed *= Math.exp(-dt * 0.45); if (Math.abs(F.speed) < 0.05) F.speed = 0; }   // the search done, the city slows, and stops
+    else F.speed += (DRIFT - F.speed) * Math.min(1, dt * 0.8);           // else always forward, slowly, the search on or done
     F.at += F.speed * dt;
     if (!F.over) { stock(dt); junkFly(dt); }
     weather(dt);
