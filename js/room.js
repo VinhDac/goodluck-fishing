@@ -232,7 +232,11 @@ export function makeRoom(g) {
     const lines = L.wide ? [sent, rep, '', 'DEAR HIRING', 'MANAGER, I AM', 'PASSIONATE', `ABOUT ${f}`.slice(0, 16)] : [sent, rep, '', 'DEAR HIRING', 'MANAGER, I', `AM ${f}`.slice(0, 11)];
     lines.forEach((s, i) => text(s.slice(0, Math.floor((w - 4) / 4)), x + 2, y + 2 + i * 6, i < 2 ? g1 : g2));
     R(x + 2 + textW(lines[lines.length - 1].slice(0, Math.floor((w - 4) / 4))) + 1, y + 2 + (lines.length - 1) * 6, 2, 5, g1);   // the cursor
-    R(x + w - 9, y - 1, 8, 7, '#fff176'); text('V12', x + w - 9, y + 1, '#8a7a30');   // a sticky note: «CV final v12»
+    if (S.sample) {                                                  // a borrowed CV (PLAN.md 20 B): the note asks for theirs, glowing softly
+      const c = px.ctx, a = 0.16 + 0.1 * Math.sin(T * 2.4);
+      c.globalCompositeOperation = 'lighter'; ell(x + w - 5, y + 2, 9, 7, `rgba(255,236,140,${a.toFixed(2)})`); c.globalCompositeOperation = 'source-over';
+      R(x + w - 9, y - 1, 8, 7, '#fff176'); text('CV', x + w - 8, y + 1, '#c0392b');
+    } else { R(x + w - 9, y - 1, 8, 7, '#fff176'); text('V12', x + w - 9, y + 1, '#8a7a30'); }   // a sticky note: «CV final v12»
     spot('screen', x - 2, y - 2, w + 4, h + 4);
   }
   function keyboard() {
@@ -334,9 +338,9 @@ export function makeRoom(g) {
     if (open) return;
     spot('rope', a - 4, y - 20, b - a + 8, 24);
     for (let x = a; x <= b; x++) { const k = (x - a) / (b - a); R(x, y - 14 + Math.round(Math.sin(Math.PI * k) * 5), 1, 2, '#b0202a'); }
-    const w = textW('REQUIRED') + 6, sx = Math.round((a + b) / 2 - w / 2), sy = y - 9;
+    const w = textW('QUESTION') + 6, sx = Math.round((a + b) / 2 - w / 2), sy = y - 9;   // one question first (PLAN.md 20 B), not a CV
     R(sx, sy, w, 14, '#1b1f3a'); R(sx, sy, w, 1, '#d9a63a'); R(sx, sy + 13, w, 1, '#d9a63a');
-    text('CV', sx + (w - textW('CV')) / 2, sy + 2, '#ffd84a'); text('REQUIRED', sx + 3, sy + 8, '#fff8e7');
+    text('ONE', sx + (w - textW('ONE')) / 2, sy + 2, '#ffd84a'); text('QUESTION', sx + 3, sy + 8, '#fff8e7');
   }
 
   // ---- the light: the room in the dark, but for the lamp's pool, the screen's glow and the light down the escalator ---------
@@ -392,7 +396,7 @@ export function makeRoom(g) {
   }
 
   // ---- the whole room -------------------------------------------------------------------------------------------------------
-  // state: n (the numbers of js/progress.js), open (a CV is given), clockMin (minutes spent in the sky), fresh (letters just
+  // state: n (the numbers of js/progress.js), open (a CV is given), sample (it is a typical one, not theirs), clockMin (minutes spent in the sky), fresh (letters just
   // brought back, not opened), duck: { pose: faint | soul | walk | ride | descend | back | enter | awake, k: seconds in it }
   function draw(W, H, t = 0, state = {}) {
     px.use(g);

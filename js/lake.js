@@ -18,6 +18,7 @@ const REGION_OF = {
   asia: ['singapore', 'hanoi', 'ho chi minh city', 'bangalore', 'tokyo', 'hong kong', 'dubai'], oceania: ['sydney', 'melbourne'],
   latam: ['sao paulo', 'mexico city', 'buenos aires'],
 };
+export const CITIES_KNOWN = Object.values(REGION_OF).flat();        // the cities whose region the store keeps on its own
 
 // the fit of a job, from the skills the harvester read in it: of what it asks (each ask weighed by how often, three at
 // most), how much the CV speaks to; null when it names fewer than three (too little to judge)

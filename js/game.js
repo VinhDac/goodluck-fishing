@@ -9,9 +9,8 @@
 // goes home by itself. Mouse alone, or a finger. Drawn on the stage (js/stage.js): the office and the pier at their art's
 // size, set on the screen whole; the escalator's long way and the sky to the screen's own pixel, so nothing in them steps.
 
-import { me, begin } from './setup.js';
-import { user, saveProfile, postcard } from './account.js';
-import { sync, all, has, add, mark, todays } from './box.js';
+import { me, begin, pick } from './setup.js';
+import { all, has, add, mark, todays } from './box.js';
 import { openReport } from './report.js';
 import { makeStage } from './stage.js';
 import { makeRoom } from './room.js';
@@ -19,7 +18,7 @@ import { makePier } from './pier.js';
 import { makeSky } from './sky.js';
 import { makeRise, RIDE } from './rise.js';
 import { makeLetters, JUNK } from './letters.js';
-import { makeCatchUI } from './catchui.js';
+import { makeCatchUI, fitWords } from './catchui.js';
 import { readLake, boardOf } from './lake.js';
 import { numbers, fished } from './progress.js';
 import { sfx, soundOn, setSound, setMood, playMusic } from './sound.js';
@@ -63,7 +62,7 @@ function show() { stage.g.imageSmoothingEnabled = false; stage.g.drawImage(art, 
 const inside = (p, s) => s && p.x >= s.x && p.x <= s.x + s.w && p.y >= s.y && p.y <= s.y + s.h;
 const hit = (p, spots) => Object.entries(spots || {}).reverse().find(([, s]) => inside(p, s));
 const ui = makeCatchUI({
-  toCss: (x, y) => ({ x: css(x), y: css(y) }), skills: () => new Set(person ? person.skills || [] : []),
+  toCss: (x, y) => ({ x: css(x), y: css(y) }), skills: () => new Set(person ? person.skills || [] : []), sample: () => (person && person.sample) || '',
   away: (job) => putAway(job, 'not_for_me'), open: (u) => openOut(u),
 });
 function putAway(job, status) { if (has(job.id)) mark(job.id, status); else add(job, 'caught', status); bagCount(); }
@@ -176,7 +175,7 @@ function enter(to) {
   $('say').hidden = true; $('talk').hidden = true;
   document.body.dataset.scene = to;
   setMood(to);
-  if (to === 'office') { office.n = nums(); office.talkAt = 3; corner(); }
+  if (to === 'office') { office.n = nums(); office.talkAt = 3; }
   if (to === 'pier') arrive();
   if (to === 'sea') setSail();
   if (to === 'rise') { ride.k = 0; ride.walking = false; ride.said = 0; ride.hinted = false; }
@@ -202,11 +201,11 @@ const THINGS = {
   phone: () => '«Unfortunately…» Back to sleep.',
   bin: () => 'Cover letter, draft 31. Draft 32. Draft 33.',
   sign: () => 'HEAVEN. Jobs department. Up.',
-  rope: () => (person ? 'The rope is down. Up we go?' : 'Even heaven wants a CV.'),
+  rope: () => (person ? 'The rope is down. Up we go?' : 'One question first: what do I fish for?'),
 };
 const clockText = () => { const m = 3 * 60 + 47 + Math.floor(office.clockMin); return `${Math.floor(m / 60) % 12 || 12}:${String(m % 60).padStart(2, '0')}`; };
 function goFishing() {
-  if (!person) { say('Even heaven wants a CV. Give me yours first.', 'duck'); begin(asked); return; }
+  if (!person) { say('First things first: what do I fish for?', 'duck'); pick(asked); return; }
   if (scene !== 'office' || (office.pose !== 'faint' && office.pose !== 'awake')) return;
   if (!$('catch').hidden) return;
   if (office.pose === 'awake') say('One more time, then.', 'duck', 1.8);
@@ -222,6 +221,7 @@ function officePress(p) {
   if (name === 'apply') return myList();
   if (name === 'album') return album();
   if (name === 'drawer') return drawer();
+  if (name === 'screen' && person && person.sample) { say('My CV! It goes here. It stays on this computer.', 'duck', 2.5); return begin(asked); }
   const f = THINGS[name];
   if (f) say(f(office.n), 'duck');
 }
@@ -236,7 +236,7 @@ function officeStep(dt, t) {
   else if (o.pose === 'enter' && o.k >= S.enter) wake();
   if (o.pose === 'faint' && t > o.talkAt && $('say').hidden && !anySheet()) {   // mumbling, out cold
     o.talkAt = t + 10 + Math.random() * 6;
-    say(person ? MUMBLES[Math.floor(Math.random() * MUMBLES.length)] : '…a CV… even heaven wants a CV…', 'duck', 4.5);
+    say(person ? MUMBLES[Math.floor(Math.random() * MUMBLES.length)] : '…what do I even fish for…', 'duck', 4.5);
   }
   if (o.pose === 'soul' && o.k > 1.9 && o.k - dt <= 1.9) say('Oh. Huh. So that is what I look like.', 'duck', 2.2);
 }
@@ -251,7 +251,7 @@ function wake() {                                                      // back i
   setTimeout(() => { if (scene === 'office' && office.pose === 'awake' && office.fresh && $('catch').hidden) say(`${office.n.tray} letter${office.n.tray === 1 ? '' : 's'} in my tray. Real ones. Let us read them.`, 'duck', 4); }, 4000);
   if (trip && letters.F.over) endMorning();                            // the sun had set: that morning is over
 }
-const anySheet = () => ['paper', 'notes', 'map', 'postcard', 'report', 'catch'].some((id) => !$(id).hidden);
+const anySheet = () => ['field', 'paper', 'notes', 'map', 'report', 'catch'].some((id) => !$(id).hidden);
 
 // ---- reading the letters at the desk (PLAN.md 19.4): one at a time, as letters are opened -----------------------------------------
 let reads = null;
@@ -276,13 +276,11 @@ function letter() {                                                    // the ne
     $('ctKeep').textContent = 'See the list'; $('ctThrow').hidden = true; $('ctOpen').hidden = true; $('ctLater').textContent = 'Close';
     return;
   }
-  const j = e.job, mine = new Set(person.skills || []), asks = Array.isArray(j.skills) ? j.skills : Object.keys(j.skills || {});   // the box keeps them as a list
-  const have = asks.filter((k) => mine.has(k)), miss = asks.filter((k) => !mine.has(k));
+  const j = e.job, mine = new Set(person.skills || []);
   $('ctKicker').textContent = `Letter ${r.i + 1} of ${r.list.length}${j.size === 'gold' ? ' · a golden one' : ''}${e.how === 'ashore' ? ' · left at sunset' : ''}`;
   $('ctTitle').textContent = j.title; $('ctWho').textContent = j.company;
   $('ctMeta').textContent = [j.place, j.posted ? ago(j.posted) : ''].filter(Boolean).join(' · ');
-  $('ctFit').textContent = j.fit == null ? 'Its posting names too little to weigh: open it to judge.'
-    : `Fits you ${j.fit}%. Your CV says: ${have.slice(0, 5).join(', ') || 'none of it'}.${miss.length ? ` It asks too: ${miss.slice(0, 5).join(', ')}.` : ''}`;
+  $('ctFit').textContent = fitWords(j, mine, person.sample);
   $('ctOpen').href = j.url || '#';
   $('ctKeep').textContent = 'Keep'; $('ctThrow').textContent = 'Not for me'; $('ctLater').textContent = 'Later';
 }
@@ -341,7 +339,12 @@ async function arrive() {
     say(`The sky could not be read (${e.message}). Try again in a while.`, 'gull');
   }
   dock.loading = false; sfx('flaps');
-  setTimeout(() => { if (scene === 'pier' && dock.pose === 'stand' && (dock.lake || []).length) say(weatherWord(), 'gull', 4.5); }, 6500);
+  const cvSaid = !!(person && person.sample && !store('glf.cvsaid'));     // once: the CV it fishes with is a borrowed one
+  if (cvSaid) {
+    store('glf.cvsaid', '1');
+    setTimeout(() => { if (scene === 'pier' && dock.pose === 'stand') say(`That CV is a borrowed one: a typical ${person.sample} CV. Drop your own on the desk, and every letter is weighed against yours.`, 'gull', 6); }, 6500);
+  }
+  setTimeout(() => { if (scene === 'pier' && dock.pose === 'stand' && (dock.lake || []).length) say(weatherWord(), 'gull', 4.5); }, cvSaid ? 13000 : 6500);
 }
 function gullTip() {
   if (out()) return `Your letters are still in the sky. ${PRESS} the boat to go back out, or the gate to go home.`;
@@ -352,7 +355,7 @@ function gullTip() {
 }
 const PIER_SAYS = {
   board: () => (inApp ? 'The departures: your fleet. Each boat reads one kind of company job board, live, the moment you sail.'
-    : 'The departures: how many letters are out today where you look, and how many are golden: the ones that fit you.'),
+    : 'The departures: how many letters are out today where you look, and how many are golden: the best fits.'),
   hut: () => 'The harbour master is out fishing. Like everyone up here.',
   crates: () => 'HOPE: handle with care. CV13: the thirteenth draft, the best one yet.',
   gull: () => gullTip(),
@@ -552,34 +555,26 @@ soundLabels();
 $('bucket').addEventListener('click', () => myList());
 $('gofish').addEventListener('click', goFishing);
 
-// ---- the CV and the account (PLAN.md 9): asked once; «My CV» asks again ---------------------------------------------------------
+// ---- what they fish for, and the CV (PLAN.md 9 and 20): a field on the first visit, a typical CV of it; «My CV» any time --------
+// Nothing to sign in to: the bucket stays on this device (PLAN.md 15 E, 20 D).
 function asked(v) {
   person = JSON.parse(localStorage.getItem('glf.me') || 'null') || v;
   if (trip) { endMorning(); dock.lake = null; dock.bottles = []; dock.board = null; }   // a new CV: the morning was weighed against the old one
-  user().then((u) => { if (u) { saveProfile(person); ready(); } else postcard(ready); });
+  ready();
 }
 function ready() {
   $('mycv').hidden = false; $('bucket').hidden = false; $('gofish').hidden = false;
-  corner().then((u) => { if (u) sync().then(() => { office.n = nums(); }); });
-  if (person) say('Is that… my CV? Mine? Not bad, me. Now: up.', 'duck', 4);
-}
-async function corner() {
-  const u = await user();
-  $('who').hidden = !u; $('who').textContent = u ? `Signed in: ${u.email}` : '';
-  $('signin').hidden = !!u;
-  return u;
+  if (person && person.sample) say(`A borrowed CV, for now: a typical ${person.sample} one. It will do. Now: up.`, 'duck', 4);
+  else if (person) say('Is that… my CV? Mine? Not bad, me. Now: up.', 'duck', 4);
 }
 $('mycv').addEventListener('click', () => { if (scene === 'office') begin(asked); });
-$('signin').addEventListener('click', () => { $('signin').hidden = true; postcard(ready); });
 
 // ---- the loop -------------------------------------------------------------------------------------------------------------------
 addEventListener('resize', fit);
 fit();
 document.body.dataset.scene = 'office';
-if (person) {
-  $('mycv').hidden = false; $('bucket').hidden = false; $('gofish').hidden = false; corner();
-  user().then((u) => { if (u) { saveProfile(person); sync().then(() => { office.n = nums(); }); } });
-} else setTimeout(() => begin(asked), 900);
+if (person) { $('mycv').hidden = false; $('bucket').hidden = false; $('gofish').hidden = false; }
+else setTimeout(() => { if (!person && !anySheet()) pick(asked); }, 900);
 let last = performance.now();
 function frame(now) { tick(now); requestAnimationFrame(frame); }
 const away = () => scene !== 'office' || ['soul', 'walk', 'ride', 'descend', 'back', 'enter'].includes(office.pose);
@@ -594,7 +589,7 @@ function tick(now, step) {
   if (away()) { office.away += dt; office.clockMin += dt / 60; }       // the soul is out: the clock on the wall moves on
   if (scene === 'office') {
     officeStep(dt, t);
-    room.draw(W, H, t, { n: office.n, open: !!person, clockMin: office.clockMin, fresh: office.fresh, duck: { pose: office.pose, k: office.k } });
+    room.draw(W, H, t, { n: office.n, open: !!person, sample: !!(person && person.sample), clockMin: office.clockMin, fresh: office.fresh, duck: { pose: office.pose, k: office.k } });
     show();
     ui.update(null);
   } else if (scene === 'rise') {

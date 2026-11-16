@@ -1,7 +1,10 @@
 // THE LOBBY, PART 2 (PLAN.md 9): the three things asked once. The CV (a PDF dropped on the desk, or its words pasted),
 // read in this browser and never sent; the job titles it suggests, on three sticky notes; where to work, on a map on the
 // wall. Kept on this device (PLAN.md 5: the CV never leaves it).
+// Before it, on a first visit (PLAN.md 20 B; Vin, 16/11: «để họ chơi cho vui»): one sheet, what they fish for, one press,
+// and they play, with a typical CV of that field; their own CV any time later, from the desk or «My CV».
 import { asks } from './score.js';
+import { CITIES_KNOWN } from './lake.js';
 
 const KEY = 'glf.me';
 const $ = (id) => document.getElementById(id);
@@ -62,10 +65,63 @@ export function suggestCity(cv) {
   return hits.length ? hits[0][1] : '';
 }
 
-// ---- the three steps, one after another; done(profile) when all three are answered ------------------------------------
-export function begin(done) {
+// ---- the first visit: what they fish for (PLAN.md 20 B) ---------------------------------------------------------------------
+// Each field comes with the titles it fishes for and a typical CV of it: the skills its postings in the shared store ask
+// most (counted 16/11), trimmed so a golden letter stays a rare one (about one in ten to one in four). Said plainly while
+// it is in use: a letter «fits a typical Data & AI CV», never «fits you».
+export const FIELDS = [
+  { name: 'Software', titles: ['Software Engineer', 'Backend Engineer', 'Frontend Engineer', 'Full Stack Engineer', 'Developer'],
+    skills: ['python', 'backend', 'api', 'frontend', 'testing', 'sql', 'aws', 'artificial intelligence', 'machine learning', 'full stack', 'distributed systems', 'ci/cd', 'kubernetes', 'security'] },
+  { name: 'Data & AI', titles: ['Data Scientist', 'Data Analyst', 'Data Engineer', 'Machine Learning Engineer', 'AI Engineer'],
+    skills: ['python', 'machine learning', 'artificial intelligence', 'llm', 'sql', 'data analysis', 'data engineering', 'api', 'ai agents', 'stakeholder management', 'gcp', 'testing', 'pytorch', 'statistics', 'pandas'] },
+  { name: 'Design', titles: ['Product Designer', 'UX Designer', 'Designer'],
+    skills: ['figma', 'ux', 'ui', 'design systems', 'user research', 'artificial intelligence'] },
+  { name: 'Product', titles: ['Product Manager', 'Product Owner', 'Program Manager'],
+    skills: ['product management', 'stakeholder management', 'ux', 'data analysis', 'api', 'a/b testing', 'agile', 'user research', 'sql', 'artificial intelligence'] },
+  { name: 'Marketing', titles: ['Marketing', 'Communications', 'Social Media', 'Brand Manager'],
+    skills: ['marketing', 'seo', 'crm', 'data analysis', 'a/b testing', 'artificial intelligence'] },
+  { name: 'Sales', titles: ['Account Executive', 'Sales', 'Business Development', 'Account Manager'],
+    skills: ['sales', 'crm', 'account management', 'customer success', 'excel', 'artificial intelligence'] },
+  { name: 'Finance', titles: ['Financial Analyst', 'Accountant', 'Finance Manager', 'Controller'],
+    skills: ['accounting', 'excel', 'financial modelling', 'sql', 'data analysis', 'risk management', 'artificial intelligence'] },
+  { name: 'People & Ops', titles: ['Recruiter', 'Talent', 'People', 'Operations Manager', 'Customer Success Manager'],
+    skills: ['customer success', 'crm', 'excel', 'data analysis', 'account management', 'stakeholder management', 'artificial intelligence'] },
+];
+// the city the computer's own clock is set to, when the store knows it (Europe/London: London); else anywhere
+export function cityOfZone() {
+  let zone = '';
+  try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; }
+  const last = zone.split('/').pop().replace(/_/g, ' ').toLowerCase();
+  const city = ['ho chi minh', 'saigon'].includes(last) ? 'ho chi minh city' : last;
+  return CITIES_KNOWN.includes(city) ? city.replace(/\b[a-z]/g, (c) => c.toUpperCase()) : '';
+}
+export function pick(done) {
+  let chosen = null;
+  show('field');
+  const box = $('fieldChips'); box.replaceChildren();
+  for (const f of FIELDS) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'fieldnote'; b.textContent = f.name;
+    b.onclick = () => { chosen = f; for (const x of box.children) x.classList.toggle('on', x === b); say('field', ''); };
+    box.appendChild(b);
+  }
+  $('fieldCity').value = cityOfZone();
+  $('fieldRemote').checked = true;
+  $('fieldGo').onclick = () => {
+    if (!chosen) return say('field', 'Pick one first: any of them.');
+    const v = { cv: '', sample: chosen.name, titles: chosen.titles.slice(), city: $('fieldCity').value.trim(), remote: $('fieldRemote').checked, skills: chosen.skills.slice() };
+    save(v);
+    show(null);
+    done(v);
+  };
+  $('fieldCv').onclick = () => begin(done, () => pick(done));           // they have their CV at hand: the CV's own three steps
+}
+
+// ---- the three steps, one after another; done(profile) when all three are answered; «Not now» puts the paper away (back(),
+// if given: the first visit's sheet again) ------------------------------------------------------------------------------------
+export function begin(done, back) {
   const v = { cv: '', titles: [], city: '', remote: true };
   show('paper');
+  $('paperLater').onclick = () => { show(null); $('stage').ondrop = null; if (back) back(); };
   const take = async (getText) => {
     say('paper', 'Reading it…');
     try {
@@ -118,7 +174,7 @@ function placeStep(v, done) {
   };
 }
 function show(which) {
-  for (const id of ['paper', 'notes', 'map']) $(id).hidden = id !== which;
+  for (const id of ['field', 'paper', 'notes', 'map']) $(id).hidden = id !== which;
   if (which) say(which, '');
 }
 function say(which, text) { const el = document.querySelector(`#${which} .said`); if (el) el.textContent = text; }

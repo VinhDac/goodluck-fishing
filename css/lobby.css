@@ -7,6 +7,8 @@
   --ui: "Pixelify Sans", ui-monospace, Consolas, monospace;
 }
 * { box-sizing: border-box; }
+/* Pixelify Sans joins «fi» into one letter that reads as «A» («Go Ashing»): no joined letters anywhere */
+html, button, input, textarea { font-variant-ligatures: none; font-feature-settings: "liga" 0, "clig" 0; }
 html, body { margin: 0; height: 100%; background: var(--night); color: var(--paper); font-family: var(--ui); }
 body { display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
   -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
@@ -57,15 +59,19 @@ footer a { color: inherit; }
 .own input { flex: 1; }
 .own button { margin-top: 0; padding: 8px 12px; }
 .tick { display: flex; align-items: center; gap: 6px; margin: 10px 0 0; font: 15px system-ui, sans-serif; }
+/* the first visit's sheet (PLAN.md 20 B): eight sticky notes, one pressed */
+.fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 2px 0 12px; }
+.fieldnote { font: 600 15px var(--ui); color: var(--ink); background: #fff6a8; border: 2px solid #c9a227; padding: 9px 8px; border-radius: 2px; cursor: pointer;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, .18); transform: rotate(-1deg); text-align: center; }
+.fieldnote:nth-child(2n) { transform: rotate(1.2deg); background: #ffe0a0; }
+.fieldnote.on { background: var(--yellow); border-color: var(--edge); box-shadow: 0 3px 0 var(--edge); transform: none; }
+.fieldnote.on::before { content: '✓ '; }
 #dream { width: 100%; margin-top: 10px; font: 15px system-ui, sans-serif; padding: 8px 10px; border: 2px solid var(--edge); border-radius: 3px; background: #fff; color: var(--ink); }
-/* the corner: who is signed in, and the ways back to the questions */
+/* the corner: the ways back to the list, the CV and the sky */
 .corner { position: fixed; top: max(10px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); display: flex; gap: 8px; align-items: center; }
 .corner button { font: 600 14px var(--ui); background: var(--paper); color: var(--ink); border: 2px solid var(--edge);
   border-radius: 3px; padding: 6px 10px; cursor: pointer; box-shadow: 0 3px 0 var(--edge); }
-.corner button[hidden], .corner span[hidden] { display: none; }
-.corner span { font: 13px system-ui, sans-serif; opacity: .75; }
-.sheet.postcard { background: #fdf3e3; transform: translate(-50%, -50%) rotate(1deg); border-style: double; border-width: 6px; }
-.sheet.postcard input { width: 100%; font: 15px system-ui, sans-serif; padding: 8px 10px; border: 2px solid var(--edge); border-radius: 3px; }
+.corner button[hidden] { display: none; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
 .ghost { font: 600 16px var(--ui); padding: 9px 16px; background: #efe3c4; color: var(--ink); border: 2px solid var(--edge);
   border-radius: 3px; box-shadow: 0 3px 0 var(--edge); cursor: pointer; margin-top: 8px; }
@@ -104,12 +110,12 @@ button.chip, select.chip { cursor: pointer; }
 @media (max-width: 560px) {                                   /* the four numbers stay one row on a phone */
   .stats { gap: 5px; } .stats div { padding: 4px 2px; } .stats b { font-size: 17px; } .stats span { font-size: 11px; line-height: 1.15; display: block; } }
 
-/* in the sky the corner keeps only the Bucket: the CV and the sign-in are the office's */
-body[data-scene="sea"] #mycv, body[data-scene="sea"] #signin, body[data-scene="sea"] #who,
-body[data-scene="pier"] #mycv, body[data-scene="pier"] #signin, body[data-scene="pier"] #who, body[data-scene="pier"] #gofish { display: none; }   /* on the pier the boat is the way out */
+/* in the sky the corner keeps only the Bucket: the CV is the office's */
+body[data-scene="sea"] #mycv,
+body[data-scene="pier"] #mycv, body[data-scene="pier"] #gofish { display: none; }   /* on the pier the boat is the way out */
 select.chip { max-width: 11em; text-overflow: ellipsis; }
-/* a phone: 16px in a field (smaller, and the phone zooms in on it), the chips a size down, no email in the corner */
-.sheet input, .sheet textarea, .sheet.postcard input { font-size: 16px; }
+/* a phone: 16px in a field (smaller, and the phone zooms in on it), the chips a size down */
+.sheet input, .sheet textarea { font-size: 16px; }
 @media (max-width: 560px) {
   .chip, .corner button { font-size: 13px; padding: 4px 7px; }
   .corner { gap: 6px; }

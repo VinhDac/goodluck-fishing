@@ -32,16 +32,17 @@
     <canvas id="scene" aria-label="A duck asleep at its desk, late at night, a golden escalator beside it."></canvas>
     <!-- what the duck, the gull or the sky says, in a bubble over the speaker -->
     <div class="bubble" id="say" hidden></div>
-    <div class="corner"><span id="who" hidden></span><button id="bucket" hidden>My list</button><button id="signin" hidden>Sign in</button><button id="mycv" hidden>My CV</button><button id="gofish" class="gofish" hidden>Go fishing</button><button id="sound" type="button" title="Sound on or off">Sound: off</button></div>
+    <div class="corner"><button id="bucket" hidden>My list</button><button id="mycv" hidden>My CV</button><button id="gofish" class="gofish" hidden>Go fishing</button><button id="sound" type="button" title="Sound on or off">Sound: off</button></div>
 
-    <!-- 4. the postcard: where to keep the bucket (sign in by an email link, or later) -->
-    <div class="sheet postcard" id="postcard" hidden>
-      <h2>Where should we send your bucket?</h2>
-      <p>Your email gets a link: open it and your bucket is kept from day to day, on any device. No password. Your CV
-        stays on this device either way.</p>
-      <input id="pcEmail" type="email" placeholder="you@example.com" autocomplete="email">
-      <div class="said" id="pcSaid"></div>
-      <div class="row"><button class="go" id="pcSend" type="button">Send the link</button><button class="ghost" id="pcLater" type="button">Later</button></div>
+    <!-- 0. the first visit (PLAN.md 20 B): what they fish for, one press, and they play; their own CV later, on the desk -->
+    <div class="sheet field" id="field" hidden>
+      <h2>What do you fish for?</h2>
+      <p>Pick one, and play. You fish with a typical CV of it for now; drop your own on the desk any time. It stays in this browser.</p>
+      <div class="fields" id="fieldChips"></div>
+      <input id="fieldCity" placeholder="A city, or empty for anywhere" autocomplete="off" aria-label="City">
+      <label class="tick"><input type="checkbox" id="fieldRemote" checked> Remote jobs too</label>
+      <div class="said"></div>
+      <div class="row"><button class="go" id="fieldGo" type="button">Go</button><button class="ghost" id="fieldCv" type="button">I have my CV</button></div>
     </div>
 
     <!-- 1. the paper on the desk: the CV -->
@@ -54,6 +55,7 @@
         <button class="go" id="pasteGo" type="button">Read it</button>
       </details>
       <div class="said"></div>
+      <button class="ghost" id="paperLater" type="button">Not now</button>
     </div>
 
     <!-- 2. the sticky notes: the job titles -->

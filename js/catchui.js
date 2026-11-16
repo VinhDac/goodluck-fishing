@@ -4,6 +4,7 @@
 // me; no veil, nothing to answer: the sky goes on behind it. Used by the game and by its trying page (tools/catch.html).
 
 const CSS = `
+.ctag, .cside, .cside button { font-variant-ligatures: none; font-feature-settings: "liga" 0, "clig" 0; }
 .ctag { position: fixed; z-index: 6; left: 0; top: 0; transform: translate(-50%, -100%); max-width: min(270px, calc(100vw - 20px));
   background: #fff8e7; color: #1b1f3a; border: 3px solid #3a2a1a; border-radius: 4px; box-shadow: 0 3px 0 #3a2a1a;
   padding: 5px 10px 6px; font: 600 13px/1.25 "Pixelify Sans", ui-monospace, monospace; text-align: center; cursor: pointer;
@@ -62,8 +63,19 @@ const KICK = { 3: 'Golden letter!', legend: 'From a dream company!', junk: 'Junk
 const ago = (ms) => { const h = Math.max(0, (Date.now() - ms) / 36e5), n = h < 48 ? Math.round(h) : Math.round(h / 24), u = h < 48 ? 'hour' : 'day'; return h < 1 ? 'posted within the hour' : `posted ${n} ${u}${n === 1 ? '' : 's'} ago`; };
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
-// toCss(x, y): a point of the scene, in the page's pixels; skills(): the CV's skills; away(job): Not for me; open(url)
-export function makeCatchUI({ toCss, skills = () => new Set(), away = () => {}, open = (u) => window.open(u, '_blank', 'noopener') } = {}) {
+// how a letter fits, said plainly: their own CV, or while they have given none, the typical CV of their field (PLAN.md 20 B)
+export function fitWords(j, mine, sample = '') {
+  if (j.fit == null) return 'Its posting names too little to weigh: open it to judge.';
+  const asks = Array.isArray(j.skills) ? j.skills : Object.keys(j.skills || {});   // the box keeps a letter's skills as a list
+  const have = asks.filter((k) => mine.has(k)).slice(0, 5).join(', ') || 'none of it', miss = asks.filter((k) => !mine.has(k)).slice(0, 5);
+  const more = miss.length ? ` It asks too: ${miss.join(', ')}.` : '';
+  return sample ? `Fits a typical ${sample} CV ${j.fit}%. That CV says: ${have}.${more} Drop your own CV on the desk to weigh it against yours.`
+    : `Fits you ${j.fit}%. Your CV says: ${have}.${more}`;
+}
+
+// toCss(x, y): a point of the scene, in the page's pixels; skills(): the CV's skills; sample(): the field whose typical CV is
+// in use, or ''; away(job): Not for me; open(url)
+export function makeCatchUI({ toCss, skills = () => new Set(), sample = () => '', away = () => {}, open = (u) => window.open(u, '_blank', 'noopener') } = {}) {
   if (!document.getElementById('catchui-css')) { const st = el('style'); st.id = 'catchui-css'; st.textContent = CSS; document.head.appendChild(st); }
   const tag = el('div', 'ctag'); tag.hidden = true; document.body.appendChild(tag);
   const side = el('div', 'cside'); side.hidden = true; document.body.appendChild(side);
@@ -102,15 +114,12 @@ export function makeCatchUI({ toCss, skills = () => new Set(), away = () => {}, 
     tag.style.opacity = String(Math.max(0, Math.min(1, t.age / 0.2, (t.life - t.age) / 0.7)));
   }
   function sheet(j, d) {                                               // the rest of it, at the side; the sky goes on behind
-    const mine = skills(), asks = Array.isArray(j.skills) ? j.skills : Object.keys(j.skills || {});   // the box keeps a letter's skills as a list
-    const have = asks.filter((k) => mine.has(k)), miss = asks.filter((k) => !mine.has(k));
     side.replaceChildren();
     const x = el('button', 'x', '×'); x.type = 'button'; x.title = 'Close'; x.onclick = shut;
-    const kick = KICK[d.tier] || (d.gull ? 'Airmail, from the gull: not one of your titles, but your CV fits it' : d.kick || 'In your bag');
+    const kick = KICK[d.tier] || (d.gull ? 'Airmail, from the gull: not one of your titles, but the CV fits it' : d.kick || 'In your bag');
     side.append(x, el('div', 'k', kick), el('h2', '', j.title), el('div', 'who', j.company || ''),
       el('p', 'meta', [j.place, j.posted ? ago(j.posted) : ''].filter(Boolean).join(' · ')),
-      el('p', 'fit', j.fit == null ? 'Its posting names too little to weigh: open it to judge.'
-        : `Fits you ${j.fit}%. Your CV says: ${have.slice(0, 5).join(', ') || 'none of it'}.${miss.length ? ` It asks too: ${miss.slice(0, 5).join(', ')}.` : ''}`));
+      el('p', 'fit', fitWords(j, skills(), sample())));
     const row = el('div', 'row'), a = el('a', '', 'Open ↗'), no = el('button', '', 'Not for me'), said = el('span', 'said', '');
     a.href = j.url || '#'; a.target = '_blank'; a.rel = 'noopener';
     a.onclick = (e) => { e.preventDefault(); if (j.url) open(j.url); };

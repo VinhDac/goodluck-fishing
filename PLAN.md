@@ -895,6 +895,25 @@ và nhân sự 4.400, marketing 2.400, tài chính 1.800, sản phẩm 1.300, th
 **Thứ tự** (mỗi bước Vin xem rồi mới đi tiếp): (1) B và D: chơi ngay, bỏ email. (2) A và C: tên trò chơi, Get the app.
 (3) E và F: thẻ chia sẻ, gọn gàng, README. Sau đó mới tới exe: build, đưa lên Releases, nối nút tải.
 
+**Quyết định (Vin, 16/11: «đồng ý theo đề xuất của bạn, làm bước 1 đi»):** B hỏi một tờ ngành nghề; C nút «Get the app»
+hiện ngay, ghi «comes out this week» tới khi có exe; E có nút «Share my morning».
+
+**Bước 1 đã làm (B và D):**
+- Lần đầu vào: tờ «What do you fish for?» với 8 ô (Software, Data & AI, Design, Product, Marketing, Sales, Finance,
+  People & Ops), thành phố điền sẵn theo múi giờ của máy khi kho biết thành phố đó (Europe/London: London; không biết thì để
+  trống là mọi nơi), Remote tích sẵn, nút Go; nút «I have my CV» cho ai có CV sẵn (ba bước cũ, «Not now» quay lại tờ này).
+- CV mẫu của mỗi ngành là những kỹ năng tin của ngành đó trong kho chung hỏi nhiều nhất (đếm 16/11), cắt bớt để thư vàng
+  vẫn hiếm: thử ở London và New York, thư vàng khoảng 5 đến 30% tuỳ ngành, mỗi ngành vài chục đến hàng trăm thư.
+- Nói thật: tờ chi tiết thư và thẻ đọc thư ở bàn ghi «Fits a typical Data & AI CV 70%. That CV says: …», kèm «Drop your own
+  CV on the desk to weigh it against yours»; có CV thật thì «Fits you». Vịt: «A borrowed CV, for now». Mòng biển nói một lần
+  ở bến. Tờ ghi chú trên màn hình máy tính đổi thành «CV», sáng khẽ; bấm màn hình là mở tờ CV (có «Not now»).
+- Dây chắn thang cuốn ghi «ONE QUESTION» thay cho «CV REQUIRED»; vịt chưa chọn ngành thì lẩm bẩm «what do I even fish for».
+- Bỏ đăng nhập email: không còn tờ hỏi email, nút Sign in, dòng Signed in; xoá `js/account.js`, `js/config.js`; thùng thư chỉ
+  trên máy. Trang không còn tải thư viện Supabase từ jsdelivr, không gọi Supabase nữa. (Việc thu hoạch trên GitHub Actions
+  vẫn ghi vào bảng jobs của Supabase, `tools/upload.py`: game không đọc bảng đó nữa, bỏ hay giữ để Vin quyết sau.)
+- Sửa luôn: phông Pixelify Sans nối «fi» thành một chữ trông như «A» («Go Ashing», «What do you Ash for?»): tắt nối chữ
+  trên cả trang.
+
 ---
 
 ## Nhật ký bàn bạc
@@ -915,3 +934,4 @@ và nhân sự 4.400, marketing 2.400, tài chính 1.800, sản phẩm 1.300, th
 - 16/11: Vin thử bước 2: «ổn đấy»; muốn câu thư thư giãn như câu cá trong Stardew Valley, chuyện kể đi và về, chiều sâu từng chi tiết; đề xuất mục 19.
 - 16/11 (đêm): Vin duyệt cả mục 19 và cho làm trọn; đã dựng hết: một lần câu, đường đi lên HEAVEN và đường về, đọc thư ở bàn, nhạc, mùa và thời tiết theo số thật, sổ tem, ngăn kéo đồ linh tinh; build lại exe.
 - 16/11: Vin thử: trời thư thành hồ mây trong, mờ dần theo độ sâu; cảnh luôn trôi tới, thật chậm; bấm cái thùng trên boong xem mọi lá đã câu theo ngày.
+- 16/11: «hoàn thiện website để quảng bá ... rồi mới đến bản exe»: đề xuất mục 20; Vin duyệt cả ba đề xuất; bước 1 xong (chơi ngay với CV mẫu theo ngành, bỏ đăng nhập email).
