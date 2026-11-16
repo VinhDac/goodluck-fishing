@@ -553,6 +553,7 @@ for (const id of ['sound', 'seaSound']) $(id).addEventListener('click', () => { 
 addEventListener('pointerdown', () => { if (soundOn()) playMusic(true); }, { once: true });   // browsers start sound only after a press
 soundLabels();
 $('bucket').addEventListener('click', () => myList());
+$('seaList').addEventListener('click', () => { if (!anySheet()) myList(); });   // the same list, from the sky and the escalator
 $('gofish').addEventListener('click', goFishing);
 
 // ---- what they fish for, and the CV (PLAN.md 9 and 20): a field on the first visit, a typical CV of it; «My CV» any time --------

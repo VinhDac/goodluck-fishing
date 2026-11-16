@@ -446,7 +446,7 @@ export function makeRoom(g) {
     const at = soulAt(pose, k, t);
     if (at) {
       if (at.beam) beamDown(at.beam);
-      soul(px, Math.round(at.x), Math.round(at.y), { look: at.look || 0, alpha: at.alpha ?? 0.85 });
+      soul(px, Math.round(at.x), Math.round(at.y), { look: at.look || 0, alpha: at.alpha ?? 0.85, left: pose === 'descend' || pose === 'back' || pose === 'enter' });   // home: facing the way it goes
       L.head = { x: Math.round(at.x) + 4, y: Math.round(at.y) - 30 };
     }
     light(W, H);

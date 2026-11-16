@@ -365,7 +365,7 @@ export function makePier(g) {
     const go = D.duck && D.duck.pose === 'sail' ? D.duck.k : D.duck && D.duck.pose === 'return' ? 1 - Math.min(1, D.duck.k) : 0;   // out to the right; back from it
     if (!go) for (let i = 0; i <= 24; i++) { const k = i / 24; P(rx0 + (x + 6 - rx0) * k, ry0 - 6 + (yy - 8 - ry0 + 6) * k + Math.sin(Math.PI * k) * 5, '#e0c896'); }
     const aboard = D.duck && (D.duck.pose === 'aboard' || D.duck.pose === 'sail' || D.duck.pose === 'return');
-    drawBoat(px, x + go * go * (L.W + 40), y - go * 6, t, { duck: aboard, sailing: go > 0 && D.duck.pose === 'sail', halo: aboard });
+    drawBoat(px, x + go * go * (L.W + 40), y - go * 6, t, { duck: aboard, sailing: go > 0 && D.duck.pose === 'sail', halo: aboard, left: D.duck && D.duck.pose === 'return' });
     spot('boat', x - 2, yy - 52, 74, 60);
   }
 
@@ -395,7 +395,8 @@ export function makePier(g) {
       ...(L.lamp ? [[L.lamp.z, L.lamp.x, lamp]] : []), ...(L.sign ? [[L.sign.z, L.sign.x, signpost]] : []),
       ...(pose === 'stand' || pose === 'walk' || pose === 'walkback' || (pose === 'down' && dk < 0.45) ? [[dz, dxw, () => {
         shade(dxw - 8, dz - 3, 16, 6, 22); const [dx, dy] = S(dxw, dz), hop = walk || toEsc ? Math.abs(Math.sin(t * 10)) * 2 : 0;
-        upright(px, dx, dy - hop, { blink: (t % 4) > 3.85, halo: true }); L.duckHead = { x: dx + 4, y: dy - 30 };
+        const home = pose === 'walkback' || pose === 'down';                // walking back from the boat: facing the way it goes
+        upright(px, dx, dy - hop, { blink: (t % 4) > 3.85, halo: true, left: home }); L.duckHead = { x: dx + (home ? -4 : 4), y: dy - 30 };
       }]] : []),
     ].sort((a, b) => b[0] - a[0] || a[1] - b[1]);
     shadows.length = 0; scratch.canvas.width = W; scratch.canvas.height = H;
@@ -408,7 +409,7 @@ export function makePier(g) {
     drawEscalator(px, { bx: L.esc.bx, by: L.esc.by, tx: L.esc.tx, ty: L.esc.ty, slope: L.esc.slope, t: pose === 'down' ? -t : t, bottom: false, top: true });
     if (pose === 'down' && dk >= 0.45) {                                      // down the escalator, out of sight
       const u = (dk - 0.45) / 0.55, e = L.esc, y = e.ty + u * (e.by - e.ty) * 0.6, x = e.bx + (e.by - y) * e.slope;
-      upright(px, Math.round(x + 4), Math.round(y - 4), { halo: true }); L.duckHead = { x: Math.round(x) + 8, y: Math.round(y) - 34 };
+      upright(px, Math.round(x + 4), Math.round(y - 4), { halo: true, left: true }); L.duckHead = { x: Math.round(x), y: Math.round(y) - 34 };
     }
     gate(t);
     grade();

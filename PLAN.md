@@ -914,6 +914,15 @@ hiện ngay, ghi «comes out this week» tới khi có exe; E có nút «Share m
 - Sửa luôn: phông Pixelify Sans nối «fi» thành một chữ trông như «A» («Go Ashing», «What do you Ash for?»): tắt nối chữ
   trên cả trang.
 
+**Thêm khi thử bước 1** (Vin, 16/11: «lúc đi về từ thuyền về thì vịt phải quay ngược lại chứ ... cái my list này cũng bấm được
+ở mọi khung. thêm 1 nút my list ở dưới này đi»):
+- Đi về là quay mặt theo đường về: trên trời lúc thuyền lùi về bến, vịt nhìn về bến (cần câu chĩa ra sau như câu kéo); thuyền
+  cập bến, vịt ngồi nhìn bến; bước lên bến đi về và ra cổng xuống thang, vịt quay sang trái; hồn đi thang cuốn xuống nhìn
+  xuống bậc; về văn phòng, hồn xuống thang và về lại xác cũng quay sang trái. Hình quay trái là bản soi gương đúng từng điểm
+  ảnh của hình cũ (`ducks.js`, `mirrored`).
+- My list ở mọi cảnh: văn phòng và bến có ở góc trên như cũ; trên trời thêm nút «My list» cạnh «Back to the pier»; trên thang
+  cuốn (góc trên cất đi) nút ấy ở góc dưới bên phải.
+
 ---
 
 ## Nhật ký bàn bạc

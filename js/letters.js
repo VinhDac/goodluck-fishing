@@ -774,7 +774,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome, o
     return {
       t: F.t, day: F.day, at: F.at,
       boat: { x: boatX(), y: boatY() }, cloudY: L.boat.y + Math.sin(F.t * 1.1 + 0.6) * 0.8, halo: true,
-      duck: { x: dk.x, y: dk.y, look: F.duck.look, sip: F.sip.k, cheer: F.duck.cheer },
+      duck: { x: dk.x, y: dk.y, look: F.duck.look, sip: F.sip.k, cheer: F.duck.cheer, left: !!F.homing },   // sailing home: it looks home
       rod: { hand, a: F.rod.a, bend: F.rod.bend, tip },
       float: { x: fl.x, y: fl.y + fl.dip }, bait: on, sag,
       hooked: k && ph === 'reel' ? k.suitor : null,

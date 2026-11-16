@@ -8,7 +8,7 @@
 import { upright } from './ducks.js';
 
 export const SEAT = { x: 52, y: -9 };                                  // where the duck sits, from the hull's top left
-export function drawBoat(px, x, y, t, { duck = false, sailing = false, rod = -0.95, shadow = true, bend = 0, part = 'all', bob: rocks = true, halo = false } = {}) {
+export function drawBoat(px, x, y, t, { duck = false, sailing = false, rod = -0.95, shadow = true, bend = 0, part = 'all', bob: rocks = true, halo = false, left = false } = {}) {
   const { R, P, ell, line, poly, text, textW } = px;
   const bob = rocks ? Math.round(Math.sin(t * 1.6) * 1.2) : 0, yy = y + bob, w = 66, inD = 12;
   if (part !== 'front') {
@@ -35,7 +35,7 @@ export function drawBoat(px, x, y, t, { duck = false, sailing = false, rod = -0.
   let tip;
   if (part === 'all') {
     if (duck) {
-      upright(px, x + SEAT.x, yy + SEAT.y, { sit: true, blink: (t % 5) > 4.85, halo });
+      upright(px, x + SEAT.x, yy + SEAT.y, { sit: true, blink: (t % 5) > 4.85, halo, left });   // left: looking home, the rod out behind
       const hx = x + 58, hy = yy - 19, len = 30, a2 = rod + bend * 0.9;     // bend: a fish on, the rod curves toward the line
       tip = [hx + Math.cos(a2) * len, hy + Math.sin(a2) * len];
       const cx = hx + Math.cos(rod) * len * 0.62, cy = hy + Math.sin(rod) * len * 0.62;

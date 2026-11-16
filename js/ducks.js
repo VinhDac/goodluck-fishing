@@ -2,10 +2,14 @@
 // from round shapes with the pixel tools, each part outlined a pixel bigger first, so it can be any size and any pose.
 
 const K = '#6b3f10', Y = '#ffd84a', S = '#e5a928', H = '#fff1a8', O = '#f2802a', OD = '#c85a18', EYE = '#1b1f3a';
+// facing left (Vin, 16/11: «lúc đi về ... vịt phải quay ngược lại chứ»): the same pose mirrored about the column x, so it keeps
+// its feet (or its wisp) where they are and looks the way it goes
+function mirrored(px, x, fn) { const c = px.ctx, ax = Math.round(x); c.save(); c.translate(2 * ax + 1, 0); c.scale(-1, 1); fn(ax); c.restore(); }
 
 // its soul (PLAN.md 19): the duck standing, pale and see-through, a halo over its head, no feet but a little wisp; facing
-// right (look -1: down at its own body). (x, y) is under the wisp. alpha: how much of it shows
-export function soul(px, x, y, { look = 0, alpha = 0.85, halo = true } = {}) {
+// right (look -1: down at its own body; left: facing left). (x, y) is under the wisp. alpha: how much of it shows
+export function soul(px, x, y, { look = 0, alpha = 0.85, halo = true, left = false } = {}) {
+  if (left) return mirrored(px, x, (ax) => soul(px, ax, y, { look, alpha, halo }));
   const { R, P, ell, poly } = px, c = px.ctx, was = c.globalAlpha;
   c.globalAlpha = was * alpha;
   const b = y - 12, E = '#7f98c8', B = '#eef5ff', S2 = '#cfe0fa', HL = '#ffffff';
@@ -41,9 +45,10 @@ export function sleeping(px, hx, hy, { fainted = false } = {}) {
   P(hx - 15, hy + 1, '#9fd8ff'); P(hx - 15, hy + 2, '#9fd8ff');                       // drool
 }
 
-// standing or sitting, facing right; (x, y) is under its feet (standing) or its bottom (sitting). blink: eyes shut;
-// cheer: both wings up over its head, holding up what it caught (drawn there by the scene), its eyes shut with joy
-export function upright(px, x, y, { sit = false, blink = false, look = 0, cheer = false, halo = false } = {}) {
+// standing or sitting, facing right (left: facing left); (x, y) is under its feet (standing) or its bottom (sitting). blink:
+// eyes shut; cheer: both wings up over its head, holding up what it caught (drawn there by the scene), its eyes shut with joy
+export function upright(px, x, y, { sit = false, blink = false, look = 0, cheer = false, halo = false, left = false } = {}) {
+  if (left) return mirrored(px, x, (ax) => upright(px, ax, y, { sit, blink, look, cheer, halo }));
   const { R, P, ell, poly } = px;
   const b = sit ? y - 7 : y - 10;                                                     // the body's middle
   if (cheer) {                                                                        // the far wing, up behind its head

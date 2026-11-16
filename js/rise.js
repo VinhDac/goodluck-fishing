@@ -183,7 +183,7 @@ export function makeRise(stage) {
     stage.g.drawImage(esc, 0, 0, W * stage.K, H * stage.K);
     // the soul on its step: still, but for a bob; when it walks, a step at a time
     const x = L.escX(L.standY) + 10, step = st.walking ? Math.abs(Math.sin(t * 7)) * 2 : 0, bob = Math.sin(t * 1.7) * 0.8;
-    stage.sprite(x, L.standY - 2 + bob - step, 34, 40, 14, 36, (p, ox, oy) => soul(p, ox, oy, { look: st.dir > 0 ? 0 : -1 }), `risesoul:${st.dir > 0 ? 0 : 1}`);
+    stage.sprite(x, L.standY - 2 + bob - step, 40, 40, 20, 36, (p, ox, oy) => soul(p, ox, oy, { look: st.dir > 0 ? 0 : -1, left: st.dir < 0 }), `risesoul:${st.dir > 0 ? 0 : 1}`);   // down: facing down the steps
     L.head = { x: x + 4, y: L.standY - 34 };
     return cam;
   }

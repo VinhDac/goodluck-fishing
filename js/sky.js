@@ -370,7 +370,8 @@ export function makeSky(stage) {
     }
     const d = v.duck, blink = (t % 5) > 4.85, cheer = !!d.cheer;
     const halo = !!v.halo && !cheer;                                   // in heaven the duck wears a halo
-    stage.sprite(d.x, d.y, 40, 40, 20, 36, (px, ox, oy) => upright(px, ox, oy, { sit: true, blink, look: d.look, cheer, halo }), `duck:${blink ? 1 : 0}:${d.look}:${cheer ? 1 : 0}:${halo ? 1 : 0}`);
+    const left = !!d.left && !cheer;
+    stage.sprite(d.x, d.y, 40, 40, 20, 36, (px, ox, oy) => upright(px, ox, oy, { sit: true, blink, look: d.look, cheer, halo, left }), `duck:${blink ? 1 : 0}:${d.look}:${cheer ? 1 : 0}:${halo ? 1 : 0}:${left ? 1 : 0}`);
     if (d.sip > 0) {                                                  // a sip of coffee: the cup up to the beak and down
       const cx = d.x + 9 + d.sip * 3, cy = d.y + 1 - d.sip * 16;
       stage.sprite(cx, cy, 7, 7, 1, 3, (px, ox, oy) => { px.R(ox, oy, 4, 4, '#f1ead6'); px.R(ox + 4, oy + 1, 1, 2, '#f1ead6'); px.R(ox, oy, 4, 1, '#5a3a1a'); }, 'cup');

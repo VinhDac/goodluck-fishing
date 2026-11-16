@@ -145,6 +145,10 @@ button.chip:disabled { opacity: .55; cursor: default; }
    bottom; the talk box at the bottom left, only when there is something to say, over nothing that matters */
 .seahud { position: fixed; z-index: 4; display: none; font: 600 14px var(--ui); color: var(--paper); }
 body[data-scene="sea"] .seahud { display: flex; }
+/* My list in every scene (Vin, 16/11: «cái my list này cũng bấm được ở mọi khung»): the corner's in the office and on the pier,
+   this one at the bottom in the sky and on the escalator, where the corner is put away */
+body[data-scene="rise"] .seahud.tools { display: flex; }
+body[data-scene="rise"] #toPier { display: none; }
 .seahud.prog { top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); align-items: center; gap: 10px;
   background: rgba(27, 31, 58, .78); border-radius: 4px; padding: 6px 10px 8px; }
 .prog .line { display: flex; flex-direction: column; gap: 4px; }
