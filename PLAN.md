@@ -957,6 +957,17 @@ hiện ngay, ghi «comes out this week» tới khi có exe; E có nút «Share m
 - Sửa luôn: thẻ cuối buổi đọc thư vẫn hiện link «Open the job» dù đã ẩn (CSS của link đè thuộc tính hidden).
 - Các trang mạng xã hội giữ ảnh thẻ cũ một thời gian; LinkedIn làm mới bằng Post Inspector khi cần.
 
+**Bản exe, bước thử cửa sổ (Vin, 16/11: «làm bản exe đi. dựng window lên tôi test trước, đừng xuất exe luôn»):**
+- Mở app từ mã nguồn (`python -m app`) cho Vin thử. Python hệ thống có gói tên «Microsoft» che mất phần cửa sổ của pywebview
+  (pythonnet), app tắt ngay: mở bằng Python của `.venv` JobA-Z. Sửa: cửa sổ không mở được thì app mở trình duyệt, không tắt.
+- Vin thử: nút Add chức danh im lặng khi đã đủ ba (262ab6c): giờ nói rõ, và Enter cũng thêm.
+- Thanh tiêu đề riêng (Vin: «custom cho tôi title bar cho đẹp cho khớp với game đi»): Windows 10 không cho đổi màu thanh gốc,
+  nên cửa sổ bỏ khung (`app/frame.py`, chép từ GoodLuck `winframe.py`, vốn của Jenifer Studio) và trang vẽ thanh
+  (`js/winbar.js`): nền đêm, đường vàng mảnh, con vịt điểm ảnh, chữ GOODLUCK FISHING vàng viền nâu như biển tên trên mái,
+  ba nút vẽ bằng điểm ảnh (đóng đỏ khi rê chuột). Kéo thanh để dời, kéo mép để giãn, bấm đúp để phóng to, Aero Snap vẫn có.
+  Game nằm dưới thanh (khung vẽ đo theo hộp của nó, chữ và nhãn đặt theo chỗ thật của khung vẽ). Biểu tượng vịt trên thanh
+  tác vụ thay cho biểu tượng Python. Chỉ trong app trên Windows; web và Mac như cũ.
+
 ---
 
 ## Nhật ký bàn bạc

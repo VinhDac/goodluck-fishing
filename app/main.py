@@ -13,6 +13,7 @@ from __future__ import annotations
 import os
 import sys
 import threading
+import time
 import webbrowser
 from pathlib import Path
 
@@ -44,9 +45,17 @@ def main(argv=None) -> int:
         if "--browser" in argv:
             raise ImportError
         import webview  # pywebview: the one package from outside, with the browser as its fallback
-        webview.create_window("GoodLuck Fishing", url, width=1280, height=760, min_size=(640, 400), background_color="#0c0f24")
+        framed = sys.platform == "win32"                                 # Windows: the game's own title bar (app/frame.py)
+        srv.state["framed"] = framed
+        api = Api()
+        win = webview.create_window(NAME, url, width=1280, height=760, min_size=(640, 400), background_color="#0c0f24",
+                                    frameless=framed, easy_drag=False, js_api=api)
+        api._window = win
+        if framed:
+            win.events.shown += lambda: threading.Thread(target=dress, args=(api,), daemon=True).start()
         webview.start(private_mode=False, storage_path=str(data / "window"))
-    except ImportError:
+    except Exception:                                                    # not there, or its toolkit would not load (16/11:
+        srv.state["framed"] = False                                      # a package named Microsoft shadowed pythonnet's): the browser
         webbrowser.open(url)
         try:
             threading.Event().wait()
@@ -55,3 +64,53 @@ def main(argv=None) -> int:
     srv.fleet.stop()
     srv.shutdown()
     return 0
+
+
+NAME = "GoodLuck Fishing"
+
+
+class Api:
+    """What the page's title bar calls: window.pywebview.api.<name>(). Every attribute is PRIVATE: pywebview walks the
+    public ones of a js_api object, and walking into a Window hangs it (GoodLuck's winview.Api)."""
+
+    def __init__(self) -> None:
+        self._window = None
+        self._frame = None
+
+    def drag(self, code):
+        return bool(self._frame and self._frame.start_drag(code))
+
+    def minimize(self):
+        self._window.minimize()
+        return True
+
+    def maximize(self):
+        """Maximize, or restore if it already is: the NEW state, for the button's picture."""
+        was = bool(self._frame and self._frame.maximized())
+        self._window.restore() if was else self._window.maximize()
+        return not was
+
+    def maximized(self):
+        return bool(self._frame and self._frame.maximized())
+
+    def close(self):
+        self._window.destroy()
+        return True
+
+
+def dress(api: Api) -> None:
+    """The window just shown, found by its title, given the frame's patches and the duck for its icon."""
+    from .frame import Frame, find_window, set_icons
+    hwnd, end = None, time.monotonic() + 20                              # a cold first start is slow
+    while not hwnd and time.monotonic() < end:
+        hwnd = find_window(os.getpid(), NAME)
+        if not hwnd:
+            time.sleep(0.1)
+    if not hwnd:
+        return
+    time.sleep(0.15)                                                     # let it settle, then patch
+    frame = Frame()
+    if frame.patch(hwnd):
+        api._frame = frame
+    set_icons(hwnd, Path(__file__).resolve().parent.parent / "img" / "duck-64.png")
+    frame.front()

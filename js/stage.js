@@ -15,7 +15,8 @@ export function makeStage(canvas, { tall = 216, narrow = 195 } = {}) {
 
   // the window's size: about 216 art pixels high on a computer, 195 wide on a phone, each K device pixels square
   st.fit = function fit() {
-    const dpr = window.devicePixelRatio || 1, iw = innerWidth, ih = innerHeight;
+    const dpr = window.devicePixelRatio || 1, box = canvas.parentElement && canvas.parentElement.getBoundingClientRect();
+    const iw = box && box.width ? box.width : innerWidth, ih = box && box.height ? box.height : innerHeight;   // its box: under the app's title bar, if any
     const DW = Math.max(1, Math.round(iw * dpr)), DH = Math.max(1, Math.round(ih * dpr));
     const K = Math.max(1, iw >= ih ? Math.floor(DH / tall) : Math.round(DW / narrow));   // a phone: the nearest whole size
     Object.assign(st, { dpr, DW, DH, K, W: Math.ceil(DW / K), H: Math.ceil(DH / K) });

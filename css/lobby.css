@@ -227,3 +227,18 @@ footer button { all: unset; cursor: pointer; text-decoration: underline; color: 
 .loading.gone { opacity: 0; pointer-events: none; }
 @keyframes bob { 50% { transform: translateY(-5px); } }
 .noscript { position: fixed; inset: auto 16px 40% 16px; text-align: center; color: var(--paper); font: 16px/1.5 var(--ui); }
+/* the app's own title bar on Windows (js/winbar.js): the night, a thin gold line under it, the duck, the name in yellow pixel
+   letters as the signs on the roofs are written, three plain buttons; the game below it, the bar never over it */
+.winbar { position: fixed; z-index: 40; left: 0; right: 0; top: 0; height: 32px; display: flex; align-items: center; gap: 9px; padding-left: 11px;
+  background: #0c0f24; border-bottom: 1px solid #d9a63a; box-shadow: 0 1px 0 #3a2a1a; user-select: none; -webkit-user-select: none; }
+.winbar[hidden] { display: none; }
+.winbar canvas { image-rendering: pixelated; flex: none; }
+.winbar .wt { flex: 1; font: 600 13px var(--ui); color: var(--yellow); text-transform: uppercase; letter-spacing: .1em; text-shadow: 1px 1px 0 #6b3f10; white-space: nowrap; overflow: hidden; }
+.winbar .wbtns { display: flex; height: 100%; }
+.winbar button { all: unset; width: 46px; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff8e7; opacity: .85; }
+.winbar button:hover { background: #232a55; opacity: 1; }
+.winbar button.x:hover { background: #c0392b; color: #ffffff; }
+body.framed #stage { top: 33px; }
+body.framed .corner, body.framed .seahud.prog { top: 43px; }
+body.framed .talk { top: 43px; }
+body.framed .cside { top: 97px; }

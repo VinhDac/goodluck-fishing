@@ -25,6 +25,7 @@ VERSION = "0.1.0"
 
 def make(data: Path, port: int = 0) -> ThreadingHTTPServer:
     fleet = Fleet(data)
+    state = {"framed": False}                                             # the window draws no frame: the page draws the bar
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *a):  # quiet
@@ -93,8 +94,9 @@ def make(data: Path, port: int = 0) -> ThreadingHTTPServer:
             if not f.is_file():
                 return self.send_error(404)
             body = f.read_bytes()
-            if rel == "index.html":                                         # the game knows it is in the app
-                body = body.replace(b"<head>", b"<head>\n  <script>window.GLF_APP = true;</script>", 1)
+            if rel == "index.html":                                         # the game knows it is in the app (and draws its title bar)
+                mark = b"window.GLF_APP = true;" + (b" window.GLF_FRAME = true;" if state["framed"] else b"")
+                body = body.replace(b"<head>", b"<head>\n  <script>" + mark + b"</script>", 1)
             self.send_response(200)
             self.send_header("Content-Type", mimetypes.guess_type(f.name)[0] or "application/octet-stream")
             self.send_header("Cache-Control", "no-store")
@@ -105,4 +107,5 @@ def make(data: Path, port: int = 0) -> ThreadingHTTPServer:
     srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     srv.daemon_threads = True
     srv.fleet = fleet
+    srv.state = state
     return srv

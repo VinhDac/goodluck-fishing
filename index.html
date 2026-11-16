@@ -29,6 +29,8 @@
   <link rel="stylesheet" href="css/lobby.css">
 </head>
 <body>
+  <!-- the app's own title bar on Windows (js/winbar.js, app/frame.py): drawn as the game draws its signs -->
+  <div class="winbar" id="winbar" hidden><canvas id="winDuck" width="20" height="17"></canvas><span class="wt">GoodLuck Fishing</span><span class="wbtns" data-nodrag><button type="button" data-win="min" title="Minimize"></button><button type="button" data-win="max" title="Maximize"></button><button type="button" data-win="close" class="x" title="Close"></button></span></div>
   <main id="stage">
     <canvas id="scene" aria-label="A duck asleep at its desk, late at night, a golden escalator beside it."></canvas>
     <!-- while the page loads (PLAN.md 20 F): the duck, bobbing, not a black screen -->

@@ -20,6 +20,7 @@ import { makeRise, RIDE } from './rise.js';
 import { makeLetters, JUNK } from './letters.js';
 import { makeCatchUI, fitWords } from './catchui.js';
 import { openApp } from './getapp.js';
+import { winbar } from './winbar.js';
 import { readLake, boardOf } from './lake.js';
 import { numbers, fished } from './progress.js';
 import { sfx, soundOn, setSound, setMood, playMusic } from './sound.js';
@@ -57,13 +58,16 @@ function fit() {
   art.width = W; art.height = H; ag.imageSmoothingEnabled = false;
   room.layout(W, H); pier.layout(W, H); sky.layout(W, H); rise.layout(W, H);
   letters.resize(W, H);
+  const r = cv.getBoundingClientRect(); at0.x = r.left; at0.y = r.top;
 }
 const css = (v) => (v * stage.K) / stage.dpr;                          // art pixels, in the page's own
+const at0 = { x: 0, y: 0 };                                            // where the canvas's top left is on the page (under the app's title bar)
+const cssX = (v) => at0.x + css(v), cssY = (v) => at0.y + css(v);
 function show() { stage.g.imageSmoothingEnabled = false; stage.g.drawImage(art, 0, 0, art.width * stage.K, art.height * stage.K); }
 const inside = (p, s) => s && p.x >= s.x && p.x <= s.x + s.w && p.y >= s.y && p.y <= s.y + s.h;
 const hit = (p, spots) => Object.entries(spots || {}).reverse().find(([, s]) => inside(p, s));
 const ui = makeCatchUI({
-  toCss: (x, y) => ({ x: css(x), y: css(y) }), skills: () => new Set(person ? person.skills || [] : []), sample: () => (person && person.sample) || '',
+  toCss: (x, y) => ({ x: cssX(x), y: cssY(y) }), skills: () => new Set(person ? person.skills || [] : []), sample: () => (person && person.sample) || '',
   away: (job) => putAway(job, 'not_for_me'), open: (u) => openOut(u),
 });
 function putAway(job, status) { if (has(job.id)) mark(job.id, status); else add(job, 'caught', status); bagCount(); }
@@ -164,8 +168,8 @@ function place() {
     if ((scene !== 'sea' && scene !== 'rise') || performance.now() > talking) t.hidden = true;
     else {                                                             // under the boat in the sky; beside the soul on the escalator
       const at = scene === 'sea' ? { x: letters.view().boat.x - 4, y: sky.L.boat.y + 24 } : { x: rise.L.head.x + 14, y: rise.L.head.y - 6 };
-      t.style.left = `${Math.max(8, Math.min(innerWidth - t.offsetWidth - 8, css(at.x)))}px`;
-      t.style.top = `${Math.max(8, css(at.y))}px`;
+      t.style.left = `${Math.max(8, Math.min(innerWidth - t.offsetWidth - 8, cssX(at.x)))}px`;
+      t.style.top = `${Math.max(at0.y + 8, cssY(at.y))}px`;
     }
   }
   const b = $('say');
@@ -174,9 +178,9 @@ function place() {
   const at = scene === 'office' ? room.L.head : saying.who === 'gull' ? pier.L.gullHead : pier.L.duckHead || pier.L.gullHead;
   if (!at) return;
   const r = b.getBoundingClientRect(), maxX = innerWidth - r.width - 8;
-  b.style.left = `${Math.max(8, Math.min(maxX, css(at.x) - 24))}px`;
-  b.style.top = `${Math.max(8, css(at.y) - r.height - 10)}px`;
-  b.classList.toggle('below', css(at.y) - r.height - 10 < 8);
+  b.style.left = `${Math.max(8, Math.min(maxX, cssX(at.x) - 24))}px`;
+  b.style.top = `${Math.max(at0.y + 8, cssY(at.y) - r.height - 10)}px`;
+  b.classList.toggle('below', cssY(at.y) - r.height - 10 < at0.y + 8);
 }
 
 // ---- the scenes and the moves between them ------------------------------------------------------------------------------
@@ -610,6 +614,7 @@ for (const id of ['getapp', 'titleApp', 'footGet']) $(id).addEventListener('clic
 if (inApp) for (const id of ['getapp', 'titleApp', 'footApp']) $(id).hidden = true;   // in the app itself, nothing to get
 
 // ---- the loop -------------------------------------------------------------------------------------------------------------------
+winbar();                                                              // in the app on Windows: its own title bar, the game under it
 addEventListener('resize', fit);
 fit();
 document.body.dataset.scene = 'office';
