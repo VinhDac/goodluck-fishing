@@ -1,0 +1,173 @@
+<!doctype html>
+<!-- THE LETTERS, IN MOTION (PLAN.md 18, step 1): the sky of flying letters alone, to judge how it moves before it goes into the
+     game. The jobs are the shared store's, for a made-up CV (an AI engineer in London); the search is played out in about
+     a minute. Tap a letter to catch it; AUTO lets the duck catch by itself. Open through a local server: /tools/letters.html
+     (?debug: the time per frame, and window.sky for trying it by hand) -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Letters in motion</title>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #fff8e7; --ink: #1b1f3a; --edge: #3a2a1a; --yellow: #ffd84a; --ui: "Pixelify Sans", ui-monospace, monospace; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0c0f24; }
+  canvas { display: block; touch-action: none; cursor: pointer; }
+  .hud { position: fixed; font: 600 14px var(--ui); color: var(--paper); }
+  .prog { top: 10px; right: 10px; display: flex; align-items: center; gap: 10px; background: rgba(27, 31, 58, 0.78); border-radius: 4px; padding: 6px 10px 8px; }
+  .prog .line { display: flex; flex-direction: column; gap: 4px; }
+  .prog .bar { height: 3px; background: rgba(255, 255, 255, 0.18); border-radius: 2px; overflow: hidden; }
+  .prog .bar i { display: block; height: 100%; width: 0; background: var(--yellow); transition: width 0.4s linear; }
+  .prog button { all: unset; cursor: pointer; font: 600 13px var(--ui); color: #c9d0ff; }
+  .tools { right: 10px; bottom: 10px; display: flex; gap: 8px; }
+  .tools button { font: 600 15px var(--ui); color: var(--ink); background: var(--paper); border: 3px solid var(--edge); border-radius: 4px; box-shadow: 0 3px 0 var(--edge);
+    padding: 6px 12px; cursor: pointer; }
+  .tools button.on { background: var(--yellow); }
+  .tools button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
+  .bump { animation: bump 0.35s ease-out; }
+  @keyframes bump { 30% { transform: scale(1.12); } }
+  .talk { left: 10px; bottom: 10px; max-width: min(420px, calc(100vw - 260px)); background: var(--paper); color: var(--ink); border: 3px solid var(--edge); border-radius: 4px;
+    box-shadow: 0 3px 0 var(--edge); padding: 6px 12px; font: 15px/1.3 var(--ui); opacity: 0; transform: translateY(6px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
+  .talk.show { opacity: 1; transform: none; }
+  .veil { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(12, 15, 36, 0.35); z-index: 5; }
+  .veil[hidden] { display: none; }
+  .card { width: min(360px, 88vw); background: var(--paper); color: var(--ink); border: 3px solid var(--edge); border-radius: 4px; box-shadow: 0 6px 0 var(--edge); padding: 16px 18px;
+    font: 14px/1.45 system-ui, sans-serif; animation: open 0.28s cubic-bezier(.2, .9, .3, 1.2); }
+  @keyframes open { from { transform: translateY(14px) scale(0.92); opacity: 0; } }
+  .card .kick { font: 600 13px var(--ui); color: #8a6a3a; }
+  .card h2 { font: 600 20px/1.2 var(--ui); margin: 4px 0 2px; }
+  .card .who { font-weight: 600; }
+  .card .meta, .card .fit { color: #5a4a30; margin: 6px 0 0; }
+  .card .row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .card button, .card a { font: 600 14px var(--ui); color: var(--ink); background: #efe3c4; border: 2px solid var(--edge); border-radius: 3px; padding: 6px 12px; cursor: pointer; text-decoration: none; }
+  .card button.go { background: var(--yellow); }
+  .list { max-height: 60vh; overflow: auto; margin: 8px 0 0; padding: 0; list-style: none; }
+  .list li { padding: 6px 0; border-bottom: 1px dashed #e2d3ab; }
+  .perf { left: 10px; top: 10px; font: 12px ui-monospace, monospace; color: #c9d0ff; background: rgba(0, 0, 0, 0.4); padding: 3px 6px; }
+  @media (max-width: 560px) { .tools button { font-size: 13px; padding: 5px 9px; } .talk { max-width: calc(100vw - 20px); bottom: 64px; } .prog { left: 10px; right: 10px; } }
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<div class="hud prog"><div class="line"><span id="progText">Getting ready…</span><div class="bar"><i id="progBar"></i></div></div><button id="sound" type="button" title="Sound">♪ on</button></div>
+<div class="hud tools"><button id="auto" class="on" type="button">AUTO ON</button><button id="bag" type="button">BAG 0</button></div>
+<div class="hud talk" id="talk"></div>
+<div class="hud perf" id="perf" hidden></div>
+<div class="veil" id="cardVeil" hidden>
+  <div class="card" id="card">
+    <div class="kick" id="cKick"></div>
+    <h2 id="cTitle"></h2>
+    <div class="who" id="cWho"></div>
+    <p class="meta" id="cMeta"></p>
+    <p class="fit" id="cFit"></p>
+    <div class="row"><button class="go" id="cKeep" type="button">Keep</button><button id="cNo" type="button">Not for me</button><a id="cOpen" href="#" target="_blank" rel="noopener">Open ↗</a></div>
+  </div>
+</div>
+<div class="veil" id="bagVeil" hidden>
+  <div class="card"><div class="kick">In the bag</div><ul class="list" id="bagList"></ul><div class="row"><button id="bagClose" type="button">Close</button></div></div>
+</div>
+<script type="module">
+  import { makeStage } from '../js/stage.js';
+  import { makeSky } from '../js/sky.js';
+  import { makeLetters } from '../js/letters.js';
+  import { readLake } from '../js/lake.js';
+  import { sfx, soundOn, setSound } from '../js/sound.js';
+
+  const $ = (id) => document.getElementById(id);
+  const debug = new URLSearchParams(location.search).has('debug');
+  const ME = { titles: ['machine learning engineer', 'ai engineer', 'data scientist', 'software engineer'], city: 'london', remote: true,
+    skills: ['python', 'machine learning', 'pytorch', 'sql', 'aws', 'docker', 'llms', 'nlp', 'deep learning', 'tensorflow', 'kubernetes', 'react', 'typescript'] };
+
+  const stage = makeStage($('sky'));
+  const sky = makeSky(stage);
+  const bagged = [];
+  let talkTimer = 0;
+  function say(text, who, secs = 3) {
+    const t = $('talk'); t.textContent = text; t.classList.add('show');
+    clearTimeout(talkTimer); talkTimer = setTimeout(() => t.classList.remove('show'), secs * 1000);
+  }
+  const ago = (ms) => { const d = Math.round((Date.now() - ms) / 864e5); return d < 1 ? 'today' : `${d} day${d === 1 ? '' : 's'} ago`; };
+  const letters = makeLetters({
+    onSay: say,
+    onBag: (job, n) => { bagged.unshift(job); $('bag').textContent = `BAG ${n}`; $('bag').classList.remove('bump'); void $('bag').offsetWidth; $('bag').classList.add('bump'); },
+    onCard: (job, info) => {
+      $('cKick').textContent = info.kind === 'gull' ? 'From the gull: not one of your titles, but your CV fits it' : info.kind === 'gold' ? 'A golden one!' : info.kind === 'old' ? 'An old letter, still open' : 'A letter for you';
+      $('cTitle').textContent = job.title; $('cWho').textContent = job.company;
+      $('cMeta').textContent = [job.place, job.posted ? `posted ${ago(job.posted)}` : ''].filter(Boolean).join(' · ');
+      $('cFit').textContent = job.fit == null ? 'Its posting names too little to weigh: open it to judge.' : `Fits your CV ${job.fit}%.`;
+      $('cOpen').href = job.url || '#';
+      $('cardVeil').hidden = false;
+    },
+    // a made-up check for this page: about one posting in seven has closed
+    onCheck: (job) => new Promise((ok) => setTimeout(() => ok([...String(job.id)].reduce((n, c) => (n * 31 + c.charCodeAt(0)) % 997, 7) % 7 !== 3), 300)),
+    onClosed: () => {},
+  });
+  letters.onSound((n) => sfx(n));
+  const answer = (keep) => { $('cardVeil').hidden = true; letters.answer(keep); };
+  $('cKeep').onclick = () => answer(true);
+  $('cNo').onclick = () => answer(false);
+  $('cOpen').onclick = (e) => { e.preventDefault(); window.open($('cOpen').href, '_blank', 'noopener'); };
+  $('auto').onclick = () => { const on = !letters.F.auto; letters.setAuto(on); $('auto').textContent = on ? 'AUTO ON' : 'AUTO OFF'; $('auto').classList.toggle('on', on); };
+  $('bag').onclick = () => {
+    $('bagList').replaceChildren(...(bagged.length ? bagged : [{ title: 'Nothing yet', company: '' }]).map((j) => { const li = document.createElement('li'); li.textContent = j.company ? `${j.title} · ${j.company}` : j.title; return li; }));
+    $('bagVeil').hidden = false;
+  };
+  $('bagClose').onclick = () => { $('bagVeil').hidden = true; };
+  const soundLabel = () => { $('sound').textContent = soundOn() ? '♪ on' : '♪ off'; };
+  $('sound').onclick = () => { setSound(!soundOn()); soundLabel(); }; soundLabel();
+
+  function fit() { stage.fit(); sky.layout(stage.W, stage.H); letters.resize(stage.W, stage.H); }
+  addEventListener('resize', fit);
+  fit();
+  $('sky').addEventListener('pointerdown', (e) => {
+    if (!$('cardVeil').hidden || !$('bagVeil').hidden) return;
+    letters.tap(stage.toArt(e));
+  });
+
+  // the jobs: the shared store's, for the made-up CV; if it cannot be read, some made up here
+  let lake = [], bottles = [];
+  try { const r = await readLake(ME); lake = r.lake || []; bottles = r.bottles || []; } catch (e) { /* made up below */ }
+  if (!lake.length) {
+    const cos = ['Northwind', 'Bluebird AI', 'Copperleaf', 'Harbor Labs', 'Lumen', 'Quill', 'Tallyho', 'Orbitly', 'Moss & Co', 'Pebble'];
+    const sk = ['python', 'sql', 'aws', 'pytorch', 'react', 'go', 'java', 'kubernetes', 'excel', 'llms', 'nlp', 'docker'];
+    lake = Array.from({ length: 140 }, (_, i) => ({ id: `demo${i}`, company: cos[i % 10], title: ['ML Engineer', 'AI Engineer', 'Data Scientist', 'Backend Engineer'][i % 4],
+      place: 'London', url: '#', posted: Date.now() - (i % 30) * 864e5, skills: Object.fromEntries(sk.filter((_, k) => (i * 7 + k * 3) % 5 < 2).map((k) => [k, 1 + (i % 3)])) }));
+  }
+  letters.start({ W: stage.W, H: stage.H, L: sky.L }, { skills: ME.skills, bottles, auto: true, gullFirst: 30, gullEvery: 70 });
+  sky.draw(letters.view());                                            // once, so the city knows where its roofs are
+
+  // the search, played out: the boards read over about seventy seconds, each job found as it comes
+  const TOTAL = 2840, order = lake.slice().sort(() => Math.random() - 0.5);
+  let fed = 0, read = 0, done = false;
+  const prog = () => {
+    $('progText').textContent = done ? `Search done · ${letters.F.found.toLocaleString('en-GB')} letters` : `Searching · ${read.toLocaleString('en-GB')} of ${TOTAL.toLocaleString('en-GB')} boards · ${letters.F.found.toLocaleString('en-GB')} letters`;
+    $('progBar').style.width = `${Math.round((100 * read) / TOTAL)}%`;
+  };
+  const search = setInterval(() => {
+    if (done) return;
+    read = Math.min(TOTAL, read + Math.round(30 + Math.random() * 50));
+    const due = Math.round((order.length * read) / TOTAL);
+    while (fed < due) letters.feed(order[fed++]);
+    if (read >= TOTAL) { done = true; letters.searchDone(); say(`The search is done: ${letters.F.found} letters. The city slows, and stops.`, 'duck', 4); clearInterval(search); }
+    prog();
+  }, 1000);
+  prog();
+  say('Here we are. The letters will come up from the roofs: tap one, or let me.', 'duck', 4.5);
+
+  // each frame: a step of time, then the picture
+  let last = performance.now(), avg = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
+    const t0 = performance.now();
+    letters.step(dt);
+    sky.draw(letters.view());
+    if (debug) { avg = avg * 0.95 + (performance.now() - t0) * 0.05; $('perf').hidden = false; $('perf').textContent = `${avg.toFixed(1)} ms a frame · K ${stage.K} · ${stage.W}×${stage.H}`; }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  if (debug) window.sky = { letters, stage, sky, view: () => letters.view(),
+    run(sec, dt = 1 / 60) { for (let i = 0; i < sec / dt; i++) letters.step(dt); sky.draw(letters.view()); return letters.F.sky.length; },
+    tap(x, y) { return letters.tap({ x, y }); } };
+</script>
+</body>
+</html>

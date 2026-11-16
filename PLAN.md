@@ -602,6 +602,14 @@ mặt trời, không số; G AUTO bật sẵn.
 hơn, gần vịt; B bỏ mồi, lưỡi, lưới; C túi thư (BAG); D một dòng tiến độ; E dấu CLOSED, thư ngả vàng, mòng biển bưu tá; F giờ
 bằng mặt trời; G AUTO bật sẵn. Bước 1: trang chuyển động riêng.
 
+**Bước 1 xong, chờ Vin chấm (16/11):** tools/letters.html (việc thật của kho chung, một CV làm mẫu; cuộc tìm chạy trong
+khoảng một phút). Cách vẽ mới (js/stage.js): mỗi lớp và mỗi hình vẽ ở cỡ pixel của nó, rồi đặt đúng chỗ theo điểm ảnh
+của màn hình; thành phố mỗi khung đi 0 hoặc 1 điểm ảnh, không còn bước 3 điểm. Thư (js/letters.js) lái theo vận tốc, quay
+đầu thành vòng, cánh đập nhanh khi lên, lượn khi bay ngang, mỗi nhịp nhấc lá thư lên; cần câu là lò xo (giơ cao, vung, quá
+một chút, đứng lại); lưỡi là con lắc; thư trên lưỡi đung đưa khi kéo lên; vịt thở, nghiêng người, nhấp cà phê. Đo một phút
+chạy giả 60 khung một giây: thư không có khung nào giật; lưỡi chỉ có cú vung khi ném (tối đa 3 điểm pixel); thư hợp hơn bay
+cao hơn (tương quan 0,79); vẽ một khung khoảng 2 ms. tools/letters-art.html: từng hình phóng to để soi.
+
 ---
 
 ## Nhật ký bàn bạc
@@ -617,3 +625,4 @@ bằng mặt trời; G AUTO bật sẵn. Bước 1: trang chuyển động riên
   I applied và Expired, đăng nhập, chạy hằng ngày, search mạnh. Ghi vào sổ này để bàn từng mục.
 - 15/11 (tối): hồ cá vào game thật (7a184f1), bảng kết quả có ô tìm và Open ra ngoài (21228cf); Vin thử: khó câu, chuyển
   động kém, đổi cá thành thư bay, câu dễ và thư thái, phần phụ bàn lại; đề xuất mục 18.
+- 16/11: Vin duyệt cả bảy mục của 18; sửa các lỗi một lượt soát tìm ra ở hồ cá (f2a058b); bước 1 (trang chuyển động) xong.

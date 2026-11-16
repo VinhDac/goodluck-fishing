@@ -22,6 +22,7 @@ export function makeVoyage(g, opts = {}) {
   const L = {};
   let names = ['Goggle', 'Amazoom', 'Snoozle', 'Facepalm'];
   let s = 0, day = 0.3, lit = 0, late = 0, T = 0;                    // how far we have sailed; the hour; how lit the windows are
+  let deferred = null;                                               // the stage's: cars handed back, not drawn
 
   function layout(W, H) {
     const wide = W >= H;
@@ -136,7 +137,7 @@ export function makeVoyage(g, opts = {}) {
     R(a + 2, b - 4, 1, 5, '#3a3a4a'); R(a + bw - 3, b - 4, 1, 5, '#3a3a4a');
     R(a, b - 13, bw, 9, '#1b1f3a'); R(a, b - 13, bw, 1, '#d9a63a'); R(a + bw, b - 12, 1, 9, '#3a3f6a');
     text(n, a + 3, b - 11, lit > 0.25 ? '#ffd84a' : '#fff8e7');
-    if (lit > 0.25) { g.globalCompositeOperation = 'lighter'; R(a - 1, b - 14, bw + 2, 11, `rgba(255,200,80,${(0.12 * lit).toFixed(2)})`); g.globalCompositeOperation = 'source-over'; }
+    if (lit > 0.25) { px.ctx.globalCompositeOperation = 'lighter'; R(a - 1, b - 14, bw + 2, 11, `rgba(255,200,80,${(0.12 * lit).toFixed(2)})`); px.ctx.globalCompositeOperation = 'source-over'; }
   }
 
   // ---- the kinds of building -------------------------------------------------------------------------------------------------
@@ -242,10 +243,9 @@ export function makeVoyage(g, opts = {}) {
     for (let k = 0; k < 5; k++) tree(x + 3 + hash(seed + k) * (w - 6), z + 3 + hash(seed + k + 5) * (d - 6), 3 + hash(seed + k + 9) * 3);
   }
   function car(x, z, h, k) {
-    const cols = ['#d03a2a', '#3a7be0', '#f4f4f4', '#ffd84a', '#2a2a3a', '#5ab07a'];
     const [a, b] = S(x, z, h);
-    R(a, b - 3, 5, 3, cols[k % 6]); R(a + 1, b - 4, 3, 1, 'rgba(200,230,255,0.9)');
-    if (lit > 0.3) { P(a + 5, b - 2, '#fff4c0'); P(a - 1, b - 2, '#ff4a3a'); }
+    if (deferred) { deferred.push({ x: a, y: b, k: k % 6, lights: lit > 0.3 }); return; }   // the stage sets it where it really is
+    drawCar(px, a, b, k, lit > 0.3);
   }
   function river(x, z, w, d, seed, isBridge) {                         // water and its ripples, a barge; a bridge across
     quad([[x, z - 14], [x + w, z - 14], [x + w, z + d + 14], [x, z + d + 14]], dusk([80, 140, 190]));
@@ -287,7 +287,7 @@ export function makeVoyage(g, opts = {}) {
     }
     if (lit > 0.3) for (let x = Math.floor(from / 30) * 30; x < to; x += 30) {
       const [a, b] = S(x, z0 + 11, 10); R(a, b, 1, 10, '#3a3a4a'); P(a, b - 1, '#ffe8a0');
-      g.globalCompositeOperation = 'lighter'; ell(a, b + 8, 4, 2, 'rgba(255,220,140,0.12)'); g.globalCompositeOperation = 'source-over';
+      px.ctx.globalCompositeOperation = 'lighter'; ell(a, b + 8, 4, 2, 'rgba(255,220,140,0.12)'); px.ctx.globalCompositeOperation = 'source-over';
     }
   }
   function cityRow(row) {
@@ -305,23 +305,23 @@ export function makeVoyage(g, opts = {}) {
     const top = mix([86, 150, 220], [58, 52, 120], late), low = lowSky();
     for (let i = 0; i < 22; i++) R(0, (i * H) / 22, W, H / 22 + 1, rgb(mix(top, low, (i / 21) ** 1.3)));
     const sx = W * (0.3 + day * 0.62), sy = H * 0.55 - Math.sin(Math.PI * Math.min(1, day * 1.05)) * H * 0.45;
-    g.globalCompositeOperation = 'lighter';
+    px.ctx.globalCompositeOperation = 'lighter';
     for (const [r, a] of [[46, 0.06], [28, 0.09], [16, 0.12]]) ell(sx, sy, r, r, `rgba(255,${Math.round(200 - late * 60)},120,${a})`);
-    g.globalCompositeOperation = 'source-over';
+    px.ctx.globalCompositeOperation = 'source-over';
     ell(sx, sy, 8, 8, late > 0.5 ? '#ffd2a8' : '#fff3c4');
     for (let i = 0; i < 6; i++) {                                     // high thin clouds
       const x = ((hash(i) * (W + 80) - t * (2 + i * 0.6)) % (W + 80) + W + 80) % (W + 80) - 40, y = 10 + hash(i + 9) * H * 0.28, w = 26 + hash(i + 3) * 30;
       R(x, y, w, 2, 'rgba(255,255,255,0.6)'); R(x + 5, y + 2, w - 10, 1, late > 0.3 ? 'rgba(255,190,150,0.7)' : 'rgba(220,230,250,0.6)');
     }
-    g.globalAlpha = 0.5;                                              // clouds far off, low and hazy: never taken for the jobs' clouds
+    px.ctx.globalAlpha = 0.5;                                              // clouds far off, low and hazy: never taken for the jobs' clouds
     for (let i = 0; i < 7; i++) {
       const x = ((hash(i + 40) * (W + 120) - t * 1.5) % (W + 120) + W + 120) % (W + 120) - 60, y = H * (0.46 + hash(i + 50) * 0.08);
       px.lump(x, y, 5 + hash(i + 60) * 5, late > 0.4 ? 'dusk' : 'far');
     }
-    g.globalAlpha = 1;
+    px.ctx.globalAlpha = 1;
   }
-  function farCity() {                                                 // the far city in the haze, slower than the near one
-    const { W, H } = L, off = s * 0.35, base = L.G - 120 * KY, c = rgb(mix([168, 190, 218], [110, 100, 150], late));
+  function farCity(at) {                                               // the far city in the haze, slower than the near one
+    const { W, H } = L, off = at ?? s * 0.35, base = L.G - 120 * KY, c = rgb(mix([168, 190, 218], [110, 100, 150], late));
     for (let i = Math.floor(off / 9) - 2; i < (off + W) / 9 + 2; i++) {
       const w = 7 + hash(i + 500) * 8, h = 12 + hash(i + 600) ** 1.6 * 46, x = i * 9 - off;
       R(x, base - h, w, h + 40, c);
@@ -376,5 +376,36 @@ export function makeVoyage(g, opts = {}) {
     if (late > 0) R(0, 0, W, H, `rgba(60,30,90,${(late * 0.12).toFixed(3)})`);
     return tip;
   }
-  return { layout, draw, L, get late() { return late; }, get lit() { return lit; } };
+  // ---- the city for the stage (PLAN.md 18): the far city and each row of the city on a canvas of its own, drawn at a whole
+  // pixel of the way; the stage sets each at the fraction left over, so the city slides instead of stepping. The cars are
+  // handed back, not drawn, each with where it really is, to be set to the screen's own pixel. out: { far, rows: [3] }
+  // (layers from the stage); it gets back frac, farFrac, cars (one list a row).
+  function layers(t, data, out) {
+    T = t; day = data.day ?? 0.3;
+    if (data.names && data.names.length) names = data.names;
+    late = Math.max(0, (day - 0.7) / 0.3); lit = Math.max(0, (day - 0.55) / 0.45);
+    const exact = data.at ?? 0, farExact = exact * 0.35;
+    s = Math.floor(exact); out.frac = exact - s;
+    const farAt = Math.floor(farExact); out.farFrac = farExact - farAt;
+    L.tops = [];
+    px.use(out.far.g); farCity(farAt);
+    const [back, mid, front] = L.rows;
+    out.cars = [[], [], []];
+    deferred = out.cars[0]; px.use(out.rows[0].g); cityRow(back);
+    deferred = out.cars[1]; px.use(out.rows[1].g); cityRow(mid);
+    deferred = out.cars[2]; px.use(out.rows[2].g);
+    R(-2, L.G - (front.z - 12) * KY, L.W + 6, L.H, dusk([96, 100, 110]));                                // the near pavement
+    cityRow(front);
+    deferred = null; px.use(g);
+    return out;
+  }
+  const sky2 = () => ({ top: mix([86, 150, 220], [58, 52, 120], late), low: lowSky() });             // the sky's two ends, now
+  return { layout, draw, layers, sky: sky2, L, get late() { return late; }, get lit() { return lit; } };
+}
+
+// a car, as the streets have them: its colour by k, its lights on at dusk
+export function drawCar(px, a, b, k, lights) {
+  const cols = ['#d03a2a', '#3a7be0', '#f4f4f4', '#ffd84a', '#2a2a3a', '#5ab07a'];
+  px.R(a, b - 3, 5, 3, cols[k % 6]); px.R(a + 1, b - 4, 3, 1, 'rgba(200,230,255,0.9)');
+  if (lights) { px.P(a + 5, b - 2, '#fff4c0'); px.P(a - 1, b - 2, '#ff4a3a'); }
 }
