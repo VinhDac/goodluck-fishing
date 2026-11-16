@@ -970,6 +970,11 @@ hiện ngay, ghi «comes out this week» tới khi có exe; E có nút «Share m
 - Đường lên ngắn lại (Vin: «cắt ngắn đoạn đi thang đi. dài quá», «đẹp nhưng dài»): thang cuốn 25 giây còn 12 (lên và xuống),
   hồn đi tới thang và đi thang lên trần ở văn phòng ngắn lại, giữ đoạn hồn xuất ra nhìn lại xác; từ lúc bấm vịt tới bến còn
   khoảng 22 giây (trước 37). Từ lần đi thứ hai, lời nhắc «walk up the steps» thay chỗ câu đầu cho khỏi đè nhau.
+- **Đã xuất và phát hành** (Vin: «ổn rồi, xuất exe đi», «xong thì đưa lên releases luôn»): GoodLuck Fishing 0.1116.919, bản cài
+  10,1 MB (bỏ ảnh động, thẻ chia sẻ và ảnh nháp khỏi app: 15,1 MB trước đó), chạy thử bản biên dịch trên dữ liệu tạm (máy chủ
+  và cửa sổ không khung đều đúng), rồi lên GitHub Releases: https://github.com/VinhDac/goodluck-fishing/releases/tag/v0.1116.919
+  Tờ Get the app trên site tự thấy bản này: «Download for Windows · 10 MB», kèm lời dặn khi Windows cảnh báo app lạ (More
+  info, rồi Run anyway; bản cài chưa ký số).
 
 ---
 
@@ -994,3 +999,4 @@ hiện ngay, ghi «comes out this week» tới khi có exe; E có nút «Share m
 - 16/11: «hoàn thiện website để quảng bá ... rồi mới đến bản exe»: đề xuất mục 20; Vin duyệt cả ba đề xuất; bước 1 xong (chơi ngay với CV mẫu theo ngành, bỏ đăng nhập email).
 - 16/11: Vin thử bước 1: vịt quay mặt theo đường về, My list ở mọi cảnh; rồi «được, làm bước 2 đi»: tên trò chơi trên văn phòng, tờ Get the app (nói đúng app làm gì, nút tải tự tìm bản trên GitHub Releases).
 - 16/11: «được, làm bước 3 đi»: thẻ chia sẻ và ảnh động vẽ từ chính game (tools/card.py), Share my morning, vịt chờ lúc tải, link GitHub, README mới. Còn lại: exe.
+- 16/11: Vin thử cửa sổ app: nút Add, thanh tiêu đề riêng, đường lên ngắn lại; «ổn rồi, xuất exe đi»: bản 0.1116.919 lên GitHub Releases, nút tải trên site tự hiện.
