@@ -78,6 +78,9 @@ function logShow(job, info) {
   if (info.stamp) g.stamps++;
   saveLog(g);
 }
+function myList() {                                                   // the list of letters; the stamp album from it, on any screen
+  openReport('Your letters', () => { office.n = numbers(); }, { actions: [{ label: 'Close', fn: () => { office.n = numbers(); } }, { label: 'Stamp album', quiet: true, fn: album }] });
+}
 function album() {                                                     // the stamp album: a stamp for each company caught, gold for a golden one
   const el = ui.el, items = all().filter((e) => e.job && e.job.company), by = new Map();
   for (const e of items) { const c = e.job.company, g = e.job.size === 'gold'; if (!by.has(c) || g) by.set(c, g || by.get(c)); }
@@ -216,7 +219,7 @@ function officePress(p) {
   const [name] = h;
   if (name === 'duck' || name === 'escalator' || name === 'sign' || name === 'rope') return goFishing();
   if (name === 'tray') return reading();
-  if (name === 'apply') return openReport('Your letters', () => { office.n = numbers(); });
+  if (name === 'apply') return myList();
   if (name === 'album') return album();
   if (name === 'drawer') return drawer();
   const f = THINGS[name];
@@ -287,7 +290,7 @@ function decide(keep) {
   const r = reads;
   if (!r) return;
   const e = r.list[r.i];
-  if (!e) { $('catch').hidden = true; reads = null; office.n = numbers(); if (keep) openReport('Your letters', () => { office.n = numbers(); }); return; }
+  if (!e) { $('catch').hidden = true; reads = null; office.n = numbers(); if (keep) myList(); return; }
   mark(e.job.id, keep ? 'keep' : 'not_for_me');
   if (keep) { r.kept++; sfx('stamp'); } else sfx('rustle');
   r.i++;
@@ -517,7 +520,7 @@ function soundLabels() { $('sound').textContent = `Sound: ${soundOn() ? 'on' : '
 for (const id of ['sound', 'seaSound']) $(id).addEventListener('click', () => { setSound(!soundOn()); soundLabels(); playMusic(soundOn()); sfx('quack'); });
 addEventListener('pointerdown', () => { if (soundOn()) playMusic(true); }, { once: true });   // browsers start sound only after a press
 soundLabels();
-$('bucket').addEventListener('click', () => openReport('Your letters', () => { office.n = numbers(); }));
+$('bucket').addEventListener('click', () => myList());
 $('gofish').addEventListener('click', goFishing);
 
 // ---- the CV and the account (PLAN.md 9): asked once; «My CV» asks again ---------------------------------------------------------

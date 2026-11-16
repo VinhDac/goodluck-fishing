@@ -795,6 +795,45 @@ và thả, tuột thì thư quay lại sau; B giữ hay bỏ để lúc tỉnh d
 tắt, mòng biển hỏi một lần; G thời tiết, mùa, ngày trong tuần theo số thật; H có công ty mơ ước; I một lần câu trước, trên
 trang thử riêng (tools/catch.html); game trên site giữ nguyên tới khi Vin duyệt.
 
+**Đã dựng trọn mục 19 (16/11, Vin: «tôi cho phép bạn làm từ đầu đến cuối đi. hoàn thiện đi, tôi sẽ đi ngủ»):**
+- **Một lần câu** (`js/letters.js`, trang thử `tools/catch.html`, hình phóng to `tools/catch-art.html`): giữ chuột ở đâu cũng
+  được, vòng cung trên đầu vịt đầy rồi vơi như hơi thở, có vòng mờ chỗ phao sẽ rơi; thả là quăng. Phao đỏ trắng, dưới phao là
+  CV gấp nhỏ. Thư lượn lại, ngửi mồi hai lần (phao giật khẽ), rồi cắn: phao giật xuống, vòng gợn, «!» trên đầu vịt; bấm trong
+  1,5 giây. Thư hợp hơn tới nhanh hơn (đo trên web: 2 đến 8 giây). Kéo: khung trời nhỏ cạnh thuyền, đám mây đỡ có quán tính,
+  ruy băng đầy là lên (thư thường khoảng 4 giây, thư vàng 5); thư trên dây đi dần từ chỗ cắn về thuyền theo ruy băng, tuột
+  thì bay vòng lên rồi quay lại sau; tem trôi vào khung thì nhặt được. Khoe: vịt giơ thư bằng hai cánh, nhãn giấy (chức danh,
+  công ty, sao; New, Posted today, Perfect, +1 stamp), bấm nhãn là tờ chi tiết trượt ra cạnh (Open, Not for me), không nền tối.
+  Bậc: pip; ★; ★★ (vầng sáng ấm, vịt nhún); ★★★ (cả cảnh chậm lại nửa giây, tia vàng xoay, bụi vàng rơi, trời ấm lên); công ty
+  mơ ước (cầu vồng, đàn chim). Rồi thư bay vào túi trên cột buồm, túi phồng, số trên túi tăng. Bấm vào vịt là giao cần (vịt tự
+  quăng, chờ, kéo); bấm chỗ khác là lấy lại. Thư mòng biển đưa: vịt nhặt trên boong và giơ lên như mọi lá.
+- **Đường đi** (`js/room.js`, `js/rise.js`, `js/pier.js`, `js/ducks.js`): vịt ngất (mắt x, sao quay), biển neon «HEAVEN ↑
+  JOBS DEPT», chữ E chập chờn. Bấm vịt: vệt sáng từ trần, hồn (trắng trong, hào quang) nổi lên, nhìn xác mình («So that is what I
+  look like»), chọc thử, rồi trôi ra thang; thang đưa lên trần chậm. Cảnh thang cuốn riêng 25 giây: các tầng đêm (Q4 SYNERGY,
+  OUT OF ORDER, vịt khác ngủ gầm bàn, phòng máy chủ, xe lau nhà, cửa HIRING FREEZE), mái nhà với bồ câu và cột đèn đỏ, thành phố
+  đêm nhỏ dần (số cửa sổ sáng là số thư thật hôm nay), mây, bình minh, cổng HEAVEN; vài câu nghĩ của hồn. Từ lần thứ hai bấm
+  là đi bộ lên thang, nhanh gấp đôi. Bến HEAVEN: cổng mây có biển HEAVEN ở chỗ thang lên, mòng biển gác cổng sau bục có sổ,
+  quầy mồi và giá lưỡi đã bỏ; ở thiên đường vịt có hào quang.
+- **Đường về, ngược lại**: trên trời chỉ còn nút «Back to the pier»; thuyền chạy lùi sang trái, thành phố trôi ngược; ở bến
+  thuyền vào từ bên phải, vịt bước lên, mòng biển: «Good haul. N letters»; bấm cổng là xuống thang (cảnh thang cuốn chạy
+  ngược, đêm về), hồn vào lại xác, vịt giật mình tỉnh: đồng hồ nhích đúng số phút thật đã ở trên đó. Về giữa buổi thì buổi
+  vẫn giữ: lên lại là đúng trời đó. Mặt trời lặn (8 phút) thì thuyền tự về, thư vàng chưa câu vào khay, chưa mở.
+- **Đọc thư ở bàn** (19.4): khay thư trên bàn sáng khi có thư mới; bấm là mở từng lá («Letter 3 of 12»): Keep (ghim lên bảng
+  TO APPLY trên tường), Not for me, Open, Later; hết thì «All read: N kept», «See the list». Danh sách (My list) có To apply,
+  In the tray (chưa mở), Applied, ô tìm, và nút Stamp album.
+- **Âm thanh và nhạc** (`js/sound.js`): nhạc tự sinh, hợp âm chậm và vài nốt gảy có tiếng vọng, đổi màu theo cảnh (văn phòng
+  đêm, thang cuốn như hợp xướng, bến buổi sáng, trời, hoàng hôn), gió trên bến và trên trời; tiếng cho từng việc (quăng, phao,
+  ngửi, cắn, móc, cuộn, lên, các bậc, túi, tem, hồn xuất, tỉnh dậy). Mặc định tắt; lần đầu ra khơi mòng biển hỏi một lần.
+- **Chiều sâu**: mùa theo tháng thật trong không khí (giờ là lá thu, tháng 12 tuyết, xuân cánh hoa, hè đom đóm lúc chiều);
+  thời tiết theo số việc mới thật hôm đó so với trung bình 30 ngày (ít: sương và một cơn mưa rồi cầu vồng; nhiều: trời
+  trong), mòng biển nói số thật và thói của ngày trong tuần; đồ linh tinh (giấy vo, máy bay giấy, chiếc tất có cánh, thư từ
+  chối cũ, ủng cũ) thỉnh thoảng bay lên, câu được thì vịt ném vào ngăn kéo bàn (không bao giờ đếm là việc); sổ tem trên giá
+  sách (mỗi công ty một tem, tem vàng cho thư vàng) và kỷ lục (số thư, thư vàng, hợp nhất, buổi nhiều nhất, chuỗi ngày, câu
+  perfect, tem nhặt được); công ty mơ ước hỏi cùng nơi làm.
+- **Đo chuyển động** (60 khung một giây, điểm ảnh thiết bị): thư, thuyền đi về, thư trên dây, thư giơ lên không giật; phao chỉ có
+  cú giật cố ý lúc cắn. Đã sửa: thư nhảy về phía thuyền lúc móc, phao nhảy khi về con lắc.
+- Ghi chú: thuyền về là chạy lùi (vẽ lật thì chữ GOOD LUCK bị ngược); album trên giá sách chỉ có ở màn hình rộng, trên điện
+  thoại mở từ My list.
+
 ---
 
 ## Nhật ký bàn bạc
@@ -813,3 +852,4 @@ trang thử riêng (tools/catch.html); game trên site giữ nguyên tới khi V
 - 16/11: Vin duyệt cả bảy mục của 18; sửa các lỗi một lượt soát tìm ra ở hồ cá (f2a058b); bước 1 (trang chuyển động) xong.
 - 16/11: Vin duyệt chuyển động («được, làm bước 2 đi»); bước 2 xong: thư bay trong game, thanh nút mới, PIER và LOBBY giữ buổi.
 - 16/11: Vin thử bước 2: «ổn đấy»; muốn câu thư thư giãn như câu cá trong Stardew Valley, chuyện kể đi và về, chiều sâu từng chi tiết; đề xuất mục 19.
+- 16/11 (đêm): Vin duyệt cả mục 19 và cho làm trọn; đã dựng hết: một lần câu, đường đi lên HEAVEN và đường về, đọc thư ở bàn, nhạc, mùa và thời tiết theo số thật, sổ tem, ngăn kéo đồ linh tinh; build lại exe.
