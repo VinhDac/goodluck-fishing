@@ -166,7 +166,19 @@ function bowArt(px, ox, oy) {                                      // a little r
   R(ox - 2, oy, 1, 2, '#a82a20'); R(ox + 2, oy, 1, 2, '#a82a20'); P(ox, oy, '#ff8a70');
   P(ox - 1, oy + 2, '#d03a2a'); P(ox + 1, oy + 2, '#d03a2a');
 }
-export const art = { letterArt, openedArt, airmailArt, tagArt, gullArt, floatArt, baitArt, bangArt, bagArt, panelArt, reelCloudArt, miniLetterArt, stampArt, bowArt };
+function junkArt(px, ox, oy, kind, f) {                            // junk, drawn as itself; (ox, oy) its middle; f: its wings' beat
+  const { R, P, ell, poly } = px;
+  if (f >= 0 && kind !== 'plane') {                                // little paper wings, as the letters have
+    const up = f === 0 ? -2 : f === 2 ? 1 : 0;
+    for (const s2 of [-1, 1]) { P(ox + s2 * 5, oy - 1 + up, '#8796b8'); P(ox + s2 * 6, oy - 1 + up, '#ffffff'); P(ox + s2 * 7, oy - 1 + Math.round(up * 1.5), '#8796b8'); }
+  }
+  if (kind === 'ball') { ell(ox, oy, 3, 3, '#9a9488'); ell(ox, oy, 2, 2, '#efe9da'); P(ox - 1, oy - 1, '#ffffff'); P(ox + 1, oy, '#c8c0ae'); P(ox, oy + 1, '#c8c0ae'); }
+  else if (kind === 'plane') { poly([[ox - 5, oy + 1], [ox + 5, oy - 1], [ox - 3, oy - 3]], '#ffffff'); poly([[ox - 5, oy + 1], [ox + 5, oy - 1], [ox - 1, oy + 2]], '#d8dce8'); P(ox + 4, oy - 1, '#8796b8'); }
+  else if (kind === 'sock') { R(ox - 2, oy - 4, 4, 6, '#f4efe2'); R(ox - 2, oy - 3, 4, 1, '#d03a2a'); R(ox - 2, oy - 1, 4, 1, '#d03a2a'); R(ox - 2, oy + 2, 6, 2, '#f4efe2'); R(ox + 3, oy + 2, 1, 2, '#c8c0ae'); }
+  else if (kind === 'rejection') { R(ox - 4, oy - 3, 8, 7, '#8a8478'); R(ox - 3, oy - 2, 6, 5, '#f4efe2'); P(ox - 2, oy - 1, '#c0392b'); P(ox - 1, oy, '#c0392b'); P(ox, oy + 1, '#c0392b'); P(ox, oy - 1, '#c0392b'); P(ox - 2, oy + 1, '#c0392b'); }
+  else { R(ox - 2, oy - 4, 3, 6, '#6a4628'); R(ox - 2, oy + 1, 6, 3, '#6a4628'); R(ox + 3, oy + 2, 1, 2, '#4a2e16'); R(ox - 2, oy + 3, 7, 1, '#2a1a10'); }   // a boot
+}
+export const art = { junkArt, letterArt, openedArt, airmailArt, tagArt, gullArt, floatArt, baitArt, bangArt, bagArt, panelArt, reelCloudArt, miniLetterArt, stampArt, bowArt };
 
 export function makeSky(stage) {
   const city = makeVoyage(stage.g, { deep: true });
@@ -255,6 +267,10 @@ export function makeSky(stage) {
       const sh = Math.sin(now * 70) * shaking * 1.5;
       const step = l.open < 0.34 ? 0 : l.open < 0.67 ? 1 : 2, st = Math.round((l.stamp || 0) * 4);
       stage.sprite(l.x + sh, l.y, 28, 22, 14, 11, (px, ox, oy) => openedArt(px, ox, oy, l.kind, (l.stamp || 0), step), `open:${l.kind}:${step}:${st}`, fade);
+      return;
+    }
+    if (l.job && l.job.junk) {                                         // junk: itself, fluttering or held up
+      stage.sprite(l.x, l.state === 'held' ? l.y : y, 17, 11, 8, 5, (px, ox, oy) => junkArt(px, ox, oy, l.job.junk, still ? -1 : Math.min(2, f)), `J:${l.job.junk}:${still ? -1 : Math.min(2, f)}`, fade);
       return;
     }
     if (l.state === 'held') {                                          // up in the duck's wings, or on its way into the bag
@@ -452,6 +468,38 @@ export function makeSky(stage) {
     }
   }
   const smoothstep = (u) => { const x = Math.max(0, Math.min(1, u)); return x * x * (3 - 2 * x); };
+  // ---- the season in the air, by the real month: autumn's leaves, winter's snow, spring's petals, summer's fireflies at dusk ---
+  function season(v) {
+    const t = v.t, W2 = L.W, H2 = L.H, kind = v.season;
+    if (!kind) return;
+    if (kind === 'summer') {                                        // fireflies, only as the light goes
+      const a = Math.max(0, (v.day - 0.7) / 0.2);
+      if (a <= 0) return;
+      for (let i = 0; i < 18; i++) {
+        const x = (hash(i + 3) * W2 + Math.sin(t * 0.3 + i) * 20 + W2) % W2, y = L.top + 20 + hash(i + 7) * (H2 * 0.6) + Math.sin(t * 0.7 + i * 2) * 6, on = Math.sin(t * 2 + i * 1.7) > 0.3;
+        if (on) stage.dot(x, y, `rgba(255,236,120,${(0.8 * Math.min(1, a)).toFixed(2)})`);
+      }
+      return;
+    }
+    const n = kind === 'winter' ? 46 : 22, cols = kind === 'autumn' ? ['#e8743a', '#d9a63a', '#c8502a', '#f0c050'] : kind === 'spring' ? ['#f8c8d8', '#ffffff', '#f4a8c0'] : ['#ffffff', '#eef4ff'];
+    for (let i = 0; i < n; i++) {
+      const sp = 6 + hash(i + 11) * 10, dx = kind === 'winter' ? -2 : -9 - hash(i) * 6;
+      const x = ((hash(i + 1) * (W2 + 40) + dx * t + Math.sin(t * (0.8 + hash(i + 2)) + i) * 6) % (W2 + 40) + W2 + 40) % (W2 + 40) - 20;
+      const y = ((hash(i + 5) * (H2 + 20) + sp * t) % (H2 + 20)) - 10, c = cols[i % cols.length];
+      if (kind === 'winter') stage.dot(x, y, 'rgba(255,255,255,0.85)');
+      else { const flip = Math.sin(t * 3 + i) > 0; stage.dot(x, y, c); if (flip) stage.dot(x + 1, y, c); else stage.dot(x, y + 1, c); }
+    }
+  }
+  function shower(v) {                                               // a quiet day: a mist; and a shower about a minute in
+    if (v.mist) stage.fill(`rgba(236,240,248,${(0.08 + 0.06 * (v.rain || 0)).toFixed(3)})`);
+    const r = v.rain || 0;
+    if (r <= 0.02) return;
+    const n = Math.round(70 * r), t = v.t;
+    for (let i = 0; i < n; i++) {
+      const x = ((hash(i + 21) * (L.W + 60) - t * 30) % (L.W + 60) + L.W + 60) % (L.W + 60) - 30, y = ((hash(i + 33) * (L.H + 30) + t * 150) % (L.H + 30)) - 15;
+      stage.dot(x, y, 'rgba(200,214,240,0.55)'); stage.dot(x - 0.4, y + 1, 'rgba(200,214,240,0.45)'); stage.dot(x - 0.8, y + 2, 'rgba(200,214,240,0.3)');
+    }
+  }
 
   // ---- the whole sky, one moment ---------------------------------------------------------------------------------------------------
   let now = 0, shaking = 0;
@@ -460,6 +508,7 @@ export function makeSky(stage) {
     back(v.t, v);
     behind(v);
     town(v);
+    season(v);
     const onLine = v.letters.filter((l) => l.state === 'hooked' || l.state === 'closed');
     for (const l of v.letters) if (!onLine.includes(l)) letter(l);
     boat(v);
@@ -470,6 +519,7 @@ export function makeSky(stage) {
     if (v.drop) stage.sprite(v.drop.x, v.drop.y, 11, 8, 5, 3, airmailArt, 'airmail');
     gull(v);
     fx(v);
+    shower(v);
     charge(v);
     bang(v);
     panel(v);

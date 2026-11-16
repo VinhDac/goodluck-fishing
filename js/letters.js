@@ -52,7 +52,12 @@ const smooth = (u) => u * u * (3 - 2 * u);
 const daysOld = (ms) => (Date.now() - ms) / 864e5;
 const bez = (a, c, b, u) => ({ x: (1 - u) * (1 - u) * a.x + 2 * (1 - u) * u * c.x + u * u * b.x, y: (1 - u) * (1 - u) * a.y + 2 * (1 - u) * u * c.y + u * u * b.y });
 
-export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } = {}) {
+// junk, now and then (PLAN.md 19.6 E): not a job, never counted; caught like a letter, tossed into the junk drawer
+export const JUNK = {
+  ball: 'A crumpled cover letter. Draft 34.', plane: 'A paper plane: somebody\'s CV, folded with care.',
+  sock: 'A sock. With wings. Why not.', rejection: 'An old rejection letter. Mine. «We regret…»', boot: 'An old boot. Some things never change.',
+};
+export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome, onShow, onJunk } = {}) {
   const F = { on: false };
   let L = null, W = 384, H = 216, mine = new Set(), known = () => false, dream = new Set();
 
@@ -66,7 +71,8 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
   // ---- a morning out ----------------------------------------------------------------------------------------------------------
   // opts: skills (the CV's), lake (jobs at once), bottles (the gull's), auto (the duck has the rod), day (the hour, if the sun
   // stands still), dayLength (seconds of sun: then it moves, and sets), known (a job's id already in the bag), dream (company
-  // names: their letters are legends), gullFirst, gullEvery
+  // names: their letters are legends), gullFirst, gullEvery, season (winter, spring, summer, autumn: the real month's),
+  // weather (quiet: few new jobs today, a mist and a shower; busy: many, a clear sky; fair)
   function start(view, opts = {}) {
     L = view.L; W = view.W; H = view.H;
     mine = new Set(opts.skills || []);
@@ -82,6 +88,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
       float: { x: 0, y: 0, th: 0.2, vth: 0, len: HANG, mode: 'idle', dip: 0, vdip: 0 }, tipLast: null, tipV: 0, tipA: 0,
       sip: { in: rand(6, 10), k: 0, on: false, age: 0 },
       gull: null, gullIn: opts.gullFirst ?? 40, gullEvery: opts.gullEvery ?? 80, bottles: (opts.bottles || []).slice(), drop: null,
+      season: opts.season || 'autumn', weather: opts.weather || 'fair', rain: 0, junkIn: rand(50, 80), junkN: 0,
     });
     const tip = rodTip();
     Object.assign(F.float, { x: tip.x, y: tip.y + HANG });
@@ -153,12 +160,22 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
     F.sky.push(l);
     for (let i = 0; i < 5; i++) F.fx.push({ kind: 'dust', x: rf.x + rand(-4, 4), y: rf.y - 1, vx: rand(-6, 6), vy: rand(-6, -2), age: 0, life: rand(0.6, 1.1) });
   }
+  function junkFly(dt) {                                              // now and then a bit of junk drifts up among the letters
+    if (F.over || F.sky.some((l) => l.job.junk) || (F.junkIn -= dt) > 0 || !F.sky.length) return;
+    const kinds = Object.keys(JUNK), kind = kinds[Math.floor(Math.random() * kinds.length)];
+    const job = { id: `junk:${++F.junkN}`, title: JUNK[kind], company: '', junk: kind, fit: null, size: 'small', posted: Date.now() };
+    const roofs = (L.tops || []).filter((r) => r.x > W * 0.15 && r.x < W * 0.9), rf = roofs.length ? roofs[Math.floor(Math.random() * roofs.length)] : { x: W * 0.6, y: L.bottom + 10 };
+    const l = { job, kind: 'junk', size: 'small', w: 9, h: 6, x: rf.x, y: rf.y - 3, vx: 0, vy: -8, dir: Math.random() < 0.5 ? -1 : 1, cruise: 6, seed: Math.random() * 100,
+      phase: Math.random(), rate: 4, glide: 0, glideIn: 4, state: 'rise', age: 0, tag: 0, home: L.bottom - (L.bottom - L.top) * rand(0.2, 0.6), shy: 0 };
+    F.sky.push(l);
+    F.junkIn = rand(90, 140);
+  }
   function stock(dt) {
     if ((F.releaseIn -= dt) > 0 || !F.queue.length) return;
-    const flying = F.sky.filter((l) => l.state !== 'leave').length;
+    const flying = F.sky.filter((l) => l.state !== 'leave' && !l.job.junk).length;
     if (flying < room()) { takeOff(F.queue.shift()); F.releaseIn = flying < 6 ? rand(0.35, 0.7) : rand(0.8, 1.5); return; }
     // the sky is full: a better letter waiting takes the place of the least of those flying, which flies off
-    const worst = F.sky.filter((l) => l.state === 'fly').sort((a, b) => order(a.job, b.job)).pop();
+    const worst = F.sky.filter((l) => l.state === 'fly' && !l.job.junk).sort((a, b) => order(a.job, b.job)).pop();
     if (worst && order(F.queue[0], worst.job) < 0) {
       worst.state = 'leave'; worst.dir = worst.x < W / 2 ? -1 : 1;
       F.queue.push(worst.job); F.queue.sort(order);
@@ -269,7 +286,8 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
   function homeFloat() {                                               // back on its pendulum from where it is: the line wound in
     const tip = rodTip(), fl = F.float, dx = fl.x - tip.x, dy = fl.y + fl.dip - tip.y;
     fl.mode = 'idle'; fl.y += fl.dip; fl.dip = 0; fl.vdip = 0;
-    fl.th = Math.atan2(dx, dy); fl.vth = 0; fl.len = Math.max(1, Math.hypot(dx, dy));
+    fl.th = Math.atan2(dx, dy); fl.len = Math.max(1, Math.hypot(dx, dy));
+    fl.vth = clamp(((fl.vx || 0) * Math.cos(fl.th) - (fl.vy || 0) * Math.sin(fl.th)) / fl.len, -6, 6);   // swinging on as it was going
   }
 
   // ---- the wait, the bite, the strike -------------------------------------------------------------------------------------------------
@@ -286,7 +304,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
     Object.assign(s, { state: 'suitor', orbit: Math.atan2(s.y - b.y, s.x - b.x), spin: (Math.random() < 0.5 ? -1 : 1) * rand(1.3, 1.9), ring: 18 });
     const fit = clamp(((s.job.fit ?? 30) - 20) / 60, 0, 1);
     Object.assign(k, { suitor: s, arrived: false, circle: 0.8 + (1 - fit) * 2.6 + rand(0, 0.8), sniffs: 0, nose: 0, since: 0 });
-    if (onCheck && !s.job.bottle && !F.checks.has(s.job.id)) {         // the app asks its posting meanwhile: still up?
+    if (onCheck && !s.job.bottle && !s.job.junk && !F.checks.has(s.job.id)) {         // the app asks its posting meanwhile: still up?
       F.checks.set(s.job.id, undefined);
       Promise.resolve(onCheck(s.job)).then((v) => F.checks.set(s.job.id, v), () => F.checks.set(s.job.id, null));
     }
@@ -333,12 +351,16 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
     const s = k.suitor, kind = reelKind(s), c = REEL[kind];
     s.state = 'hooked';
     Object.assign(k, {
-      phase: 'reel', age: 0, kind, cfg: c, p: 0.25, pv: 0.25, open: 0, out: 0, tick: 0, in: true, got: false,
+      phase: 'reel', age: 0, kind, cfg: c, p: 0.25, pv: 0.25, p0: 0.25, open: 0, out: 0, tick: 0, in: true, got: false,
       cloud: { y: clamp(TRACK / 2 - 3 + 3 - c.zone / 2, 0, TRACK - c.zone), v: 0 },
       m: { y: TRACK / 2 - 3, v: 0, target: TRACK / 2 - 3, next: 0.9, base: TRACK / 2 - 3, dart: 0, t: 0 },
       stamp: null, stampIn: Math.random() < 0.35 ? rand(1.2, 3) : Infinity, b0: { x: s.x, y: s.y },
     });
     F.bang = null; F.holding = false;
+    const fl = F.float; fl.mode = 'reel';                             // the float goes to the line: from where it is, easing over
+    { const tip = rodTip(), top = { x: s.x, y: s.y - s.h / 2 }, dd = Math.max(0.01, Math.hypot(tip.x - top.x, tip.y - top.y)), up = Math.min(10, dd * 0.5) / dd;
+      k.fo = { x: fl.x - (top.x + (tip.x - top.x) * up), y: fl.y + fl.dip - (top.y + (tip.y - top.y) * up) }; }
+    fl.y += fl.dip; fl.dip = 0; fl.vdip = 0;
     F.rod.va -= 7;                                                     // the rod jerks up
     const b = baitAt();
     for (let i = 0; i < 5; i++) F.fx.push({ kind: 'spark', x: b.x, y: b.y, vx: rand(-20, 20), vy: rand(-24, 2), age: 0, life: rand(0.3, 0.5), col: '#ffffff' });
@@ -397,12 +419,16 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
       } else if (st.age > 4.5) k.stamp = null;
     }
     k.pv += (k.p - k.pv) * Math.min(1, dt * 4);
-    // the letter on the line, in the sky: from where it bit toward the boat, as the ribbon fills; struggling while out
-    const to = takeAt(), e = smooth(clamp(k.pv, 0, 1));
-    s.x = k.b0.x + (to.x - k.b0.x) * e + Math.sin(F.t * 2.7) * 4 * (1 - e) + (k.in ? 0 : Math.sin(F.t * 17) * 1.2);
-    s.y = k.b0.y + (to.y - k.b0.y) * e + Math.sin(F.t * 4.1) * 2 * (1 - e);
+    // the letter on the line, in the sky: from where it bit toward the boat as the ribbon fills, back out a little as it
+    // empties; its sway and struggle coming in slowly, so it never jumps
+    const to = takeAt(), u = clamp((k.pv - k.p0) / (1 - k.p0), -0.3, 1), e = u >= 0 ? smooth(u) : u, ramp = Math.min(1, k.age / 0.6);
+    s.x = k.b0.x + (to.x - k.b0.x) * e + (Math.sin(F.t * 2.7) * 4 * (1 - e) + (k.in ? 0 : Math.sin(F.t * 17) * 1.2)) * ramp;
+    s.y = k.b0.y + (to.y - k.b0.y) * e + Math.sin(F.t * 4.1) * 2 * (1 - e) * ramp;
     s.vx = 0; s.vy = 0; s.rate = k.in ? 5 : 8; s.phase += s.rate * dt; s.dir = to.x > s.x ? 1 : -1;
-    F.float.x = s.x; F.float.y = s.y - s.h / 2 - 10;
+    const fade = Math.max(0, 1 - k.age / 0.4), e2 = fade * fade * (3 - 2 * fade);   // the float's way over to the line, done in 0.4 s
+    const tip = rodTip(), top = { x: s.x, y: s.y - s.h / 2 }, dd = Math.max(0.01, Math.hypot(tip.x - top.x, tip.y - top.y)), up = Math.min(10, dd * 0.5) / dd;
+    const on = { x: top.x + (tip.x - top.x) * up, y: top.y + (tip.y - top.y) * up };   // on the line, between the letter and the rod's tip
+    F.float.x = on.x + k.fo.x * e2; F.float.y = on.y + k.fo.y * e2;
     F.rod.target = 0.3; F.rod.bendTo = 0.28 + (k.in ? 0 : 0.18) + Math.sin(F.t * 9) * 0.03; F.duck.leanTo = -0.35;
     if (k.in && hold !== undefined && (k.tick -= dt) <= 0) { k.tick = 0.1; sound('reel'); }
     if (k.p >= 1) land(k); else if (k.p <= 0) slip(k);
@@ -430,7 +456,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
     const u = Math.min(1, k.age / 0.45), e = ease(u), to = overHead();
     const p = bez(k.from, { x: (k.from.x + to.x) / 2 + 6, y: Math.min(k.from.y, to.y) - 16 }, to, e);
     s.x = p.x; s.y = p.y; s.rate = 4 * (1 - u); s.phase += s.rate * dt;
-    F.duck.leanTo = 0.2; F.rod.bendTo = 0; F.rod.target = 0.42;
+    F.duck.leanTo = 0.2; F.rod.bendTo = 0.3 * (1 - e); F.rod.target = 0.3 + 0.12 * e;   // the rod unbends as the letter leaves it, not at once
     if (u < 1) return;
     if (F.checks.get(s.job.id) === false) { Object.assign(k, { phase: 'closed', age: 0 }); s.state = 'closed'; s.x = takeAt().x - 6; s.y = takeAt().y - 8; return; }
     F.line = null;
@@ -439,15 +465,18 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
 
   // ---- the show: held up over the head, its tag, its light by how well it fits; then into the mailbag ---------------------------
   function showIt(l, { perfect = false, stamp = false } = {}) {
-    const job = l.job, tier = tierOf(job), co = String(job.company || '').toLowerCase();
-    const isNew = !!co && !F.met.has(co); if (co) F.met.add(co);
+    const job = l.job, tier = job.junk ? 'junk' : tierOf(job), co = String(job.company || '').toLowerCase();
+    const isNew = !!co && !job.junk && !F.met.has(co); if (co && !job.junk) F.met.add(co);
+    if (onShow) onShow(job, { tier, perfect, stamp, isNew });
     l.state = 'held'; l.perfect = perfect;
     F.held = l;
-    F.show = { id: ++F.showId, l, job, tier, age: 0, dur: SHOW[tier], stage: 'up' };
-    F.tag = { id: F.show.id, job, tier, perfect, stamp, isNew, fresh: daysOld(job.posted) < 1, gull: !!job.bottle, age: 0, life: SHOW[tier] + 2.6 };
+    const dur = SHOW[tier] ?? 1.6;
+    F.show = { id: ++F.showId, l, job, tier, age: 0, dur, stage: 'up' };
+    F.tag = { id: F.show.id, job, tier, perfect, stamp, isNew, fresh: !job.junk && daysOld(job.posted) < 1, gull: !!job.bottle, junk: job.junk, age: 0, life: dur + 2.6 };
     F.duck.cheer = true; F.sip.on = false; F.sip.k = 0;
     const at = overHead(), spark = (n, cols, sp = 30) => { for (let i = 0; i < n; i++) F.fx.push({ kind: 'spark', x: at.x, y: at.y, vx: rand(-sp, sp), vy: rand(-sp - 8, -4), age: 0, life: rand(0.5, 0.9), col: cols[i % cols.length] }); };
-    if (tier === 0) sound('pip');
+    if (tier === 'junk') sound('slip');
+    else if (tier === 0) sound('pip');
     else if (tier === 1) { sound('chime2'); spark(5, ['#ffffff']); }
     else if (tier === 2) { sound('chime3'); spark(8, ['#fff2b0', '#ffffff']); F.fx.push({ kind: 'glow', x: at.x, y: at.y, age: 0, life: 0.9, r: 22, col: '255,214,140' }); F.duck.hopIn = 0.6; }
     else {                                                             // golden (and a dream company's): the world slows for half a second
@@ -467,7 +496,16 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
     sh.age += dt;
     if (sh.stage === 'up') {
       const at = overHead(); l.x = at.x; l.y = at.y; l.rate = 0;
-      if (sh.age >= sh.dur) { sh.stage = 'bag'; sh.age = 0; sh.from = { x: l.x, y: l.y }; F.duck.cheer = false; sound('swish'); }
+      if (sh.age >= sh.dur) { sh.stage = sh.job.junk ? 'toss' : 'bag'; sh.age = 0; sh.from = { x: l.x, y: l.y }; F.duck.cheer = false; sound('swish'); }
+      return;
+    }
+    if (sh.stage === 'toss') {                                         // junk: over the side, tumbling, into the junk drawer
+      const u = Math.min(1, sh.age / 1.1);
+      l.x = sh.from.x - 30 * u; l.y = sh.from.y - 14 * Math.sin(Math.PI * Math.min(1, u * 1.4)) + 60 * u * u; l.alpha = 1 - Math.max(0, (u - 0.6) / 0.4);
+      if (u < 1) return;
+      F.held = null; F.show = null;
+      if (onJunk) onJunk(sh.job.junk);
+      after(rand(2, 3.5));
       return;
     }
     const u = Math.min(1, sh.age / 0.45), e = ease(u), to = bagAt();
@@ -534,7 +572,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
   }
   // in the middle of something: a line out, a letter held up, the gull's letter coming down or lying on the deck
   const busy = () => !!(F.line || F.show || F.drop || (F.gull && F.gull.job) || F.homing);
-  const left = () => F.sky.filter((l) => l.state !== 'leave').length + F.queue.length;   // still to catch: flying, and waiting
+  const left = () => F.sky.filter((l) => l.state !== 'leave' && !l.job.junk).length + F.queue.length;   // still to catch: flying, and waiting
 
   // ---- the rod, the duck's lean, the float: springs and a pendulum ----------------------------------------------------------------
   function springs(dt) {
@@ -556,7 +594,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
       fl.len += (HANG - fl.len) * Math.min(1, dt * 2.5);
       const len = Math.max(4, fl.len);
       fl.vth += (-(240 / len) * Math.sin(fl.th) - 1.1 * fl.vth - (F.tipA / len) * Math.cos(fl.th)) * dt;
-      fl.th = clamp(fl.th + fl.vth * dt, -2.6, 2.6);
+      fl.th += fl.vth * dt; if (fl.th > Math.PI) fl.th -= 2 * Math.PI; else if (fl.th < -Math.PI) fl.th += 2 * Math.PI;   // round and round, never a jump
       fl.x = tip.x + Math.sin(fl.th) * fl.len; fl.y = tip.y + Math.cos(fl.th) * fl.len;
     }
   }
@@ -588,8 +626,9 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
     }
     if (fl.mode === 'set') {                                            // on the wind: a slow drift, a bob
       F.rod.target = 0.36; F.rod.bendTo = 0.04; F.duck.leanTo = 0.15; F.duck.look = 1;
-      fl.x = k.at.x + Math.sin(F.t * 0.45 + k.seed) * 2.5;
-      fl.y = k.at.y + Math.sin(F.t * 2.1 + k.seed) * 1.2;
+      const r = Math.min(1, (k.age || 0) / 0.8), rr = r * r * (3 - 2 * r);   // the drift and the bob come in as it settles
+      fl.x = k.at.x + Math.sin(F.t * 0.45 + k.seed) * 2.5 * rr;
+      fl.y = k.at.y + Math.sin(F.t * 2.1 + k.seed) * 1.2 * rr;
     }
     if (k.phase === 'wait') return waitStep(k, dt);
     if (k.phase === 'bite') return biteStep(k, dt);
@@ -603,7 +642,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
   function duck(dt, hold) {
     const s = F.sip;
     if (!F.line && !F.show && F.auto && !hold && !F.over && !F.homing && !F.arriving && !(F.drop && F.drop.down) && (F.autoIn -= dt) <= 0) {
-      const pick = F.sky.filter((l) => l.state === 'fly' && l.age > 2).sort((a, b) => order(a.job, b.job))[0];
+      const pick = F.sky.filter((l) => l.state === 'fly' && l.age > 2 && !l.job.junk).sort((a, b) => order(a.job, b.job))[0];
       if (pick) { F.line = { phase: 'charge', t: 0, power: 0, aim: { x: pick.x, y: pick.y - 6 }, by: 'duck' }; s.on = false; s.k = 0; return; }
       F.autoIn = 1;
     }
@@ -657,6 +696,13 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
     }
   }
 
+  function weather(dt) {
+    if (F.weather !== 'quiet') { F.rain = Math.max(0, F.rain - dt * 0.3); return; }
+    const want = F.t > 75 && F.t < 120 ? 1 : 0;
+    F.rain += (want - F.rain) * Math.min(1, dt * 0.35);
+    if (!F.rained && F.t > 120 && F.rain < 0.3) { F.rained = true; F.fx.push({ kind: 'rainbow', age: 0, life: 14 }); say('The rain has stopped. A rainbow!', 'duck', 3); }
+  }
+
   // ---- each moment --------------------------------------------------------------------------------------------------------------------
   // hold: a sheet is open over the sky: the letters fly on, but the duck starts nothing and the sun waits
   function step(dt, hold = false) {
@@ -674,7 +720,8 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
     else if (F.waiting) F.speed += (14 - F.speed) * Math.min(1, dt * 1.5);
     else { F.speed *= Math.exp(-dt * 0.45); if (Math.abs(F.speed) < 0.05) F.speed = 0; }   // the search done, the city slows, and stops
     F.at += F.speed * dt;
-    if (!F.over) stock(dt);
+    if (!F.over) { stock(dt); junkFly(dt); }
+    weather(dt);
     if ((F.resort -= dt) <= 0) {                                         // now and then a letter finds its height again
       F.resort = 1.2;
       const l = F.sky[Math.floor(Math.random() * F.sky.length)];
@@ -691,6 +738,7 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
     if (F.line) lineStep(dt);
     if (F.show) showStep(dt);
     F.sag += (sagFor() - F.sag) * Math.min(1, dt * 5);                  // the line's slack eases from one moment to the next
+    { const fl = F.float; if (fl.px != null && dt > 0) { fl.vx = (fl.x - fl.px) / dt; fl.vy = (fl.y - fl.py) / dt; } fl.px = fl.x; fl.py = fl.y; }
     if (F.tag && (F.tag.age += dt) > F.tag.life) F.tag = null;
     if (F.bagPuff > 0) F.bagPuff = Math.max(0, F.bagPuff - dt * 2.2);
     duck(dt, hold);
@@ -729,14 +777,14 @@ export function makeLetters({ onSay, onBag, onAway, onCheck, onSunset, onHome } 
       letters: F.sky, held: F.held, drop: F.drop, gull: F.gull, fx: F.fx,
       shake: shake ? (1 - shake.age / shake.life) : 0,
       bag: { n: F.bag, puff: F.bagPuff, at: bagAt() },
-      tag: F.tag ? { ...F.tag, at: overHead() } : null,
+      tag: F.tag ? { ...F.tag, at: overHead() } : null, season: F.season, rain: F.rain, mist: F.weather === 'quiet' ? 1 : 0,
       auto: F.auto,
     };
   }
   // what is still in the sky and waiting to fly: the best first, each once
   function rest() {
     const seen = new Set();
-    return [...(F.sky || []).map((l) => l.job), ...(F.queue || [])].filter((j) => !seen.has(j.id) && seen.add(j.id) && !j.bottle).sort(order);
+    return [...(F.sky || []).map((l) => l.job), ...(F.queue || [])].filter((j) => !seen.has(j.id) && seen.add(j.id) && !j.bottle && !j.junk).sort(order);
   }
   // for the page that tries it: a catch of a chosen kind shown at once, as if just reeled in (no box, no list)
   function tryShow(job, { closed = false, perfect = false } = {}) {

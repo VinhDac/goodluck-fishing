@@ -177,6 +177,8 @@ export function makeRoom(g) {
     let bx = x + 3;
     books.forEach((col, i) => { const h = 12 + (i * 5) % 6; R(bx, y - h, 4, h, col); R(bx, y - h + 2, 4, 1, 'rgba(255,255,255,0.25)'); bx += 5; });
     R(bx + 1, y - 9, 5, 9, '#4a4a6a'); line(bx + 1, y - 9, bx + 7, y - 13, '#4a4a6a', 1);    // one book fallen over
+    R(x + 3, y - 14, 4, 14, '#b03a2a'); R(x + 3, y - 12, 4, 1, '#ffd84a'); R(x + 3, y - 4, 4, 1, '#ffd84a');   // the stamp album, red, gold bands
+    spot('album', x + 1, y - 17, 8, 18);
     const tx = x + w - 16;                                                             // a trophy for taking part
     R(tx + 4, y - 2, 8, 2, '#5a3a20'); R(tx + 7, y - 6, 2, 4, '#d9a63a');
     poly([[tx + 3, y - 14], [tx + 13, y - 14], [tx + 11, y - 7], [tx + 5, y - 7]], '#e8c25a'); R(tx + 4, y - 13, 2, 4, '#fff0a8');
@@ -195,6 +197,8 @@ export function makeRoom(g) {
     const ped = Math.min(36, Math.round(w * 0.24));                                  // the drawers at the left
     R(x + 3, t + d + 9, ped, fy - t - d - 9, '#64401f');
     for (let yy = t + d + 9; yy < fy - 4; yy += 9) { R(x + 3, yy, ped, 1, '#4a2e16'); R(x + 3 + ped / 2 - 2, yy + 4, 4, 1, '#d9a63a'); }
+    if ((N.junk || 0) > 0) { R(x + 3 + ped - 3, t + d + 11, 2, 2, '#f4efe2'); }   // a sock's toe out of the drawer
+    spot('drawer', x + 3, t + d + 9, ped, fy - t - d - 9);
     R(x + w - 7, t + d + 9, 4, fy - t - d - 9, '#5a3820');                            // a leg
   }
   const on = (dy = 0) => L.deskT + Math.round(L.depth / 2) + dy;                     // where a thing stands on the desk

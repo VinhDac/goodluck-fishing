@@ -111,6 +111,7 @@ function placeStep(v, done) {
   $('remote').checked = true;
   $('mapGo').onclick = () => {
     v.city = $('city').value.trim(); v.remote = $('remote').checked;
+    try { localStorage.setItem('glf.dream', JSON.stringify($('dream').value.split(',').map((x) => x.trim()).filter(Boolean).slice(0, 8))); } catch (e) { /* this visit alone */ }
     save({ ...v, skills: [...asks(v.cv).keys()] });
     show(null);
     done(v);

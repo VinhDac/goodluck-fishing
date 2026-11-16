@@ -18,11 +18,11 @@ import { makeRoom } from './room.js';
 import { makePier } from './pier.js';
 import { makeSky } from './sky.js';
 import { makeRise, RIDE } from './rise.js';
-import { makeLetters } from './letters.js';
+import { makeLetters, JUNK } from './letters.js';
 import { makeCatchUI } from './catchui.js';
 import { readLake, boardOf } from './lake.js';
 import { numbers, fished } from './progress.js';
-import { sfx, soundOn, setSound } from './sound.js';
+import { sfx, soundOn, setSound, setMood, playMusic } from './sound.js';
 import { inApp, boats, moored, sail, callHome, stillOpen, openOut } from './fleet.js';
 
 const $ = (id) => document.getElementById(id);
@@ -48,6 +48,8 @@ const letters = makeLetters({
   onCheck: inApp ? (job) => stillOpen(job.id) : undefined,             // in the app, a letter's posting is asked if it is still up
   onSunset: () => sunset(),
   onHome: () => { dock.fromSea = true; go('pier', '#ffffff'); },
+  onShow: (job, info) => logShow(job, info),
+  onJunk: (kind) => { const g = log(); g.junk[kind] = (g.junk[kind] || 0) + 1; saveLog(g); office.n.junk = Object.values(g.junk).reduce((a, b) => a + b, 0); talk('Into the junk drawer with it.', 'duck', 2); },
 });
 letters.onSound(sfx);
 function fit() {
@@ -65,6 +67,45 @@ const ui = makeCatchUI({
   away: (job) => putAway(job, 'not_for_me'), open: (u) => openOut(u),
 });
 function putAway(job, status) { if (has(job.id)) mark(job.id, status); else add(job, 'caught', status); bagCount(); }
+
+// ---- the logbook (PLAN.md 19.6): perfect catches, stamps found, the junk drawer, the best morning; kept on this device ------
+const log = () => { try { return { perfect: 0, stamps: 0, junk: {}, ...(JSON.parse(store('glf.log') || '{}')) }; } catch (e) { return { perfect: 0, stamps: 0, junk: {} }; } };
+const saveLog = (g) => store('glf.log', JSON.stringify(g));
+function logShow(job, info) {
+  if (job.junk) return;
+  const g = log();
+  if (info.perfect) g.perfect++;
+  if (info.stamp) g.stamps++;
+  saveLog(g);
+}
+function album() {                                                     // the stamp album: a stamp for each company caught, gold for a golden one
+  const el = ui.el, items = all().filter((e) => e.job && e.job.company), by = new Map();
+  for (const e of items) { const c = e.job.company, g = e.job.size === 'gold'; if (!by.has(c) || g) by.set(c, g || by.get(c)); }
+  const grid = el('div', 'stamps'), hue = (s2) => [...s2].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 360, 7);
+  for (const [c, g] of [...by.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))) {
+    const d = el('div', `stamp${g ? ' gold' : ''}`, c.length > 18 ? `${c.slice(0, 17)}…` : c);
+    d.style.background = `hsl(${hue(c)}, 42%, 42%)`; grid.appendChild(d);
+  }
+  for (let i = by.size; i < Math.max(12, by.size + (4 - (by.size % 4))); i++) grid.appendChild(el('div', 'stamp empty', '?'));
+  const g = log(), days = new Map();
+  for (const e of items) days.set(e.day, (days.get(e.day) || 0) + 1);
+  const best = Math.max(0, ...days.values()), fits = items.map((e) => e.job.fit).filter((f) => f != null), num = numbers();
+  const recs = el('ul', 'recs');
+  for (const [k2, v2] of [['Letters caught', items.length], ['Golden ones', items.filter((e) => e.job.size === 'gold').length], ['Best fit', fits.length ? `${Math.max(...fits)}%` : '-'],
+    ['Best morning', `${best} letter${best === 1 ? '' : 's'}`], ['Days in a row', num.streak || 0], ['Perfect catches', g.perfect], ['Stamps found while reeling', g.stamps]]) {
+    const li = el('li'); li.append(el('b', '', `${k2}: `), document.createTextNode(String(v2))); recs.appendChild(li);
+  }
+  ui.page(`Stamp album · ${by.size} compan${by.size === 1 ? 'y' : 'ies'}`, [grid, el('div', 'k', 'Records'), recs]);
+  sfx('rustle');
+}
+function drawer() {                                                    // the junk drawer: what was caught that was no job
+  const el = ui.el, g = log(), list = el('ul', 'recs');
+  const kinds = Object.entries(g.junk).filter(([, v2]) => v2 > 0);
+  if (!kinds.length) list.appendChild(el('li', '', 'Empty. For now.'));
+  for (const [k2, v2] of kinds) { const li = el('li'); li.append(el('b', '', `${v2} × `), document.createTextNode(JUNK[k2] || k2)); list.appendChild(li); }
+  ui.page('The junk drawer', [list]);
+  sfx('clink');
+}
 
 // ---- what is said: in the office and on the pier a bubble over the speaker; on the escalator and in the sky, a quiet line --------
 let saying = { until: 0, who: null }, talking = 0;
@@ -120,6 +161,7 @@ function place() {
 // ---- the scenes and the moves between them ------------------------------------------------------------------------------
 let scene = 'office', t0 = performance.now(), fade = null;            // fade: { color, k, dir, then }
 const office = { pose: 'faint', k: 0, n: numbers(), talkAt: 6, clockMin: 0, away: 0, fresh: false };
+office.n.junk = Object.values(log().junk).reduce((a, b) => a + b, 0);
 const ride = { dir: 1, k: 0, walking: false, said: 0 };
 const dock = { pose: 'stand', k: 0, board: null, loading: false, lake: null, bottles: [], fromSea: false };
 let trip = null;                                                       // the morning out: { store, pace, told, homeIn }; null if none
@@ -130,7 +172,8 @@ function go(to, color = '#ffffff') {
 function enter(to) {
   $('say').hidden = true; $('talk').hidden = true;
   document.body.dataset.scene = to;
-  if (to === 'office') { office.n = numbers(); office.talkAt = 3; corner(); }
+  setMood(to);
+  if (to === 'office') { office.n = { ...numbers(), junk: Object.values(log().junk).reduce((a, b) => a + b, 0) }; office.talkAt = 3; corner(); }
   if (to === 'pier') arrive();
   if (to === 'sea') setSail();
   if (to === 'rise') { ride.k = 0; ride.walking = false; ride.said = 0; ride.hinted = false; }
@@ -174,6 +217,8 @@ function officePress(p) {
   if (name === 'duck' || name === 'escalator' || name === 'sign' || name === 'rope') return goFishing();
   if (name === 'tray') return reading();
   if (name === 'apply') return openReport('Your letters', () => { office.n = numbers(); });
+  if (name === 'album') return album();
+  if (name === 'drawer') return drawer();
   const f = THINGS[name];
   if (f) say(f(office.n), 'duck');
 }
@@ -293,6 +338,7 @@ async function arrive() {
     say(`The sky could not be read (${e.message}). Try again in a while.`, 'gull');
   }
   dock.loading = false; sfx('flaps');
+  setTimeout(() => { if (scene === 'pier' && dock.pose === 'stand' && (dock.lake || []).length) say(weatherWord(), 'gull', 4.5); }, 6500);
 }
 function gullTip() {
   if (out()) return `Your letters are still in the sky. ${PRESS} the boat to go back out, or the gate to go home.`;
@@ -335,14 +381,27 @@ function pierStep(dt) {
 
 // ---- THE SKY: the search fills it with letters; the duck fishes them, or lets the duck fish ------------------------------------------
 const SYSTEM = { gh: 'greenhouse', lv: 'lever', ab: 'ashby' };
+function skyToday() {                                                // the season by the real month; the weather by the real market
+  const m = new Date().getMonth(), season = [11, 0, 1].includes(m) ? 'winter' : [2, 3, 4].includes(m) ? 'spring' : [5, 6, 7].includes(m) ? 'summer' : 'autumn';
+  const lake = dock.lake || [], today = lake.filter((j) => Date.now() - j.posted < 864e5).length, perDay = lake.length / 30;
+  const ratio = perDay >= 1 ? today / perDay : 1;
+  return { season, weather: lake.length > 20 && ratio < 0.6 ? 'quiet' : ratio > 1.4 ? 'busy' : 'fair', today, ratio };
+}
+function weatherWord() {                                               // what the gull says of the day: real numbers, the real weekday
+  const w = skyToday(), d = new Date(), day = d.getDay(), hr = d.getHours();
+  const said = w.weather === 'busy' ? `A busy day: ${w.today} new letters since yesterday. Clear skies.` : w.weather === 'quiet' ? `A quiet day: ${w.today} new since yesterday. A little mist out there.` : `${w.today} new letters since yesterday.`;
+  return day === 1 ? `${said} Mondays bring the most.` : day === 5 && hr >= 15 ? `${said} Friday afternoon: the sky goes quiet early.` : said;
+}
 const dreamList = () => { try { return JSON.parse(store('glf.dream') || '[]'); } catch (e) { return []; } };
 async function setSail() {
   bagCount();
   if (out()) { letters.comeBack(); talk('Back in the sky. Where were we?', 'duck', 2.5); return; }   // the same morning, as it was left
   fished();
   const my = trip = { store: null, pace: null, told: false, homeIn: 0 };
-  letters.start({ W, H, L: sky.L }, { skills: person.skills, auto: false, dayLength: DAY, known: has, dream: dreamList() });
+  const sky0 = skyToday();
+  letters.start({ W, H, L: sky.L }, { skills: person.skills, auto: false, dayLength: DAY, known: has, dream: dreamList(), season: sky0.season, weather: sky0.weather });
   talk(`Hold anywhere and let go to cast. ${PRESS} the duck to let it fish.`, 'duck', 5);
+  if (!soundOn() && !store('glf.asked')) setTimeout(() => { if (scene === 'sea') $('ask').hidden = false; }, 6000);   // once: some music?
   if (!dock.lake) {                                                    // the store read now, if the pier did not
     try { const r = await readLake(person); dock.lake = r.lake; dock.bottles = r.bottles; } catch (e) { dock.lake = []; dock.bottles = []; }
   }
@@ -452,8 +511,11 @@ $('ctKeep').addEventListener('click', () => decide(true));
 $('ctThrow').addEventListener('click', () => decide(false));
 $('ctLater').addEventListener('click', () => { $('catch').hidden = true; reads = null; office.n = numbers(); });
 $('ctOpen').addEventListener('click', (e) => { e.preventDefault(); openOut($('ctOpen').href); });   // outside the game, never in its place
+$('askYes').addEventListener('click', () => { store('glf.asked', '1'); $('ask').hidden = true; setSound(true); soundLabels(); playMusic(true); sfx('chime2'); });
+$('askNo').addEventListener('click', () => { store('glf.asked', '1'); $('ask').hidden = true; });
 function soundLabels() { $('sound').textContent = `Sound: ${soundOn() ? 'on' : 'off'}`; $('seaSound').textContent = soundOn() ? '♪ on' : '♪ off'; }
-for (const id of ['sound', 'seaSound']) $(id).addEventListener('click', () => { setSound(!soundOn()); soundLabels(); sfx('quack'); });
+for (const id of ['sound', 'seaSound']) $(id).addEventListener('click', () => { setSound(!soundOn()); soundLabels(); playMusic(soundOn()); sfx('quack'); });
+addEventListener('pointerdown', () => { if (soundOn()) playMusic(true); }, { once: true });   // browsers start sound only after a press
 soundLabels();
 $('bucket').addEventListener('click', () => openReport('Your letters', () => { office.n = numbers(); }));
 $('gofish').addEventListener('click', goFishing);
@@ -525,6 +587,7 @@ function tick(now, step) {
       setTimeout(() => talk(`A good haul: ${n(bagN)} letters. The sky will keep: back to the pier whenever you like.`, 'gull', 5), 1500);
     }
     if (trip && trip.homeIn > 0 && (trip.homeIn -= dt) <= 0) letters.goHome();
+    setMood(F.day > 0.74 ? 'dusk' : 'sea');
   }
   if (fade) { stage.g.globalAlpha = Math.max(0, Math.min(1, fade.k)); stage.fill(fade.color); stage.g.globalAlpha = 1; }
   place();

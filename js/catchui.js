@@ -21,6 +21,17 @@ const CSS = `
 .ctag.legend { border-color: #7a4ad0; box-shadow: 0 3px 0 #4a2a90, 0 0 16px rgba(170, 140, 255, .6); }
 .ctag.legend .k { background: linear-gradient(90deg, #e0443a, #e8a020, #4aa84a, #3a7ad0, #8a4ad0); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .ctag.gull { border-style: dashed; }
+.ctag.junk { border-color: #8a8478; background: #f1ece0; }
+.ctag.junk .k { color: #8a3a2a; }
+.cside .stamps { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; margin-top: 8px; max-height: 40vh; overflow: auto; }
+.cside .stamp { position: relative; height: 54px; border: 3px dotted #fff8e7; outline: 1px solid #d8c597; display: flex; align-items: center; justify-content: center; text-align: center;
+  font: 600 10px/1.1 "Pixelify Sans", monospace; color: #fff8e7; padding: 3px; overflow: hidden; }
+.cside .stamp.gold { outline: 2px solid #d9a63a; box-shadow: 0 0 6px rgba(255,216,74,.7); }
+.cside .stamp.empty { background: repeating-linear-gradient(45deg, #efe3c4, #efe3c4 4px, #f6ecd2 4px, #f6ecd2 8px); color: #b8a67e; }
+.cside .recs { margin: 10px 0 0; padding: 0; list-style: none; font-size: 13px; color: #3a2a1a; }
+.cside .recs li { padding: 2px 0; border-bottom: 1px dashed #e2d3ab; }
+.cside .recs b { font-family: "Pixelify Sans", monospace; }
+
 .cside { position: fixed; z-index: 7; right: max(12px, env(safe-area-inset-right)); top: 64px; width: min(320px, calc(100vw - 24px));
   background: #fff8e7; color: #1b1f3a; border: 3px solid #3a2a1a; border-radius: 4px; box-shadow: 0 5px 0 #3a2a1a, 0 14px 30px rgba(0,0,0,.35);
   padding: 12px 14px; font: 14px/1.45 system-ui, sans-serif; transform: translateX(calc(100% + 30px)); transition: transform .3s cubic-bezier(.2,.8,.3,1); }
@@ -45,7 +56,7 @@ const CSS = `
 `;
 
 const STARS = { 1: '★', 2: '★★', 3: '★★★', legend: '★★★' };
-const KICK = { 3: 'Golden letter!', legend: 'From a dream company!' };
+const KICK = { 3: 'Golden letter!', legend: 'From a dream company!', junk: 'Junk! Into the drawer' };
 const ago = (ms) => { const h = Math.max(0, (Date.now() - ms) / 36e5), n = h < 48 ? Math.round(h) : Math.round(h / 24), u = h < 48 ? 'hour' : 'day'; return h < 1 ? 'posted within the hour' : `posted ${n} ${u}${n === 1 ? '' : 's'} ago`; };
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
@@ -55,17 +66,17 @@ export function makeCatchUI({ toCss, skills = () => new Set(), away = () => {}, 
   const tag = el('div', 'ctag'); tag.hidden = true; document.body.appendChild(tag);
   const side = el('div', 'cside'); side.hidden = true; document.body.appendChild(side);
   let shown = 0, job = null, w = 0;
-  tag.addEventListener('pointerdown', (e) => { e.stopPropagation(); if (job) sheet(job, tag.dataset); });
+  tag.addEventListener('pointerdown', (e) => { e.stopPropagation(); if (job && !job.junk) sheet(job, tag.dataset); });
 
   function build(t) {                                                  // a new catch: its tag, written once
-    job = t.job; tag.className = `ctag${t.tier === 3 ? ' t3' : t.tier === 'legend' ? ' legend' : ''}${t.gull ? ' gull' : ''}`;
+    job = t.job; tag.className = `ctag${t.tier === 3 ? ' t3' : t.tier === 'legend' ? ' legend' : ''}${t.gull ? ' gull' : ''}${t.junk ? ' junk' : ''}`;
     tag.replaceChildren();
     const kick = KICK[t.tier] || (t.gull ? 'Airmail, from the gull' : '');
     if (kick) tag.appendChild(el('div', 'k', kick));
     tag.appendChild(el('div', 'ti', job.title));
     const co = el('div', 'co', job.company || '');
     if (STARS[t.tier]) co.appendChild(el('span', 'st', STARS[t.tier]));
-    tag.appendChild(co);
+    if (!t.junk) tag.appendChild(co);
     const marks = [t.isNew && ['new', 'New'], t.fresh && ['', 'Posted today'], t.perfect && ['', 'Perfect'], t.stamp && ['', '+1 stamp']].filter(Boolean);
     if (marks.length) { const mk = el('div', 'mk'); for (const [c, s] of marks) mk.appendChild(el('span', c, s)); tag.appendChild(mk); }
     Object.assign(tag.dataset, { tier: String(t.tier), gull: t.gull ? '1' : '' });
@@ -121,5 +132,11 @@ export function makeCatchUI({ toCss, skills = () => new Set(), away = () => {}, 
   }
   function shut() { side.classList.remove('in'); setTimeout(() => { if (!side.classList.contains('in')) side.hidden = true; }, 320); }
   side.addEventListener('pointerdown', (e) => e.stopPropagation());
-  return { update, sheet, list, shut, get open() { return !side.hidden && side.classList.contains('in'); } };
+  function page(title, nodes) {                                        // anything at the side: the album, the drawer
+    side.replaceChildren();
+    const x = el('button', 'x', '×'); x.type = 'button'; x.title = 'Close'; x.onclick = shut;
+    side.append(x, el('div', 'k', title), ...nodes);
+    side.hidden = false; side.classList.remove('in'); void side.offsetWidth; side.classList.add('in');
+  }
+  return { update, sheet, list, page, el, shut, get open() { return !side.hidden && side.classList.contains('in'); } };
 }
