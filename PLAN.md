@@ -624,6 +624,171 @@ tiến độ. Đo trong game ở 60 khung một giây: thư không khung nào gi
 cú vung khi ném (tối đa 3 điểm pixel). Để cho bước 3: bến (quầy mồi, giá lưỡi, chữ của mòng biển, tên GREENHOUSE đè số
 trên bảng), chữ «bucket», «lake», «washed ashore» ở văn phòng và trong bảng, bảng kết quả, build lại exe.
 
+## 19. Câu thư cho thật thư giãn; chuyện kể đi và về; chiều sâu từng chi tiết (Vin, 16/11, sau khi thử bước 2: «ổn đấy.
+tôi muốn chơi như chơi câu cá ở Stardew Valley ... cách chơi của ta chưa chill lắm ... thiết kế độ sâu về bối cảnh, những
+chi tiết nhỏ của game ... chỉ là 1 trò "câu cá thư giãn" nhưng có kết quả thật ... thiết kế từng cái nhỏ 1 ... chỉ làm nút
+về bến cảng thôi. lúc đi khác, lúc về khác, ta về ngược lại mới hợp lí ... chú vịt ngất đi trên bàn làm việc. biển báo
+sẽ là heaven ... bấm vào thì kiểu nó xuất hồn ... thang máy đi thật từ từ ... cái thông báo tôi cần nó chill hơn ... bắt
+được cái gì hiếm tốt, thì có effect riêng»)
+
+**Claude hiểu:**
+1. Đây là một trò «câu cá thư giãn», kết quả là thật. Người chơi tới để thả lỏng: tay có việc nhẹ nhàng để làm, có lúc
+   chờ, có lúc hồi hộp, có niềm vui nhỏ mỗi lần lên thư, và quanh đó là một thế giới nhiều chi tiết để ngắm. Danh sách việc
+   thật là phần thưởng đến sau; không bắt người chơi làm việc văn phòng giữa lúc đang chơi.
+2. Có câu chuyện: kiệt sức ngất trên bàn, hồn lên thiên đường, nơi việc làm bay tới như những lá thư, rồi tỉnh dậy với
+   thư thật trên bàn.
+3. Đường về là đường đi chạy ngược, từng bước.
+4. Bàn và duyệt từng chi tiết nhỏ, không làm vội.
+
+**Câu cá trong Stardew Valley thư giãn vì đâu (đọc kỹ cái hay của nó):**
+- Một nhịp lặp lại, mỗi vòng 20 đến 40 giây: quăng (giữ lấy đà, thả), chờ (phao nhấp nhô, tiếng nước), cắn (dấu «!» và
+  một tiếng), kéo (một nút: giữ để nâng, thả để hạ, giữ cá trong vùng cho thanh đầy), khoe (giơ cá lên đầu: tên, cỡ, sao).
+- Thua nhẹ: sổng thì cá bơi đi, chỉ mất vài giây, không bị phạt gì.
+- Cá hiếm đáng nhớ: khó hơn một chút, có tiếng và ánh riêng; rương báu đôi khi trôi vào lúc kéo; «Perfect» khi không để
+  tuột lần nào.
+- Có thứ để góp: sổ các loài cá; lần đầu bắt được một loài là một niềm vui riêng.
+- Không khí: nhạc nhẹ, giờ trong ngày, thời tiết, mùa; thế giới quanh mình sống (chim, lá, người).
+- Không ai hối: không đồng hồ đếm ngược, không bảng nào bật ra đòi trả lời; quyết định (bán, nấu) để sau, ở nhà.
+
+Ta lấy cảm giác và kiểu chơi đó. Hình, giao diện, nhạc và tên là của riêng ta (thư, gió, trời, thành phố); không dùng hình,
+nhạc, tên hay giao diện nào của Stardew Valley, như đã làm với cảnh thang cuốn ở mục 2.
+
+**Bản bây giờ chưa thư giãn vì:**
+- Không có chờ: chạm là câu xong; không hồi hộp, không có nhịp.
+- Tay người chơi không làm gì: vịt làm hết, người chơi chỉ chọn lá nào.
+- Mỗi lần lên thư là một bảng bật giữa màn hình, nền tối, đòi quyết Keep hay Not for me ngay lúc đang chơi.
+- Hàng nút AUTO, BAG, PIER, LOBBY và dòng tiến độ trông như một ứng dụng, không như một thế giới.
+- Im lặng: âm thanh tắt sẵn, và chỉ có tiếng bíp.
+- Không có chuyện kể, không có gì để góp, ít thứ sống quanh mình.
+
+**Đề xuất:**
+
+### 19.1 Chuyện kể và đường đi: đi một đường, về ngược lại
+
+Đi:
+1. **Văn phòng, 3:47 sáng: vịt ngất.** Gục trên bàn phím, mắt hai dấu x, mỏ hé, vài ngôi sao nhỏ quay quanh đầu; cánh vẫn
+   đặt trên chuột; màn hình vẫn tự gõ thư xin việc; thỉnh thoảng lẩm bẩm nửa tỉnh nửa mê (giữ các câu mớ bây giờ). Biển trên
+   thang cuốn thành «HEAVEN ↑», chữ đèn neon, chữ E chập chờn. Dây nhung «CV required» giữ nguyên (chưa có CV: «Even heaven
+   wants a CV»).
+2. **Bấm vào vịt: hồn xuất (khoảng 4 giây).** Một vệt sáng từ trần chiếu xuống; hồn vịt (trắng trong, viền xanh nhạt, vòng
+   hào quang) từ từ nổi lên khỏi thân, lắc lư như bong bóng; quay lại nhìn thân mình, chọc thử (thân không động), nhún vai,
+   rồi trôi lững lờ tới chân thang. Một hợp âm hợp xướng khẽ.
+3. **Thang cuốn, thật chậm: một cảnh riêng, khoảng 25 giây.** Hồn đứng trên bậc, tay vịn; thế giới trôi xuống chậm như thang
+   thật: trần văn phòng; từng tầng phía trên (phòng họp bỏ trống, bảng trắng ghi «Q4 synergy»; máy pha cà phê «OUT OF ORDER»;
+   một vịt khác ngủ dưới gầm bàn; phòng máy chủ nhấp nháy); mái nhà (bồ câu trên tháp nước); thành phố đêm nhỏ dần phía
+   dưới, mỗi cửa sổ sáng là một công ty có việc cho mình hôm nay (số thật); mây; sao nhạt dần; bình minh; ánh vàng của cổng
+   HEAVEN. Hồn ngó quanh, vẫy bồ câu, ngáp. Không có gì phải bấm: chỉ ngắm.
+4. **Bến HEAVEN.** Cổng mây; mòng biển đội mũ là người gác cổng, đứng sau bục với cuốn sổ: lần đầu «Name? CV? Ah, the duck.
+   Welcome to Heaven, jobs department.»; những lần sau một câu chào ngắn. Bảng DEPARTURES là đội thuyền thật. Quầy mồi và giá
+   lưỡi bỏ (18 B). Thuyền GOOD LUCK chờ cuối bến. Bấm thuyền: hồn bước xuống, mòng biển gỡ dây, thuyền rời bến sang phải.
+5. **Ra khơi:** trời thư.
+
+Về, ngược lại từng bước:
+1. Trên trời chỉ một nút «Back to the pier». Thuyền quay đầu thành một vòng cung mềm, mũi sang trái, thành phố trôi ngược
+   lại; bến trôi vào từ bên trái; cập bến với một cú chạm nhẹ; mòng biển ném dây buộc: «Good haul. 16 letters.»
+2. Ở bến có hai đường: thuyền (ra khơi lại, đúng buổi đó, không mất gì) và thang cuốn «Down» (về văn phòng).
+3. Thang cuốn xuống, cũng chậm: bình minh lùi về đêm, mây, thành phố to dần, mái nhà, các tầng, trần văn phòng.
+4. Hồn trôi về thân, chui vào (một tiếng «phụt» nhỏ); vịt giật mình tỉnh dậy, ngồi thẳng, ngó quanh. Đồng hồ nhích đúng
+   số phút thật đã chơi («3:55. Eight minutes? It felt like a whole day.»). Trên bàn, khay thư có xấp thư thật phát sáng
+   nhẹ: đó là kết quả (19.4).
+
+### 19.2 Một lần câu: một nhịp, nhẹ tay, không bao giờ mất việc
+1. **Quăng.** Giữ chuột (hay ngón tay) ở đâu trên trời: vịt giơ cần, một vòng cung lực nhỏ cạnh vịt đầy lên rồi vơi như
+   hơi thở; thả ra: phao bay theo đường cong về phía chuột chỉ, xa gần theo lực. Quăng yếu chỉ là phao rơi gần; không có
+   quăng hỏng. Mồi là CV của mình, gấp nhỏ, móc dưới phao: đúng nghĩa thả CV ra trời.
+2. **Chờ (2 đến 8 giây).** Phao nhấp nhô theo gió, trôi chậm; vài lá thư bay lại, lượn quanh, «ngửi» mồi; thư hợp CV hơn
+   tới nhanh hơn (độ hợp thật quyết thời gian chờ). Trong app, lúc chờ cũng là lúc app hỏi trang tuyển dụng còn mở không
+   (mục 16). Vịt nhấp cà phê, ngáp, nhìn quanh. Tiếng gió, chim xa.
+3. **Cắn.** Phao giật xuống, vòng gợn nhỏ toả ra trong không khí, dấu «!» trên đầu vịt, một tiếng chuông. Bấm trong khoảng
+   1,5 giây là móc. Không kịp thì thư chỉ lượn ra, một lát lại cắn: không mất.
+4. **Kéo: trò một nút.** Cạnh thuyền mở ra một khung nhỏ màu giấy, trong là nền trời. Lá thư đã móc đập cánh lên xuống
+   trong khung. Mình điều khiển một «đám mây đỡ» nhỏ: giữ thì mây bay lên, thả thì mây hạ, có quán tính mềm. Lá thư nằm trong
+   mây thì sợi ruy băng bên cạnh đầy dần (nốt nhạc đi lên); ra ngoài thì ruy băng vơi chậm. Đầy là lên thư. Vơi hết thì lá
+   thư tuột, bay vòng lên trời, lát nữa quay lại (không mất). Mỗi loại thư một tính:
+   - thư thường: trôi chậm, có lúc đứng nghỉ; dễ;
+   - thư đăng trong 24 giờ: nhảy nhỏ, lanh lợi;
+   - thư cũ (giấy ngả vàng): chìm lười;
+   - thư vàng (hợp 70% trở lên): múa, có những cú lao; vui hơn và khó hơn một chút;
+   - thư mòng biển đưa: lơ lửng như lông chim.
+   Đôi khi một con tem trôi vào khung: đưa mây qua nó là nhặt được (vào sổ tem, chỉ để ngắm). Không để tuột lần nào là
+   «Perfect»: lá thư có thêm dải nơ (chỉ để ngắm, không đổi điểm hợp).
+5. **Khoe: thông báo nhẹ.** Không còn bảng chặn màn hình. Vịt giơ lá thư lên đầu khoảng 1,5 giây; phía trên một nhãn giấy
+   nhỏ: chức danh, công ty, sao. Rồi lá thư bay vào túi thư treo trên cột buồm (túi phồng lên, số trên túi tăng). Muốn xem kỹ
+   thì bấm vào nhãn: một tờ nhỏ trượt ra bên cạnh (Open, Not for me), không nền tối, không bắt trả lời. Mỗi bậc một hiệu ứng:
+   - dưới 40%: một tiếng «pip», nhãn nhỏ, không sao;
+   - 40 đến 54%: ★, chuông hai nốt, vài tia trắng;
+   - 55 đến 69%: ★★, chuông ba nốt, vòng sáng ấm, vịt nhún nhảy;
+   - 70% trở lên, thư vàng: ★★★, cả cảnh chậm lại nửa giây, tia vàng toả, bụi vàng rơi, giai điệu năm nốt, nhãn viền vàng
+     «Golden letter!», trời ấm lên một nhịp;
+   - thư của công ty mơ ước (người chơi tự ghi vài tên): «huyền thoại», cầu vồng mỏng vắt qua trời, đàn chim bay qua;
+   - dấu riêng cộng thêm: «New» khi lần đầu câu được thư của công ty đó (thêm một con tem); giọt sương lấp lánh khi đăng
+     trong 24 giờ; tem máy bay khi mòng biển đưa; dấu đỏ CLOSED khi việc đã đóng (vịt nhún vai; không phải lỗi ai).
+6. **Quyết định để sau, ở nhà.** Mọi thư câu được vào túi. Keep, Not for me, I applied, Expired làm ở bàn sau khi tỉnh dậy
+   (19.4), như đọc thư buổi sáng với ly cà phê.
+7. **Vịt tự câu.** Bấm vào vịt là «giao cần cho vịt»: vịt tự quăng, chờ, kéo, thong thả; bấm lần nữa là lấy lại cần. Thay
+   nút AUTO.
+8. **Luật cũ giữ nguyên:** trò chơi quyết thứ tự và niềm vui, không quyết quyền có danh sách (mục 14). Lúc mặt trời lặn,
+   thư vàng chưa câu vẫn vào khay, dấu «chưa mở».
+
+### 19.3 Màn hình gọn: thứ gì cũng là một vật trong cảnh
+- Trên trời chỉ một nút chữ: «Back to the pier», góc dưới phải.
+- Túi thư treo trên cột buồm, có thẻ số (16). Bấm vào túi: một tờ nhỏ «Today's bag», danh sách ngắn hôm nay.
+- Tiến độ tìm: một dải giấy mảnh ghim trên cùng, chữ nhỏ: «The search · 1,240 of 2,840 boards · 312 letters»; xong thì
+  «Every board read · 849 letters today», một tiếng chuông gió.
+- Tiếng: một cái loa nhỏ ở góc trên phải.
+- Lời nói: chữ nhỏ ngay trên đầu vịt (hay mòng biển), không khung viền dày, tự mờ đi; ít câu, chỉ khi có chuyện.
+- Không có đồng hồ số: mặt trời và màu trời là giờ.
+
+### 19.4 Tỉnh dậy và đọc thư (kết quả, ở nhà)
+- Khay thư trên bàn có xấp thư thật. Bấm: từng lá mở ra như mở thư (tiếng giấy): chức danh, công ty, vì sao hợp (CV có gì,
+  việc còn đòi gì); ba nút «Keep» (ghim lên bảng «To apply»), «Not for me» (vo lại, ném vào thùng rác), «Open» (trang tuyển
+  dụng, ngoài game).
+- Bảng ghim trên tường là danh sách «To apply»; bấm vào là bảng hiện tại (I applied, Expired, ô tìm).
+- Vịt nói số thật hôm nay: «16 letters, 3 golden. Not bad for eight minutes.»
+
+### 19.5 Âm thanh: cái hồn của thư giãn
+- Nhạc nền tự sinh trong trình duyệt (không file, không bản quyền): hợp âm đệm mềm, nốt gảy ngũ cung thưa; đổi màu theo
+  giờ (sáng trong, trưa ấm, hoàng hôn trầm) và theo cảnh (văn phòng đêm: lo-fi trầm; thang cuốn: hợp xướng khẽ; trên trời:
+  gió và chuông gió).
+- Tiếng của từng việc: quăng (vút), phao bắt gió (bụp nhẹ), cắn (ting), cuộn dây (lách cách), lên thư (chuông theo bậc),
+  túi phồng (sột soạt giấy), cập bến (cạch gỗ), hồn xuất và nhập.
+- Mặc định tắt (12 C); lần đầu ra khơi mòng biển hỏi khẽ một lần: «A little music for the trip?»
+
+### 19.6 Chiều sâu: thế giới sống, nhiều thứ từ số thật
+- Thời tiết theo thị trường thật: hôm nhiều việc mới (so với thường ngày) trời trong, nhiều thư; hôm ít sương mỏng, thư
+  thưa, đôi khi mưa nhẹ (tạnh mưa có cầu vồng, thư bay ra nhiều hơn một lúc).
+- Mùa theo tháng thật: tháng 12 tuyết rơi khẽ, vịt đội mũ len; mùa xuân hoa bay; mùa thu lá vàng trôi qua.
+- Ngày trong tuần thật: thứ Hai thư mới về nhiều nhất; chiều thứ Sáu thưa.
+- Trời sống: đàn chim bay hình chữ V, khinh khí cầu, máy bay NOW HIRING, một đám mây hình cá voi trôi chậm, con diều; hoàng
+  hôn thì đèn lồng trên thuyền sáng, thư phát sáng khẽ như đom đóm, sao hiện dần.
+- Thành phố sống: cửa sổ bật tắt, xe chạy, cần cẩu quay, cờ bay; toà nào có thư thì biển tên sáng một lúc (như bây giờ).
+- Sổ tem: mỗi công ty câu được là một con tem; tem vàng cho thư vàng; xếp theo ngành; trang trống chờ lấp.
+- Sổ câu: kỷ lục (thư hợp nhất, buổi nhiều thư nhất, chuỗi ngày); vịt «lên nghề» theo số ngày câu: đám mây đỡ to hơn một
+  chút; không bao giờ đổi kết quả.
+- Đồ ngắm theo chuỗi ngày: cờ thuyền, mũ vịt, mũ mòng biển (mục 14).
+- Đồ linh tinh, chỉ để cười (không phải việc, không đếm): giấy vo, máy bay giấy, chiếc tất, thư từ chối cũ của chính mình
+  (tên công ty bịa); vào «ngăn kéo linh tinh» kèm một câu đùa.
+
+### 19.7 Thứ tự làm (mỗi bước có trang thử riêng, Vin duyệt rồi mới vào game)
+1. Một lần câu (19.2): quăng, chờ, cắn, kéo một nút, khoe theo bậc. Đây là cái hồn, làm trước.
+2. Đường đi (19.1): vịt ngất, hồn xuất, thang cuốn chậm (cảnh mới), bến HEAVEN, ra khơi.
+3. Đường về và tỉnh dậy đọc thư (19.1, 19.4); màn hình gọn (19.3).
+4. Âm thanh và nhạc (19.5).
+5. Chiều sâu (19.6): thời tiết, mùa theo số thật, sổ tem, sổ câu, đồ linh tinh.
+6. Build lại exe.
+
+**Cần Vin chọn:**
+- A. Kéo thư bằng trò một nút giữ và thả như trên (nhẹ tay; tuột thì thư quay lại sau), hay chỉ giữ để cuộn, không thể tuột?
+- B. Giữ hay bỏ: dời hết sang lúc tỉnh dậy ở bàn (đề xuất), hay vẫn hỏi ngay lúc lên thư?
+- C. Tự câu: bấm vào vịt để giao cần, người chơi cầm cần từ đầu (đề xuất), hay giữ nút AUTO bật sẵn?
+- D. Thang cuốn chậm thật (khoảng 25 giây) mọi lần; từ ngày thứ hai bấm thì «đi bộ lên thang» cho nhanh gấp đôi, như người
+  vội ngoài đời?
+- E. Đồ linh tinh để cười: có hay không?
+- F. Nhạc: mặc định tắt và mòng biển hỏi một lần (đề xuất), hay bật sẵn?
+- G. Thời tiết, mùa, ngày trong tuần theo số thật: có?
+- H. Công ty mơ ước (người chơi tự ghi, thư của họ là «huyền thoại»): có?
+- I. Thứ tự: một lần câu trước, trên trang thử riêng.
+
 ---
 
 ## Nhật ký bàn bạc
@@ -641,3 +806,4 @@ trên bảng), chữ «bucket», «lake», «washed ashore» ở văn phòng và
   động kém, đổi cá thành thư bay, câu dễ và thư thái, phần phụ bàn lại; đề xuất mục 18.
 - 16/11: Vin duyệt cả bảy mục của 18; sửa các lỗi một lượt soát tìm ra ở hồ cá (f2a058b); bước 1 (trang chuyển động) xong.
 - 16/11: Vin duyệt chuyển động («được, làm bước 2 đi»); bước 2 xong: thư bay trong game, thanh nút mới, PIER và LOBBY giữ buổi.
+- 16/11: Vin thử bước 2: «ổn đấy»; muốn câu thư thư giãn như câu cá trong Stardew Valley, chuyện kể đi và về, chiều sâu từng chi tiết; đề xuất mục 19.
