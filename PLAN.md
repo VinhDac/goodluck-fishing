@@ -847,6 +847,54 @@ trang thử riêng (tools/catch.html); game trên site giữ nguyên tới khi V
     nhất trước, có ghi to apply hay applied; bấm một lá là phần còn lại của nó (Open, Not for me). Sửa luôn: tờ chi tiết và
     thẻ đọc thư ở bàn từng ghi kỹ năng thành «0, 1, 2» với thư lấy từ hộp.
 
+## 20. Website quảng bá: chơi cho vui trên web, thích thì tải app chạy thật (Vin, 16/11: «hoàn thiện website để quảng bá
+đi. làm thành trò chơi như này luôn, để họ chơi cho vui. rồi thích thì tải về máy chạy thật. làm hoàn chỉnh website đi. rồi
+mới đến bản exe»)
+
+**Claude hiểu ý Vin như sau (Vin sửa nếu sai):** website chính là trò chơi này, không phải trang giới thiệu riêng. Người lạ
+(từ bài LinkedIn, từ portfolio) bấm link là chơi được ngay, vài phút cho vui, thư là việc thật. Thích thì tải app: app đi
+tìm thật cho họ mỗi ngày, trên máy họ. Đây là bước 4 của mục 15 («web thành bản dạy chơi, nút Get the app»). Xong website
+mới đến exe (build, đưa lên GitHub Releases, nối nút tải).
+
+**Người lạ vào lần đầu, hôm nay gặp gì (soát 16/11):**
+1. Chưa chơi được gì đã bị đòi CV (thả PDF). Phần lớn sẽ thoát ở đây.
+2. Rồi bị hỏi email («Where should we send your bucket?», đăng nhập Supabase), dù 15/11 đã quyết bỏ (mục 15, E).
+3. Không chỗ nào nói có app, không có nút tải.
+4. Thẻ chia sẻ khi dán link (`img/card.png`) là hình cũ: câu mây vàng, chưa có thuyền, thư bay, HEAVEN.
+5. Mở ra là văn phòng tối, vịt ngất, không một dòng nói đây là gì.
+Kho chung trên web đủ cho mọi người: khoảng 48.000 việc trong 30 ngày (Mỹ 19.000, Anh 2.700, remote 2.900, châu Á 4.200,
+châu Âu, Canada, Mỹ Latinh), đủ mọi ngành (ước theo tên việc: phần mềm 10.900, dữ liệu và AI 5.900, bán hàng 4.700, vận hành
+và nhân sự 4.400, marketing 2.400, tài chính 1.800, sản phẩm 1.300, thiết kế 1.200).
+
+**Đề xuất:**
+- **A. Tên trò chơi ngay trong cảnh** (không làm trang giới thiệu riêng): lần đầu mở, trên văn phòng hiện chữ lớn
+  GOODLUCK FISHING, một dòng «A calm fishing game. The letters are real jobs.», nút «Play» và một nút nhỏ «Get the app». Bấm
+  Play (hay bấm vịt) là chữ tan, vào chơi. Lần sau mở thì vào thẳng.
+- **B. Chơi ngay, CV để sau**: lần đầu chỉ hỏi một tờ: «What do you fish for?» với 8 ô to (Software, Data & AI, Design,
+  Product, Marketing, Sales, Finance, People & Ops), chọn một ô; thành phố điền sẵn theo múi giờ của máy (sửa được), Remote
+  tích sẵn; một nút Go. Mỗi ô mang sẵn một bộ kỹ năng điển hình của ngành đó (một «CV mẫu»), nên thư vẫn có sao, có thư vàng.
+  Nói thật: trước khi có CV, nhãn ghi «fits a typical Data CV 70%», không ghi «fits you». CV thả sau, lúc nào cũng được: tờ
+  giấy trên bàn, và mòng biển nhắc một lần («Drop your CV on the desk: every letter weighed against it»). Đọc trong trình
+  duyệt, không gửi đi đâu, như bây giờ.
+- **C. Get the app**: một tờ ba dòng nói app làm gì hơn web (đội tàu của riêng họ đọc hàng nghìn trang việc công ty, đúng
+  chức danh và thành phố của họ, mỗi sáng tự đi; CV và thư ở trên máy họ; miễn phí, Windows trước, Mac sau) và nút tải.
+  Có ở: màn tên (nút nhỏ), góc trên, chân trang, mòng biển ở bến nói một lần, và cuối buổi ở bàn («This was today's shared
+  sky. The app sends your own fleet out every morning»). Nút tải trỏ tới GitHub Releases của repo; tới bước exe mới có file,
+  nên trước đó tờ này ghi «The Windows app comes out this week».
+- **D. Bỏ đăng nhập email trên web** (đã quyết 15/11): thùng thư giữ trên máy, không còn tờ hỏi email, không còn nút Sign in.
+- **E. Thẻ chia sẻ mới** vẽ từ cảnh hôm nay (thuyền GOOD LUCK trên hồ mây, thư có cánh, chữ GOODLUCK FISHING), và cuối buổi
+  một nút «Share my morning» chép một dòng có số thật («I fished 12 letters this morning, 3 golden.») kèm link.
+- **F. Gọn gàng cho người lạ**: lúc tải trang có vịt chờ (khỏi màn đen), không lỗi trên điện thoại và máy tính, chân trang có
+  by Vinh Dac và link GitHub, README có ảnh động và nút tải.
+
+**Cần Vin chọn:**
+- B: hỏi một tờ ngành nghề (Claude đề xuất), hay không hỏi gì, vào thẳng với CV mẫu «Anything, anywhere»?
+- C: trước khi có exe, nút «Get the app» vẫn hiện và ghi «comes out this week» (Claude đề xuất), hay ẩn tới bước exe?
+- E: có nút «Share my morning» không?
+
+**Thứ tự** (mỗi bước Vin xem rồi mới đi tiếp): (1) B và D: chơi ngay, bỏ email. (2) A và C: tên trò chơi, Get the app.
+(3) E và F: thẻ chia sẻ, gọn gàng, README. Sau đó mới tới exe: build, đưa lên Releases, nối nút tải.
+
 ---
 
 ## Nhật ký bàn bạc
