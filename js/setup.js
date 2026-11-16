@@ -146,16 +146,32 @@ async function fileText(f) {
 function titlesStep(v, done) {
   show('notes');
   const box = $('noteList'); box.replaceChildren();
-  const picked = new Set();
+  const picked = new Set(), notes = new Map();                       // each title's note, by its words
+  // three at most, and said so: a press that cannot add one never does nothing in silence (Vin, 16/11: «nút add này không dùng được à»)
+  const full = () => say('notes', 'Three at most: press one of them to take it off, then add yours.');
   const add = (title, on) => {
     const n = document.createElement('button'); n.className = 'note' + (on ? ' on' : ''); n.type = 'button'; n.textContent = title;
     if (on) picked.add(title);
-    n.onclick = () => { if (picked.has(title)) { picked.delete(title); n.classList.remove('on'); } else if (picked.size < 3) { picked.add(title); n.classList.add('on'); } };
+    n.onclick = () => {
+      if (picked.has(title)) { picked.delete(title); n.classList.remove('on'); say('notes', ''); }
+      else if (picked.size < 3) { picked.add(title); n.classList.add('on'); say('notes', ''); }
+      else full();
+    };
+    notes.set(title.toLowerCase(), n);
     box.appendChild(n);
   };
   suggestTitles(v.cv).forEach((t) => add(t, true));
   $('noteOwn').value = '';
-  $('noteAdd').onclick = () => { const t = $('noteOwn').value.trim(); if (t && picked.size < 3) { add(t, true); $('noteOwn').value = ''; } };
+  const own = () => {                                                  // Add, or Enter in the field
+    const t = $('noteOwn').value.trim().replace(/\s+/g, ' ');
+    if (!t) return say('notes', 'Write a job title in the box, then Add.');
+    const was = notes.get(t.toLowerCase());
+    if (was) { if (!was.classList.contains('on')) was.click(); $('noteOwn').value = ''; return; }   // already a note: kept on
+    if (picked.size >= 3) return full();
+    add(t, true); $('noteOwn').value = ''; say('notes', '');
+  };
+  $('noteAdd').onclick = own;
+  $('noteOwn').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); own(); } };
   $('notesGo').onclick = () => {
     if (!picked.size) return say('notes', 'Keep one note at least, or write your own.');
     v.titles = [...picked]; placeStep(v, done);
