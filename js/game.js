@@ -49,7 +49,7 @@ const letters = makeLetters({
   onSunset: () => sunset(),
   onHome: () => { dock.fromSea = true; go('pier', '#ffffff'); },
   onShow: (job, info) => logShow(job, info),
-  onJunk: (kind) => { const g = log(); g.junk[kind] = (g.junk[kind] || 0) + 1; saveLog(g); office.n.junk = Object.values(g.junk).reduce((a, b) => a + b, 0); talk('Into the junk drawer with it.', 'duck', 2); },
+  onJunk: (kind) => { const g = log(); g.junk[kind] = (g.junk[kind] || 0) + 1; saveLog(g); office.n = nums(); talk('Into the junk drawer with it.', 'duck', 2); },
 });
 letters.onSound(sfx);
 function fit() {
@@ -79,7 +79,7 @@ function logShow(job, info) {
   saveLog(g);
 }
 function myList() {                                                   // the list of letters; the stamp album from it, on any screen
-  openReport('Your letters', () => { office.n = numbers(); }, { actions: [{ label: 'Close', fn: () => { office.n = numbers(); } }, { label: 'Stamp album', quiet: true, fn: album }] });
+  openReport('Your letters', () => { office.n = nums(); }, { actions: [{ label: 'Close', fn: () => { office.n = nums(); } }, { label: 'Stamp album', quiet: true, fn: album }] });
 }
 function album() {                                                     // the stamp album: a stamp for each company caught, gold for a golden one
   const el = ui.el, items = all().filter((e) => e.job && e.job.company), by = new Map();
@@ -163,8 +163,8 @@ function place() {
 
 // ---- the scenes and the moves between them ------------------------------------------------------------------------------
 let scene = 'office', t0 = performance.now(), fade = null;            // fade: { color, k, dir, then }
-const office = { pose: 'faint', k: 0, n: numbers(), talkAt: 6, clockMin: 0, away: 0, fresh: false };
-office.n.junk = Object.values(log().junk).reduce((a, b) => a + b, 0);
+const nums = () => ({ ...numbers(), junk: Object.values(log().junk).reduce((a, b) => a + b, 0) });   // the room's numbers, and the junk drawer's
+const office = { pose: 'faint', k: 0, n: nums(), talkAt: 6, clockMin: 0, away: 0, fresh: false };
 const ride = { dir: 1, k: 0, walking: false, said: 0 };
 const dock = { pose: 'stand', k: 0, board: null, loading: false, lake: null, bottles: [], fromSea: false };
 let trip = null;                                                       // the morning out: { store, pace, told, homeIn }; null if none
@@ -176,7 +176,7 @@ function enter(to) {
   $('say').hidden = true; $('talk').hidden = true;
   document.body.dataset.scene = to;
   setMood(to);
-  if (to === 'office') { office.n = { ...numbers(), junk: Object.values(log().junk).reduce((a, b) => a + b, 0) }; office.talkAt = 3; corner(); }
+  if (to === 'office') { office.n = nums(); office.talkAt = 3; corner(); }
   if (to === 'pier') arrive();
   if (to === 'sea') setSail();
   if (to === 'rise') { ride.k = 0; ride.walking = false; ride.said = 0; ride.hinted = false; }
@@ -245,7 +245,7 @@ function wake() {                                                      // back i
   o.pose = 'awake'; o.k = 0;
   sfx('wake');
   const mins = Math.max(1, Math.round(o.away / 60));
-  o.n = numbers();
+  o.n = nums();
   o.fresh = o.n.tray > 0;
   say(`Huh?! ${clockText()}. ${mins} minute${mins === 1 ? '' : 's'}? It felt like a whole day.`, 'duck', 3.6);
   setTimeout(() => { if (scene === 'office' && office.pose === 'awake' && office.fresh && $('catch').hidden) say(`${office.n.tray} letter${office.n.tray === 1 ? '' : 's'} in my tray. Real ones. Let us read them.`, 'duck', 4); }, 4000);
@@ -290,11 +290,11 @@ function decide(keep) {
   const r = reads;
   if (!r) return;
   const e = r.list[r.i];
-  if (!e) { $('catch').hidden = true; reads = null; office.n = numbers(); if (keep) myList(); return; }
+  if (!e) { $('catch').hidden = true; reads = null; office.n = nums(); if (keep) myList(); return; }
   mark(e.job.id, keep ? 'keep' : 'not_for_me');
   if (keep) { r.kept++; sfx('stamp'); } else sfx('rustle');
   r.i++;
-  office.n = numbers();
+  office.n = nums();
   letter();
 }
 
@@ -512,7 +512,7 @@ addEventListener('pointerup', (e) => { if (scene === 'sea') letters.release(stag
 addEventListener('pointercancel', () => { if (scene === 'sea') letters.release(null); });
 $('ctKeep').addEventListener('click', () => decide(true));
 $('ctThrow').addEventListener('click', () => decide(false));
-$('ctLater').addEventListener('click', () => { $('catch').hidden = true; reads = null; office.n = numbers(); });
+$('ctLater').addEventListener('click', () => { $('catch').hidden = true; reads = null; office.n = nums(); });
 $('ctOpen').addEventListener('click', (e) => { e.preventDefault(); openOut($('ctOpen').href); });   // outside the game, never in its place
 $('askYes').addEventListener('click', () => { store('glf.asked', '1'); $('ask').hidden = true; setSound(true); soundLabels(); playMusic(true); sfx('chime2'); });
 $('askNo').addEventListener('click', () => { store('glf.asked', '1'); $('ask').hidden = true; });
@@ -531,7 +531,7 @@ function asked(v) {
 }
 function ready() {
   $('mycv').hidden = false; $('bucket').hidden = false; $('gofish').hidden = false;
-  corner().then((u) => { if (u) sync().then(() => { office.n = numbers(); }); });
+  corner().then((u) => { if (u) sync().then(() => { office.n = nums(); }); });
   if (person) say('Is that… my CV? Mine? Not bad, me. Now: up.', 'duck', 4);
 }
 async function corner() {
@@ -549,7 +549,7 @@ fit();
 document.body.dataset.scene = 'office';
 if (person) {
   $('mycv').hidden = false; $('bucket').hidden = false; $('gofish').hidden = false; corner();
-  user().then((u) => { if (u) { saveProfile(person); sync().then(() => { office.n = numbers(); }); } });
+  user().then((u) => { if (u) { saveProfile(person); sync().then(() => { office.n = nums(); }); } });
 } else setTimeout(() => begin(asked), 900);
 let last = performance.now();
 function frame(now) { tick(now); requestAnimationFrame(frame); }
